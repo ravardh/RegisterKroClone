@@ -1,1 +1,11 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+
+:root {
+    --primary: #4F46E5;
+    --primary-light: #A5B4FC;
+    --primary-hover: #4338CA;
+    --secondary: #6B7280;
+    --background: #F9FAFB;
+    --text: #111827;
+}
