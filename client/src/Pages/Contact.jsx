@@ -2,6 +2,7 @@ import React from 'react'
 import { RiHome2Line } from 'react-icons/ri'
 import { MdOutlinePhoneIphone } from 'react-icons/md'
 import { FiMail } from 'react-icons/fi'
+import CommonData from '../assets/common.json'
 
 const ContactForm = () => {
   return (
@@ -53,8 +54,8 @@ const ContactForm = () => {
               <RiHome2Line className="w-10 h-10 text-gray-400" />
             </div>
             <div className="grid">
-              <span>Buttonwood, California.</span>
-              <span className="text-gray-500">Rosemead, CA 91770</span>
+              <span>{CommonData.address.line1 + ", " + CommonData.address.city}</span>
+              <span className="text-gray-500">{CommonData.address.state}</span>
             </div>
           </div>
           <div className="flex h-fit gap-1">
@@ -62,8 +63,10 @@ const ContactForm = () => {
               <MdOutlinePhoneIphone className="w-10 h-10 text-gray-400" />
             </div>
             <div className="grid">
-              <span>+1 253 565 2365</span>
-              <span className="text-gray-500">Mon to Fri 9am to 6pm</span>
+              <span>{CommonData.phone}</span>
+              
+              <span className="text-gray-500">Every Day {CommonData.hours.weekdays}</span>
+
             </div>
           </div>
           <div className="flex h-fit gap-1">
@@ -71,7 +74,7 @@ const ContactForm = () => {
               <FiMail className="w-10 h-10 text-gray-400" />
             </div>
             <div className="grid">
-              <span>support@colorlib.com</span>
+              <span>{CommonData.emails.support}</span>
               <span className="text-gray-500">Send us your query anytime!</span>
             </div>
           </div>

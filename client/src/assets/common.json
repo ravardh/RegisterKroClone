@@ -24,8 +24,8 @@
     "youtube": "https://youtube.com/@registerkro"
   },
   "hours": {
-    "weekdays": "09:00 - 19:00",
-    "saturday": "10:00 - 16:00",
+    "weekdays": "09:00 AM - 07:00 PM",
+    "saturday": "10:00 AM - 04:00 PM",
     "sunday": "Closed"
   }
 }
