@@ -1,4 +1,6 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { FaFacebook, FaTwitter, FaLinkedin } from 'react-icons/fa'
 
 const Footer = () => {
   return (
@@ -17,20 +19,14 @@ const Footer = () => {
             </p>
 
             <div className="flex space-x-3 mt-4">
-              <a href="#" aria-label="Facebook" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300">
-                  <path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2v-2.9h2.2V9.4c0-2.2 1.3-3.5 3.3-3.5.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v1.5h2.2l-.3 2.9h-1.9v7A10 10 0 0022 12z" />
-                </svg>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
+                <FaFacebook className="text-gray-300 text-lg" />
               </a>
-              <a href="#" aria-label="Twitter" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300">
-                  <path d="M22 5.8c-.6.3-1.2.5-1.9.6a3.3 3.3 0 001.4-1.8 6.6 6.6 0 01-2.1.8 3.3 3.3 0 00-5.6 3c-2.8-.1-5.3-1.5-6.9-3.6A3.3 3.3 0 004.1 9c0 1 .5 1.9 1.2 2.4-.5 0-1-.1-1.5-.4v.1c0 1.6 1.1 3 2.6 3.3-.5.1-1 .2-1.5.1.4 1.3 1.6 2.3 3 2.3A6.6 6.6 0 012 19.5 9.3 9.3 0 007.2 21c6.2 0 9.6-5.2 9.6-9.6v-.4c.7-.5 1.3-1.1 1.8-1.8-.6.3-1.3.5-2 .6z" />
-                </svg>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
+                <FaTwitter className="text-gray-300 text-lg" />
               </a>
-              <a href="#" aria-label="LinkedIn" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300">
-                  <path d="M4.98 3.5A2.5 2.5 0 112.5 6a2.5 2.5 0 012.48-2.5zM3 8.98h4v12H3v-12zM9 8.98h3.8v1.6h.1c.5-.9 1.7-1.8 3.4-1.8 3.6 0 4.2 2.4 4.2 5.6v6.6h-4v-5.9c0-1.4 0-3.2-2-3.2-2 0-2.3 1.6-2.3 3.1v6h-4v-12z" />
-                </svg>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="p-2 bg-gray-800 rounded hover:bg-gray-700">
+                <FaLinkedin className="text-gray-300 text-lg" />
               </a>
             </div>
           </div>
@@ -39,27 +35,27 @@ const Footer = () => {
             <div>
               <h4 className="font-semibold mb-3">Company</h4>
               <ul className="text-sm text-gray-400 space-y-2">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Careers</a></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
+                <li><Link to="/about" className="hover:text-white">About</Link></li>
+                <li><Link to="/careers" className="hover:text-white">Careers</Link></li>
+                <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-3">Services</h4>
               <ul className="text-sm text-gray-400 space-y-2">
-                <li><a href="#" className="hover:text-white">Company Registration</a></li>
-                <li><a href="#" className="hover:text-white">GST Registration</a></li>
-                <li><a href="#" className="hover:text-white">Compliance</a></li>
+                <li><Link to="/services/company-registration" className="hover:text-white">Company Registration</Link></li>
+                <li><Link to="/services/gst-registration" className="hover:text-white">GST Registration</Link></li>
+                <li><Link to="/services/compliance" className="hover:text-white">Compliance</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-3">Support</h4>
               <ul className="text-sm text-gray-400 space-y-2">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white">FAQ</a></li>
+                <li><Link to="/help" className="hover:text-white">Help Center</Link></li>
+                <li><Link to="/contact" className="hover:text-white">Contact Us</Link></li>
+                <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
               </ul>
             </div>
           </div>
@@ -69,9 +65,9 @@ const Footer = () => {
           <div className="max-w-6xl mx-auto px-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
             <span>© {new Date().getFullYear()} RegisterKro. All rights reserved.</span>
             <div className="flex space-x-4 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white">Privacy</a>
-              <a href="#" className="hover:text-white">Terms</a>
-              <a href="#" className="hover:text-white">Sitemap</a>
+              <Link to="/privacy" className="hover:text-white">Privacy</Link>
+              <Link to="/terms" className="hover:text-white">Terms</Link>
+              <Link to="/sitemap" className="hover:text-white">Sitemap</Link>
             </div>
           </div>
         </div>

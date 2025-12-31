@@ -42,7 +42,7 @@ const ContactForm = () => {
                 type="submit"
                 className="border border-(--primary) text-(--primary) py-4 px-8 hover:bg-(--primary-hover) hover:text-white"
               >
-                SEND
+                Send
               </button>
             </div>
           </form>

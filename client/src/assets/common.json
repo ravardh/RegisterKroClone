@@ -1,0 +1,31 @@
+{
+  "companyName": "RegisterKro",
+  "tagline": "Simple, fast and reliable company registration, GST and compliance services.",
+  "address": {
+    "line1": "2nd Floor, Sector 62",
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "postalCode": "201309",
+    "country": "India"
+  },
+  "phones": {
+    "primary": "+91 98765 43210",
+    "secondary": "+91 91234 56789"
+  },
+  "emails": {
+    "support": "support@registerkro.com",
+    "sales": "sales@registerkro.com"
+  },
+  "social": {
+    "facebook": "https://facebook.com/registerkro",
+    "twitter": "https://twitter.com/registerkro",
+    "linkedin": "https://linkedin.com/company/registerkro",
+    "instagram": "https://instagram.com/registerkro",
+    "youtube": "https://youtube.com/@registerkro"
+  },
+  "hours": {
+    "weekdays": "09:00 - 19:00",
+    "saturday": "10:00 - 16:00",
+    "sunday": "Closed"
+  }
+}
