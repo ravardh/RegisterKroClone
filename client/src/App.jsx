@@ -13,11 +13,9 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
-        <header>
-          <Header />
-        </header>
+        <Header />
 
-        <main>
+        <main className="pt-16">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -28,9 +26,7 @@ const App = () => {
           </Routes>
         </main>
 
-        <footer>
-          <Footer />
-        </footer>
+        <Footer />
       </BrowserRouter>
     </>
   );
