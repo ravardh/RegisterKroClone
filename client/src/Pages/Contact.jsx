@@ -77,23 +77,23 @@ const ContactForm = () => {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-      <section className="contact-header bg-(--secondary) py-5 mb-10">
-        <div className="contact-header-wrapper flex py-5 mx-25 w-full">
-          <div className="contact-header-left max-w-1/2 text-white grid px-2.5 h-fit my-20">
-            <div className="contact-header-left-heading flex flex-col">
-              <h2 className="flex text-6xl font-bold my-2">
+      <section className="contact-header bg-[url('/hero.jpg')] opacity-90 -mt-16 bg-cover bg-center py-10 md:py-5 mb-10">
+        <div className="contact-header-wrapper flex flex-col lg:flex-row py-5 px-6 sm:px-12 md:px-20 lg:px-25 w-full gap-8 lg:gap-0">
+          <div className="contact-header-left w-full lg:max-w-1/2 text-white grid px-2.5 h-fit my-10 md:my-20 text-center lg:text-left">
+            <div className="contact-header-left-heading flex flex-col items-center lg:items-start">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold my-2">
                 Get Instant Support from Our Experts
               </h2>
-              <p className="mb-13 text-3xl">
+              <p className="mb-8 md:mb-13 text-lg sm:text-xl md:text-2xl lg:text-3xl">
                 Send us a quick message. We're here to help.
               </p>
             </div>
-            <div className="contact-header-details grid gap-5 w-fit">
-              <div className="flex h-fit gap-1">
+            <div className="contact-header-details grid gap-4 md:gap-5 w-fit lg:w-fit sm:mx-auto lg:mx-0 text-left">
+              <div className="flex h-fit gap-2 md:gap-3">
                 <div className="">
-                  <RiHome2Line className="w-10 h-10" />
+                  <RiHome2Line className="w-8 h-8 md:w-10 md:h-10" />
                 </div>
-                <div className="grid">
+                <div className="grid text-sm sm:text-base">
                   <span>
                     {CommonData.address.line1 + ", " + CommonData.address.city}
                   </span>
@@ -102,21 +102,21 @@ const ContactForm = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex h-fit gap-1">
+              <div className="flex h-fit gap-2 md:gap-3">
                 <div className="flex">
-                  <MdOutlinePhoneIphone className="w-10 h-10" />
+                  <MdOutlinePhoneIphone className="w-8 h-8 md:w-10 md:h-10" />
                 </div>
-                <div className="grid">
+                <div className="grid text-sm sm:text-base">
                   <span>{CommonData.phone}</span>
                   <span>Mon - Fri</span>
                   <span>{CommonData.hours.weekdays}</span>
                 </div>
               </div>
-              <div className="flex h-fit gap-1">
+              <div className="flex h-fit gap-2 md:gap-3">
                 <div className="">
-                  <FiMail className="w-10 h-10" />
+                  <FiMail className="w-8 h-8 md:w-10 md:h-10" />
                 </div>
-                <div className="grid">
+                <div className="grid text-sm sm:text-base">
                   <span>{CommonData.emails.support}</span>
                   <span className="text-white">
                     Send us your query anytime!
@@ -126,10 +126,10 @@ const ContactForm = () => {
             </div>
           </div>
 
-          <div className="contact-header-right p-5">
+          <div className="contact-header-right w-full lg:w-auto px-0 sm:px-5 py-5 md:py-10">
             <div className="contact-form max-w-lg mx-auto">
-              <form className="bg-(--background) rounded-2xl grid p-5 mx-10 gap-6" onSubmit={handleSubmit}>
-                <h2 className="text-2xl font-semibold text-center">
+              <form className="bg-(--background) rounded-2xl grid p-4 sm:p-5 md:p-6 mx-0 sm:mx-4 md:mx-10 gap-4 md:gap-6" onSubmit={handleSubmit}>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-center">
                   Something Didn't Go as Planned? Let's Fix It Together.
                 </h2>
 
@@ -147,8 +147,8 @@ const ContactForm = () => {
                   />
                 </div>
 
-                <div className="flex gap-6">
-                  <div className="w-1/2">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                  <div className="w-full sm:w-1/2">
                     <label className="block text-sm font-medium text-(--root) mb-1">
                       Email*
                     </label>
@@ -161,7 +161,7 @@ const ContactForm = () => {
                       className="border border-gray-300 p-3 text-gray-700 rounded-3xl w-full text-sm"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div className="w-full sm:w-1/2">
                     <label className="block text-sm font-medium text-(--root) mb-1">
                       Phone Number*
                     </label>
@@ -210,8 +210,8 @@ const ContactForm = () => {
         </div>
       </section>
 
-      <section className="location mx-39 py-5 px-0.5 mb-10">
-        <div className="loaction-heading text-(--primary) text-3xl font-bold mb-10 text-center ">
+      <section className="location px-6 sm:px-12 md:px-20 lg:px-39 py-5 mb-10">
+        <div className="loaction-heading text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-10 text-center ">
           Our Location
         </div>
         <div className="location-map">
@@ -219,7 +219,7 @@ const ContactForm = () => {
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d28018.57321108115!2d77.31823025881644!3d28.620120427859174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5456ef36d9f%3A0x3b7191b1286136c8!2sSector%2062%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1767250519672!5m2!1sen!2sin"
             className="border-0 w-full"
             width="100%"
-            height="400"
+            height="300"
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

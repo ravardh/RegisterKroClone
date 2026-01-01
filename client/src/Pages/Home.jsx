@@ -136,12 +136,12 @@ const Home = () => {
 
   return (
     <>
-      <section className="hero-section flex flex-col items-center justify-center h-screen bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
-        <div className="hero-content text-white px-50 py-10 text-center">
-          <h1 className="text-6xl font-semibold mb-4">
+      <section className="hero-section flex flex-col items-center justify-center h-screen -mt-16 bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
+        <div className="hero-content text-white px-6 sm:px-20 md:px-50 py-10 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
             Get Your Business Registered in 7 Days
           </h1>
-          <p className="text-2xl mb-8">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8">
             Fast, reliable, and tailored online business solutions with free
             expert consultation.
           </p>
@@ -152,15 +152,15 @@ const Home = () => {
       </section>
 
       <section className="services">
-        <div className="services-section py-20 bg-(--background)">
-          <h2 className="text-(--primary) text-4xl font-bold text-center mb-2">
+        <div className="services-section py-10 md:py-20 bg-(--background)">
+          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2">
             Our Services
           </h2>
-          <p className="text-(--secondary) text-xl text-center mb-12 w-1/2 mx-auto">
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-1/2 mx-auto px-4">
             One platform for legal consultation, business setup, compliance, and
             startup solutions built for businesses of every industry.
           </p>
-          <div className="relative mx-25">
+          <div className="relative px-6 sm:px-12 md:px-20 lg:px-25 mx-auto">
             <div className="services-grid grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
               {visibleServices.map((service, index) => (
                 <div
@@ -216,131 +216,131 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="process-section py-20 bg-[url('/process-bg.jpg')] bg-cover bg-center">
-        <div className="container mx-auto px-50">
-          <h2 className="text-(--primary) text-4xl font-bold text-center mb-4">
+      <section className="process-section py-10 md:py-20 bg-[url('/process-bg.jpg')] bg-cover bg-center">
+        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-50">
+          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Grow Your Business in Just a Few Clicks
           </h2>
-          <p className="text-(--secondary) text-xl text-center mb-16 w-2/3 mx-auto">
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-10 md:mb-16 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
             Simple, guided, and fully online—from application to completion, we handle everything for you.
           </p>
 
-          <div className="flex items-center gap-5 mb-20">
-            <div className="w-1/2">
+          <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 mb-12 md:mb-20">
+            <div className="w-full md:w-1/2">
               <img src={Step1} alt="Choose a Service" className="rounded-2xl shadow-lg w-100 h-auto" />
             </div>
-            <div className="w-1/2">
-              <div className="grid items-center gap-4 mb-4">
-                <span className="flex items-center justify-center w-16 h-16 text-2xl font-medium text-white bg-(--primary) rounded-full">1</span>
-                <h3 className="text-3xl font-semibold text-(--text)">
+            <div className="w-full md:w-1/2">
+              <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 text-xl md:text-2xl font-medium text-white bg-(--primary) rounded-full shrink-0">1</span>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Choose a Service & Submit Your Application
                 </h3>
               </div>
-              <ul className="space-y-3 text-lg text-(--secondary) mb-6">
+              <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Select the service you need from our platform</li>
                 <li>• Fill in a quick and simple application form</li>
                 <li>• Share only essential details—no complexity</li>
                 <li>• Your information stays safe, secure, and private</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
                 Start Application <FaArrowRightLong />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-12 mb-20">
-            <div className="w-1/2">
-              <div className="grid items-center gap-4 mb-4">
-                <span className="flex items-center justify-center w-16 h-16 rounded-full bg-(--primary) text-white text-2xl font-medium">2</span>
-                <h3 className="text-3xl font-semibold text-(--text)">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
+            <div className="w-full md:w-1/2">
+              <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">2</span>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Lead Generation & Manager Assignment
                 </h3>
               </div>
-              <ul className="space-y-3 text-lg text-(--secondary) mb-6">
+              <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Your application instantly creates a lead in our system</li>
                 <li>• An experienced Relationship Manager (RM) is assigned to you</li>
                 <li>• Your RM becomes your single point of contact</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
                 Proceed <FaArrowRightLong />
               </button>
             </div>
-            <div className="w-1/2">
+            <div className="w-full md:w-1/2">
               <img src={Step2} alt="Lead Generation" className="rounded-2xl shadow-lg w-100 h-auto" />
             </div>
           </div>
 
-          <div className="flex items-center gap-12 mb-20">
-            <div className="w-1/2">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
+            <div className="w-full md:w-1/2">
               <img src={Step3} alt="Document Collection" className="rounded-2xl shadow-lg w-100 h-auto" />
             </div>
-            <div className="w-1/2">
-              <div className="grid items-center gap-4 mb-4">
-                <span className="flex items-center justify-center w-16 h-16 rounded-full bg-(--primary) text-white text-2xl font-medium">3</span>
-                <h3 className="text-3xl font-semibold text-(--text)">
+            <div className="w-full md:w-1/2">
+              <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">3</span>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Document Collection & Expert Handling
                 </h3>
               </div>
-              <ul className="space-y-3 text-lg text-(--secondary) mb-6">
+              <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Your RM contacts you personally</li>
                 <li>• Required documents are collected and verified</li>
                 <li>• Experts take care of filings, compliance, and processing</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
                 Continue <FaArrowRightLong />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-12">
-            <div className="w-1/2">
-              <div className="grid items-center gap-4 mb-4">
-                <span className="flex items-center justify-center w-16 h-16 rounded-full bg-(--primary) text-white text-2xl font-medium">4</span>
-                <h3 className="text-3xl font-semibold text-(--text)">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
+            <div className="w-full md:w-1/2">
+              <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">4</span>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Track Progress & Get Confirmation
                 </h3>
               </div>
-              <ul className="space-y-3 text-lg text-(--secondary) mb-6">
+              <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Lead status is updated at every stage</li>
                 <li>• Track your application anytime via our tracking dashboard</li>
                 <li>• Receive confirmations, updates, and documents on email</li>
                 <li>• Get expert support whenever you need it</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
                 Track Application <FaArrowRightLong />
               </button>
             </div>
-            <div className="w-1/2">
+            <div className="w-full md:w-1/2">
               <img src={Step4} alt="Track Progress" className="rounded-2xl shadow-lg w-100 h-auto" />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="cta-section m-20 py-8 bg-[url('/hero.jpg')] rounded-2xl opacity-90 bg-cover bg-center">
-        <div className="container flex items-center justify-between mx-auto px-25 gap-2">
-          <div className="flex-1">
-            <h2 className="text-white text-2xl font-bold mb-3">
+      <section className="cta-section mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.jpg')] rounded-2xl opacity-90 bg-cover bg-center">
+        <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-20 lg:px-25 gap-4 md:gap-2">
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-white text-xl sm:text-2xl md:text-2xl font-bold mb-2 md:mb-3">
               Have Questions? Speak with Our Experts
             </h2>
-            <p className="text-white text-lg">
+            <p className="text-white text-sm sm:text-base md:text-lg">
               Get tailored advice on business registration, legal requirements, and compliance from our seasoned professional available to assist you anytime.
             </p>
           </div>
-          <div className="ml-8">
-            <button className="bg-(--primary) text-white px-8 py-4 rounded-2xl text-lg font-medium hover:bg-(--primary-hover) transition whitespace-nowrap">
+          <div className="md:ml-8">
+            <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl text-base md:text-lg font-medium hover:bg-(--primary-hover) transition whitespace-nowrap">
               Call Us Now
             </button>
           </div>
         </div>
       </section>
 
-      <section className="reviews-section py-20 bg-(--background)">
-        <div className="container mx-auto px-25">
-          <h2 className="text-(--primary) text-4xl font-bold text-center mb-4">
+      <section className="reviews-section py-10 md:py-20 bg-(--background)">
+        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
+          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             What Our Clients Say
           </h2>
-          <p className="text-(--secondary) text-xl text-center mb-12 w-2/3 mx-auto">
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
             Trusted by thousands of businesses across the country. Here's what they have to say about our services.
           </p>
 
