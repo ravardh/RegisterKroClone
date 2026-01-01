@@ -6,8 +6,8 @@ import CommonData from "../assets/common.json";
 const Footer = () => {
   return (
     <div>
-      <footer className="bg-gray-900 text-gray-200 py-12">
-        <div className="ml-10 flex gap-50 px-6 md:flex md:justify-between md:items-start">
+      <footer className="bg-gray-900 text-gray-200 py-8 md:py-12">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 px-4 md:px-6 md:justify-between md:items-start">
           <div className="mb-8 md:mb-0 md:w-1/3">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-bold text-white">
@@ -125,12 +125,12 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 border-t border-gray-800 pt-6">
-          <div className="max-w-8xl mx-auto px-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
-            <span>
+          <div className="mx-auto px-4 md:px-6 text-xs md:text-sm text-gray-500 flex flex-col gap-4 md:gap-0 md:flex-row md:justify-between md:items-center text-center md:text-left">
+            <span className="order-3 md:order-1 w-full md:w-auto">
               © {new Date().getFullYear()} {CommonData.companyName}. All rights
               reserved.
             </span>
-            <div className="flex space-x-4 mt-4 md:mt-0">
+            <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start order-2 md:order-2">
               <Link to="/privacy" className="hover:text-white">
                 Privacy
               </Link>
@@ -141,7 +141,7 @@ const Footer = () => {
                 Sitemap
               </Link>
             </div>
-            <div>
+            <div className="order-1 md:order-3 text-xs md:text-sm">
               Developed by{" "}
               <a
                 href="https://www.linkedin.com/in/ravardh/"
@@ -153,7 +153,7 @@ const Footer = () => {
               </a>
               ,{" "}
               <a
-                href="https://www.linkedin.com/in/ravardh/"
+                href="https://www.linkedin.com/in/loveleshrathore/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-white"
@@ -162,7 +162,7 @@ const Footer = () => {
               </a>{" "}
               and{" "}
               <a
-                href="https://www.linkedin.com/in/ravardh/"
+                href="https://www.linkedin.com/in/porwalaastha/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-white"
