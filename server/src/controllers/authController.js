@@ -1,6 +1,6 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
-export const register = async (req, res, next) => {
+export const Register = async (req, res, next) => {
   try {
     const { fullName, email, phone, password } = req.body;
 
@@ -33,7 +33,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-export const login = async (req, res, next) => {
+export const Login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -64,7 +64,7 @@ export const login = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res, next) => {
+export const Logout = (req, res, next) => {
   try {
     //remainig logic after implementing sessions or tokens
     res.status(200).json({ message: "Logout successful" });
