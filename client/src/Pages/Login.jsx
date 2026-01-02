@@ -1,7 +1,58 @@
 import React from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [error, setError] = useState({});
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validate = () => {
+    let isValid = true;
+    const error = {};
+    if (!/^[a-zA-Z0-9._]+@gmail.com$/.test(loginData.email)) {
+      error.email = "Email must be a valid Gmail address";
+      isValid = false;
+    }
+    if (!loginData.password || loginData.password.length < 6) {
+      error.password = "Password must be at least 6 characters long";
+      isValid = false;
+    }
+
+    setError(error);
+    return isValid;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
+    try {
+      console.log("Login Data Submitted:", loginData);
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+
+    setLoginData({
+      email: "",
+      password: "",
+    });
+  };
+
   return (
     <div>
       <div className="min-h-screen flex items-center justify-center bg-(--root) px-4">
@@ -15,18 +66,24 @@ const Login = () => {
             </p>
           </div>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-(--root) mb-1">
                 Email
               </label>
               <input
                 type="email"
+                id="email"
                 name="email"
+                value={loginData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
                 className="w-full px-4 py-2 border rounded-md input-focus"
               />
             </div>
+            {error.email && (
+              <div className="text-sm text-red-500 mt-1">{error.email}</div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-(--root) mb-1">
@@ -34,11 +91,17 @@ const Login = () => {
               </label>
               <input
                 type="password"
+                id="password"
                 name="password"
+                value={loginData.password}
+                onChange={handleChange}
                 placeholder="••••••••"
                 className="w-full px-4 py-2 border rounded-md input-focus"
               />
             </div>
+            {error.password && (
+              <div className="text-sm text-red-500 mt-1">{error.password}</div>
+            )}
 
             <div className="flex items-center justify-between text-sm">
               <label className="inline-flex items-center">
@@ -58,7 +121,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div class="relative my-6 h-0.5 border-t-0 bg-transparent bg-linear-to-r from-transparent via-neutral-900 to-transparent opacity-75 dark:via-neutral-400">
+          <div className="relative my-6 h-0.5 border-t-0 bg-transparent bg-linear-to-r from-transparent via-neutral-900 to-transparent opacity-75 dark:via-neutral-400">
             <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-(--background) px-2">
               OR
             </span>
