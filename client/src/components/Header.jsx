@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-(--background) shadow-md fixed top-0 left-0 right-0 z-50">
+      <header className="bg-(--background) shadow-md fixed top-2 left-0 right-0 z-50 max-w-7xl mx-auto rounded-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="shrink-0">
