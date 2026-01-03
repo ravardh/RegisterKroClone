@@ -16,7 +16,7 @@ const Layout = () => {
 
   return (
     <>
-      {!isDashboard && <Header />}
+      <Header />
 
       <main className={!isDashboard ? "pt-16" : ""}>
         <Routes>
