@@ -10,6 +10,7 @@ const Header = () => {
     { name: "About", to: "/about" },
     { name: "Services", to: "/services" },
     { name: "Contact", to: "/contact" },
+    { name: "Track Status", to: "/trackStatus" }
   ];
 
   return (
@@ -27,7 +28,7 @@ const Header = () => {
               {navLinks.map((link) => (
                 <Link
                   to={link.to}
-                  className="text-gray-700 hover:text-(--primary-hover) font-medium"
+                  className="text-(--text) hover:text-(--primary-hover) font-medium"
                 >
                   {link.name}
                 </Link>
