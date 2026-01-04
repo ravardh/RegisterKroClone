@@ -25,17 +25,7 @@ const TrackStatus = () => {
         <div className="w-full">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 mb-8 lg:mb-12">
-      
-              <section className="text-center lg:text-left space-y-4 rounded-2xl p-6 md:p-8 w-full lg:w-auto">
-                <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-white/80">Live tracking</p>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
-                  Track your application
-                </h1>
-                <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-                  Enter your tracking ID to check the latest status of your application instantly.
-                </p>
-              </section>
-
+              
               <section className="w-full max-w-md">
                 <div className="bg-white/90 rounded-2xl shadow-2xl p-6 md:p-10 border border-black">
                   <form onSubmit={handleGetStatus} className="space-y-6">
@@ -58,6 +48,18 @@ const TrackStatus = () => {
                   </form>
                 </div>
               </section>
+
+              <section className="text-center lg:text-left space-y-4 rounded-2xl p-6 md:p-8 w-full lg:w-auto">
+                <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-white/80">Live tracking</p>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
+                  Track your application
+                </h1>
+                <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
+                  Enter your tracking ID to check the latest status of your application instantly.
+                </p>
+              </section>
+              
+              
             </div>
 
             {showProgress && (
