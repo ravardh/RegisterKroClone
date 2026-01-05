@@ -1,5 +1,5 @@
 {
-  "companyName": "RegisterKro",
+  "companyName": "TaxPro Solutions",
   "tagline": "Simple, fast and reliable company registration, GST and compliance services.",
   "address": {
     "line1": "2nd Floor, Sector 62",
@@ -9,19 +9,19 @@
     "country": "India"
   },
   "phones": {
-    "primary": "+91 98765 43210",
-    "secondary": "+91 91234 56789"
+    "primary": "+91 7999618394",
+    "secondary": "+91 7999618394"
   },
   "emails": {
-    "support": "support@registerkro.com",
-    "sales": "sales@registerkro.com"
+    "support": "support@taxprosolutions.com",
+    "sales": "sales@taxprosolutions.com"
   },
   "social": {
-    "facebook": "https://facebook.com/registerkro",
-    "twitter": "https://twitter.com/registerkro",
-    "linkedin": "https://linkedin.com/company/registerkro",
-    "instagram": "https://instagram.com/registerkro",
-    "youtube": "https://youtube.com/@registerkro"
+    "facebook": "https://facebook.com/taxprosolutions",
+    "twitter": "https://twitter.com/taxprosolutions",
+    "linkedin": "https://linkedin.com/company/taxprosolutions",
+    "instagram": "https://instagram.com/taxprosolutions",
+    "youtube": "https://youtube.com/@taxprosolutions"
   },
   "hours": {
     "weekdays": "09:00 AM - 07:00 PM",
