@@ -28,11 +28,6 @@ const leadsSchema = mongoose.Schema(
       enum: ["new", "contacted", "qualified", "converted", "unqualified"],
       default: "new",
     },
-    leadID: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

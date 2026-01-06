@@ -22,17 +22,17 @@ const trackingSchema = mongoose.Schema(
           enum: ["pending", "in-progress", "completed"],
           default: "pending",
         },
+        updatedby: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
         updatedAt: {
           type: Date,
           default: Date.now,
         },
       },
     ],
-    updatedby: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
   },
   {
     timestamps: true,

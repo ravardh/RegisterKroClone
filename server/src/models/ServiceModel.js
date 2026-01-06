@@ -15,6 +15,15 @@ const serviceSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    shortDescription: {
+      type: String,
+      required: true,
+    },
+    topPointers: [
+      {
+        type: String,
+      },
+    ],
     description: {
       type: String,
       required: true,

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { resolveContent } from "nodemailer/lib/shared";
 
 const userSchema = mongoose.Schema(
   {
@@ -23,7 +22,7 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["rm", "admin"],
+      enum: ["rm", "SuperAdmin", "admin"],
       default: "rm",
     },
   },
