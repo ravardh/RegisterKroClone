@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Services = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -179,6 +181,12 @@ const Services = () => {
     setIsModalOpen(false);
     setSelectedCategory(null);
     setSelectedSubCategory(null);
+  };
+
+  const handleServiceClick = (serviceName) => {
+    // Convert service name to URL-friendly slug
+    const serviceSlug = serviceName.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '');
+    navigate(`/service/${serviceSlug}`);
   };
 
   useEffect(() => {
