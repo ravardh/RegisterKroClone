@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import { MdClose } from 'react-icons/md'
+import axios from '../../../config/api'
 
-const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
+const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
-    phone: '',
-    employeeId: ''
+    phone: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -15,24 +17,30 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
       ...prev,
       [name]: value
     }))
+    setError('')
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (formData.name && formData.email && formData.phone) {
-      const newManager = {
-        id: Date.now(),
-        ...formData,
-        addedDate: new Date().toLocaleDateString()
+    setLoading(true)
+    setError('')
+    
+    try {
+      const res = await axios.post('/admin/create-rm', formData)
+      if (res.data.data) {
+        onAddManager(res.data.data)
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: ''
+        })
+        onClose()
       }
-      onAddManager(newManager)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        employeeId: ''
-      })
-      onClose()
+    } catch (error) {
+      console.error('Error creating RM:', error)
+      setError(error.response?.data?.message || 'Failed to create relationship manager')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -53,6 +61,11 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
         
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -60,8 +73,8 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
               </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="Enter full name"
@@ -101,20 +114,6 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
               />
             </div>
 
-            {/* Employee ID Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employee ID
-              </label>
-              <input
-                type="text"
-                name="employeeId"
-                value={formData.employeeId}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="EMP-001"
-              />
-            </div>
           </div>
 
           
@@ -122,15 +121,17 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition duration-200"
+              disabled={loading}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition duration-200 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-lg font-medium transition duration-200"
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-lg font-medium transition duration-200 disabled:opacity-50"
             >
-              Add Manager
+              {loading ? 'Adding...' : 'Add Manager'}
             </button>
           </div>
         </form>
@@ -139,4 +140,4 @@ const AddJobModal = ({ isOpen, onClose, onAddManager }) => {
   )
 }
 
-export default AddJobModal
+export default AddRmModal
