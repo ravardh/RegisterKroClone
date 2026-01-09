@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IoMenuSharp, IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import CommonData from "../assets/common.json";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,13 +21,14 @@ const Header = () => {
           <div className="flex justify-between items-center h-16">
             <div className="shrink-0">
               <Link to="/" className="text-2xl font-bold text-(--primary)">
-                RegisterKaro
+                {CommonData.companyName}
               </Link>
             </div>
 
             <nav className="hidden md:flex space-x-8">
               {navLinks.map((link) => (
                 <Link
+                  key={link.name}
                   to={link.to}
                   className="text-(--text) hover:text-(--primary-hover) font-medium"
                 >
