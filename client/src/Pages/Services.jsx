@@ -200,7 +200,7 @@ const Services = () => {
 
   return (
     <>
-      <div className="bg-linear-to-r from-blue-50 to-sky-50 py-10 px-4 sm:px-8 md:px-12 lg:px-20 min-h-screen -mt-16">
+      <div className="bg-linear-to-r from-blue-50 to-sky-50 py-10 px-4 sm:px-8 md:px-12 lg:px-20 min-h-screen -mt-20">
         {/* Statistics Carousel Header */}
       <div className="bg-(--primary) mt-16 py-4 px-4 sm:px-8 rounded-2xl shadow-lg">
         <div className="sm:max-w-3xl md:max-w-7xl mx-auto">

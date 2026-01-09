@@ -19,7 +19,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     };
   return (
     <>
-      <div className="w-1/5 h-screen shadow-2xl fixed top-0 left-0 flex flex-col overflow-y-auto scrollbar-hide" style={{ backgroundColor: 'var(--primary)' }}>
+      <div className="w-1/5 h-full shadow-2xl flex flex-col overflow-y-auto scrollbar-hide bg-[url('/hero.jpg')] bg-cover" >
         <div className="p-6 flex-1 overflow-y-auto">
           <div className="mb-8 mt-4">
             <h1 className="text-2xl font-bold text-white mb-1">

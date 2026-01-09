@@ -242,7 +242,7 @@ const ServiceDetail = () => {
   };
 
   return (
-    <div className="bg-(--background) -mt-16">
+    <div className="bg-(--background) -mt-20">
 
       {/* Hero Section */}
       <div className="bg-linear-to-r from-amber-50 to-blue-100 min-h-screen text-(--text) pt-16">

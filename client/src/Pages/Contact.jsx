@@ -77,7 +77,7 @@ const ContactForm = () => {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-      <section className="contact-header bg-[url('/hero.jpg')] opacity-90 -mt-16 bg-cover bg-center py-10 md:py-5 mb-10">
+      <section className="contact-header bg-[url('/hero.jpg')] opacity-90 -mt-20 bg-cover bg-center py-10 md:py-5 mb-10">
         <div className="contact-header-wrapper flex flex-col justify-between lg:flex-row py-5 px-6 sm:px-12 md:px-20 lg:px-25 w-full gap-8 lg:gap-0">
           <div className="contact-header-left w-full lg:max-w-1/2 text-white grid px-2.5 h-fit my-10 md:my-20 text-center lg:text-left">
             <div className="contact-header-left-heading flex flex-col items-center lg:items-start">

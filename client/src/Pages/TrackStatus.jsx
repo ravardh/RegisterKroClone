@@ -20,7 +20,7 @@ const TrackStatus = () => {
   }
 
   return (
-    <div className="bg-[url('hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-16">
+    <div className="bg-[url('hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
       <div className="w-full px-4 md:px-8 lg:px-10 flex items-center min-h-screen py-8">
         <div className="w-full">
           <div className="max-w-5xl mx-auto">
@@ -72,7 +72,7 @@ const TrackStatus = () => {
                       <div key={stage.id} className="flex md:flex-col items-start md:items-center flex-1 w-full md:w-auto">
                         <div className="flex md:flex-col items-center md:items-center md:mb-3 w-auto md:w-full relative">
                           <div
-                            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold transition-all duration-300 z-10 flex-shrink-0 ${
+                            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold transition-all duration-300 z-10 shrink-0 ${
                               index < currentStage
                                 ? 'bg-green-500 text-white scale-110'
                                 : index === currentStage

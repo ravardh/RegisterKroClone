@@ -11,10 +11,10 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   return (
     <>
-      <div className="flex min-h-screen overflow-hidden" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="flex h-[90vh] overflow-hidden bg-[--background)]"> 
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <div className="w-4/5 h-full overflow-auto scrollbar-hide right-0 ml-auto">
+        <div className="w-4/5 h-[90vh] overflow-auto scrollbar-hide right-0 ml-auto">
           {activeTab === "dashboard" && <Dashboard />}
           {activeTab === "applications" && <Applications />}
           {activeTab === "assignments" && <Assignments />}

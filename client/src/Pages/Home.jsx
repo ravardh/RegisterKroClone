@@ -136,7 +136,7 @@ const Home = () => {
 
   return (
     <>
-      <section className="hero-section flex flex-col items-center justify-center h-screen -mt-16 bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
+      <section className="hero-section flex flex-col items-center justify-center h-screen -mt-20 bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
         <div className="hero-content text-white px-6 sm:px-20 md:px-50 py-10 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
             Get Your Business Registered in 7 Days

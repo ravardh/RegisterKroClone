@@ -1,36 +1,50 @@
 import React, { useState } from "react";
 import { IoMenuSharp, IoClose } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import CommonData from "../assets/common.json";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const isDashboard = location.pathname === "/adminDashboard";
 
   const navLinks = [
     { name: "Home", to: "/" },
     { name: "About", to: "/about" },
     { name: "Services", to: "/services" },
     { name: "Contact", to: "/contact" },
-    { name: "Track Status", to: "/trackStatus" }
+    { name: "Track Status", to: "/trackStatus" },
   ];
 
   return (
     <>
-      <header className="bg-(--background) shadow-md fixed top-2 left-0 right-0 z-50 max-w-7xl mx-auto rounded-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <header
+        className={`sticky z-50 w-[90%] mx-auto ${
+          isDashboard
+            ? "bg-[url('hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
+            : "bg-white top-2 rounded-2xl mb-4 shadow-md"
+        }`}
+      >
+        <div
+          className={`relative ${
+            isDashboard
+              ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white"
+              : "px-3 sm:px-4 md:px-6 lg:px-8"
+          }`}
+        >
+          <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="shrink-0">
-              <Link to="/" className="text-2xl font-bold text-(--primary)">
+              <Link to="/" className="text-lg sm:text-xl md:text-2xl font-bold text-(--primary)">
                 {CommonData.companyName}
               </Link>
             </div>
 
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-4 lg:space-x-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.to}
-                  className="text-(--text) hover:text-(--primary-hover) font-medium"
+                  className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
                 >
                   {link.name}
                 </Link>
@@ -41,7 +55,11 @@ const Header = () => {
             <div className="hidden md:block">
               <Link
                 to="/login"
-                className="bg-(--primary) text-white px-6 py-2 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium"
+                className={`px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base ${
+                  isDashboard
+                    ? "bg-white text-indigo-600 hover:bg-indigo-50"
+                    : "bg-(--primary) text-white hover:bg-(--primary-hover)"
+                }`}
               >
                 Login
               </Link>
@@ -49,25 +67,25 @@ const Header = () => {
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-700 hover:text-(--primary) hover:bg-gray-100 focus:outline-none"
+              className="md:hidden p-1.5 sm:p-2 rounded-md focus:outline-none text-gray-700 hover:text-(--primary) hover:bg-gray-100"
             >
               {isMenuOpen ? (
-                <IoClose className="h-6 w-6" />
+                <IoClose className="h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <IoMenuSharp className="h-6 w-6" />
+                <IoMenuSharp className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Floating/Absolute */}
           {isMenuOpen && (
-            <div className="md:hidden pb-4">
-              <div className="flex flex-col space-y-3">
+            <div className="absolute top-full left-0 right-0 mt-2 md:hidden bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
+              <div className="flex flex-col p-3 sm:p-4 space-y-1">
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.to}
-                    className="text-gray-700 hover:text-(--primary) transition-colors duration-200 font-medium px-2 py-2"
+                    className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {link.name}
@@ -76,7 +94,7 @@ const Header = () => {
 
                 <Link
                   to="/login"
-                  className="bg-(--primary) text-white px-6 py-2 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center"
+                  className="bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base mt-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
