@@ -19,16 +19,16 @@ const Header = () => {
   return (
     <>
       <header
-        className={`sticky z-50 w-[90%] mx-auto ${
+        className={`sticky z-50 ${
           isDashboard
             ? "bg-[url('hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
-            : "bg-white top-2 rounded-2xl mb-4 shadow-md"
+            : "bg-white top-2 rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
         }`}
       >
         <div
           className={`relative ${
             isDashboard
-              ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white"
+              ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
               : "px-3 sm:px-4 md:px-6 lg:px-8"
           }`}
         >

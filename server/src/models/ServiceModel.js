@@ -3,11 +3,13 @@ import mongoose from "mongoose";
 const serviceSchema = mongoose.Schema(
   {
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
     subCategory: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubCategory",
       required: true,
     },
     serviceName: {
@@ -28,7 +30,23 @@ const serviceSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    LastEditedBy: {
+    faqs: [
+      {
+        question: {
+          type: String,
+          required: true,
+        },
+        answer: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastEditedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

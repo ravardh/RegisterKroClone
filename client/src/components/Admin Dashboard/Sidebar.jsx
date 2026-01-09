@@ -8,9 +8,10 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: FaChartBar },
     { id: "relationshipManagers", label: "Relationship Managers", icon: FaUser },
-    { id: "assignments", label: "Assignments", icon: FaClipboardList },
-    { id: "applications", label: "Applications", icon: FaBookmark },
+    { id: "leads", label: "Leads", icon: FaClipboardList },
+    { id: "category", label: "Category", icon: FaClipboardList },
     { id: "services", label: "Services", icon: FaBriefcase },
+    { id: "contact", label: "Contact", icon: FaBookmark },
   ];
 
     const handleLogout = () => {
@@ -37,9 +38,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1"
                 }`}
               >
-                {activeTab === item.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#4F46E5] rounded-r-full"></div>
-                )}
+                
                 <item.icon className={`w-5 h-5 mr-3 transition-transform duration-200 ${
                   activeTab === item.id ? "scale-110" : "group-hover:scale-110"
                 }`} />
