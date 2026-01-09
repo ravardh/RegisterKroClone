@@ -4,7 +4,7 @@ import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const ServiceDetail = () => {
-  const { serviceId } = useParams();
+  const { category, subcategory, service } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -183,10 +183,12 @@ const Services = () => {
     setSelectedSubCategory(null);
   };
 
-  const handleServiceClick = (serviceName) => {
-    // Convert service name to URL-friendly slug
-    const serviceSlug = serviceName.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '');
-    navigate(`/service/${serviceSlug}`);
+  const handleServiceClick = (categoryName, subCategoryName, serviceName) => {
+    // Convert to URL-friendly slugs
+    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
+    const subCategorySlug = subCategoryName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
+    const serviceSlug = serviceName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
+    navigate(`/services/${categorySlug}/${subCategorySlug}/${serviceSlug}`);
   };
 
   useEffect(() => {
@@ -326,6 +328,7 @@ const Services = () => {
                       {servicesData[selectedCategory][selectedSubCategory].map((service, index) => (
                         <div
                           key={index}
+                          onClick={() => handleServiceClick(selectedCategory, selectedSubCategory, service)}
                           className="bg-white p-2 sm:p-3 md:p-4 hover:underline hover:underline-offset-2 text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer"
                         >
                           <p className="hover:text-(--primary) font-medium text-sm sm:text-base">{service}</p>
