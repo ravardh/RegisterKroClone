@@ -1,7 +1,19 @@
-import User from "../models/User.js";
+import User from "../models/userModel.js";
 
 export const getAllLeads = (req, res) => {
   res.send("Get All Leads endpoint");
+};
+
+export const getRm = async (req, res, next) => {
+  try {
+    const rms = await User.find({ role: "rm" }).select("-password");
+    res.status(200).json({
+      message: "Relationship Managers fetched successfully",
+      data: rms
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 export const createRm = async (req, res, next) => {
   try {
@@ -17,19 +29,48 @@ export const createRm = async (req, res, next) => {
       fullName,
       email,
       phone,
+      password: "Rm123",
       role: "rm",
     });
 
+    console.log("New RM created:", newRm);
+
     res.status(201).json({
-      message: "Relationship Manager created successfully"
+      message: "Relationship Manager created successfully",
+      data: newRm
     });
   }
   catch (error) {
     next(error)
   }
 };
-export const deleteRm = (req, res) => {
-  res.send("Delete RM endpoint");
+export const deleteRm = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("RM ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const deletedRm = await User.findByIdAndDelete(id);
+
+    if (!deletedRm) {
+      const error = new Error("Relationship Manager not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    console.log("RM deleted:", deletedRm);
+
+    res.status(200).json({
+      message: "Relationship Manager deleted successfully",
+      data: deletedRm
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 export const updateRm = (req, res) => {
   res.send("Update RM endpoint");
