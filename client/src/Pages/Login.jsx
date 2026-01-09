@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import axios from "axios";
+import axios from "../config/api";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -42,7 +42,9 @@ const Login = () => {
     }
 
     try {
-      console.log("Login Data Submitted:", loginData);
+      const res = await axios.post("/auth/login", loginData);
+      toast.success("Login successful!");
+      res.data.data.role === "SuperAdmin" ? navigate("/adminDashboard") : null;
     } catch (error) {
       console.error("Error during login:", error);
     }

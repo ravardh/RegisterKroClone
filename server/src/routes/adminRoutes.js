@@ -16,6 +16,7 @@ import {
   updateCategory,
   deleteCategory,
   getAllSubCategories,
+  getAllSubCategoriesbyCategory,
   createSubCategory,
   updateSubCategory,
   deleteSubCategory,
@@ -45,6 +46,7 @@ router.delete("/categories/:id", deleteCategory);
 
 // SubCategory CRUD routes
 router.get("/subcategories-list", getAllSubCategories);
+router.get("/subcategories-list/:category", getAllSubCategoriesbyCategory);
 router.post("/subcategories", createSubCategory);
 router.put("/subcategories/:id", updateSubCategory);
 router.delete("/subcategories/:id", deleteSubCategory);

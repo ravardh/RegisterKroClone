@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
 import { connectDB } from "./src/config/db.js";
 
 import AuthRoutes from "./src/routes/authRoutes.js";
@@ -17,6 +18,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
 
 // Example route
 app.use("/auth", AuthRoutes);

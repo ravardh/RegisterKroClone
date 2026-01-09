@@ -1,192 +1,215 @@
-import React, { useState, useEffect } from 'react'
-import { MdClose, MdAdd, MdDelete } from 'react-icons/md'
-import axios from '../../../config/api'
+import React, { useState, useEffect } from "react";
+import { MdClose, MdAdd, MdDelete } from "react-icons/md";
+import axios from "../../../config/api";
 
-const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null }) => {
-  const [categories, setCategories] = useState([])
-  const [subCategories, setSubCategories] = useState([])
+const AddServiceModal = ({
+  isOpen,
+  onClose,
+  onAddService,
+  editingService = null,
+}) => {
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [formData, setFormData] = useState({
-    category: '',
-    subCategory: '',
-    serviceName: '',
-    shortDescription: '',
-    topPointers: [''],
-    description: ''
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [showNewCategory, setShowNewCategory] = useState(false)
-  const [showNewSubCategory, setShowNewSubCategory] = useState(false)
-  const [newCategory, setNewCategory] = useState('')
-  const [newSubCategory, setNewSubCategory] = useState('')
+    category: "",
+    subCategory: "",
+    serviceName: "",
+    shortDescription: "",
+    topPointers: [""],
+    description: "",
+  });
+  const [subEnabled, setSubEnabled] = useState(false);
+  const [fieldsEnabled, setFieldsEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showNewSubCategory, setShowNewSubCategory] = useState(false);
+  const [newSubCategory, setNewSubCategory] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      fetchCategories()
+      fetchCategories();
+      setSubEnabled(false);
+      setFieldsEnabled(false);
+      setShowNewSubCategory(false);
+      setNewSubCategory("");
       if (editingService) {
         setFormData({
           category: editingService.category,
           subCategory: editingService.subCategory,
           serviceName: editingService.serviceName,
           shortDescription: editingService.shortDescription,
-          topPointers: editingService.topPointers.length > 0 ? editingService.topPointers : [''],
-          description: editingService.description
-        })
+          topPointers:
+            editingService.topPointers.length > 0
+              ? editingService.topPointers
+              : [""],
+          description: editingService.description,
+        });
+        setSubEnabled(true);
+        setFieldsEnabled(true);
       }
     }
-  }, [isOpen, editingService])
+  }, [isOpen, editingService]);
 
   useEffect(() => {
     if (formData.category) {
-      fetchSubCategories(formData.category)
+      fetchSubCategories(formData.category);
     }
-  }, [formData.category])
+  }, [formData.category]);
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/admin/categories')
-      setCategories(res.data.data || [])
+      const res = await axios.get("/admin/categories-list");
+      setCategories(res.data.data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error)
+      console.error("Error fetching categories:", error);
     }
-  }
+  };
 
   const fetchSubCategories = async (category) => {
     try {
-      const res = await axios.get(`/admin/subcategories?category=${category}`)
-      setSubCategories(res.data.data || [])
+      const res = await axios.get(
+        `/admin/subcategories-list?categoryId=${category}`
+      );
+      setSubCategories(res.data.data || []);
     } catch (error) {
-      console.error('Error fetching subcategories:', error)
+      console.error("Error fetching subcategories:", error);
     }
-  }
+  };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-    setError('')
-  }
+      [name]: value,
+    }));
+    setError("");
+  };
 
   const handleCategoryChange = (e) => {
-    const value = e.target.value
-    if (value === 'new') {
-      setShowNewCategory(true)
-      setFormData(prev => ({ ...prev, category: '', subCategory: '' }))
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, category: value, subCategory: "" }));
+    setError("");
+    if (value) {
+      setSubEnabled(true);
+      setFieldsEnabled(false);
+      fetchSubCategories(value);
     } else {
-      setShowNewCategory(false)
-      setNewCategory('')
-      setFormData(prev => ({ ...prev, category: value, subCategory: '' }))
+      setSubEnabled(false);
+      setFieldsEnabled(false);
+      setSubCategories([]);
     }
-    setError('')
-  }
+  };
 
   const handleSubCategoryChange = (e) => {
-    const value = e.target.value
-    if (value === 'new') {
-      setShowNewSubCategory(true)
-      setFormData(prev => ({ ...prev, subCategory: '' }))
+    const value = e.target.value;
+    if (value === "new") {
+      setShowNewSubCategory(true);
+      setFormData((prev) => ({ ...prev, subCategory: "" }));
+      setFieldsEnabled(false);
     } else {
-      setShowNewSubCategory(false)
-      setNewSubCategory('')
-      setFormData(prev => ({ ...prev, subCategory: value }))
+      setShowNewSubCategory(false);
+      setNewSubCategory("");
+      setFormData((prev) => ({ ...prev, subCategory: value }));
+      setFieldsEnabled(!!value);
     }
-    setError('')
-  }
+    setError("");
+  };
 
   const handlePointerChange = (index, value) => {
-    const newPointers = [...formData.topPointers]
-    newPointers[index] = value
-    setFormData(prev => ({ ...prev, topPointers: newPointers }))
-  }
+    const newPointers = [...formData.topPointers];
+    newPointers[index] = value;
+    setFormData((prev) => ({ ...prev, topPointers: newPointers }));
+  };
 
   const addPointer = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      topPointers: [...prev.topPointers, '']
-    }))
-  }
+      topPointers: [...prev.topPointers, ""],
+    }));
+  };
 
   const removePointer = (index) => {
-    const newPointers = formData.topPointers.filter((_, i) => i !== index)
-    setFormData(prev => ({
+    const newPointers = formData.topPointers.filter((_, i) => i !== index);
+    setFormData((prev) => ({
       ...prev,
-      topPointers: newPointers.length > 0 ? newPointers : ['']
-    }))
-  }
+      topPointers: newPointers.length > 0 ? newPointers : [""],
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const finalCategory = showNewCategory ? newCategory : formData.category
-      const finalSubCategory = showNewSubCategory ? newSubCategory : formData.subCategory
+      const finalCategory = formData.category;
+      const finalSubCategory = showNewSubCategory
+        ? newSubCategory
+        : formData.subCategory;
 
       if (!finalCategory || !finalSubCategory) {
-        setError('Category and Sub-category are required')
-        setLoading(false)
-        return
+        setError("Category and Sub-category are required");
+        setLoading(false);
+        return;
       }
 
       const submitData = {
         ...formData,
         category: finalCategory,
         subCategory: finalSubCategory,
-        topPointers: formData.topPointers.filter(p => p.trim() !== '')
-      }
+        topPointers: formData.topPointers.filter((p) => p.trim() !== ""),
+      };
 
-      let res
+      let res;
       if (editingService) {
-        res = await axios.put(`/admin/services/${editingService._id}`, submitData)
+        res = await axios.put(
+          `/admin/services/${editingService._id}`,
+          submitData
+        );
       } else {
-        res = await axios.post('/admin/services', submitData)
+        res = await axios.post("/admin/services", submitData);
       }
 
       if (res.data.data) {
-        onAddService(res.data.data)
-        resetForm()
-        onClose()
+        onAddService(res.data.data);
+        resetForm();
+        onClose();
       }
     } catch (error) {
-      console.error('Error saving service:', error)
-      setError(error.response?.data?.message || 'Failed to save service')
+      console.error("Error saving service:", error);
+      setError(error.response?.data?.message || "Failed to save service");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const resetForm = () => {
     setFormData({
-      category: '',
-      subCategory: '',
-      serviceName: '',
-      shortDescription: '',
-      topPointers: [''],
-      description: ''
-    })
-    setShowNewCategory(false)
-    setShowNewSubCategory(false)
-    setNewCategory('')
-    setNewSubCategory('')
-    setError('')
-  }
+      category: "",
+      subCategory: "",
+      serviceName: "",
+      shortDescription: "",
+      topPointers: [""],
+      description: "",
+    });
+    setShowNewSubCategory(false);
+    setNewSubCategory("");
+    setError("");
+  };
 
   const handleClose = () => {
-    resetForm()
-    onClose()
-  }
+    resetForm();
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-800">
-            {editingService ? 'Edit Service' : 'Add New Service'}
+            {editingService ? "Edit Service" : "Add New Service"}
           </h2>
           <button
             onClick={handleClose}
@@ -195,7 +218,7 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
             <MdClose className="w-6 h-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
             {error && (
@@ -210,34 +233,19 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                 Category <span className="text-red-500">*</span>
               </label>
               <select
-                value={showNewCategory ? 'new' : formData.category}
+                value={formData.category}
                 onChange={handleCategoryChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 required
               >
                 <option value="">Select Category</option>
                 {categories.map((cat, index) => (
-                  <option key={index} value={cat}>{cat}</option>
+                  <option key={index} value={cat?._id || cat}>
+                    {cat?.name || cat}
+                  </option>
                 ))}
-                <option value="new">+ Add New Category</option>
               </select>
             </div>
-
-            {showNewCategory && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  New Category Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                  placeholder="Enter new category name"
-                  required
-                />
-              </div>
-            )}
 
             {/* SubCategory */}
             <div>
@@ -245,35 +253,20 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                 Sub-Category <span className="text-red-500">*</span>
               </label>
               <select
-                value={showNewSubCategory ? 'new' : formData.subCategory}
+                value={showNewSubCategory ? "new" : formData.subCategory}
                 onChange={handleSubCategoryChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 required
-                disabled={!formData.category && !showNewCategory}
+                disabled={!subEnabled}
               >
                 <option value="">Select Sub-Category</option>
                 {subCategories.map((subCat, index) => (
-                  <option key={index} value={subCat}>{subCat}</option>
+                  <option key={index} value={subCat?._id || subCat}>
+                    {subCat?.name || subCat}
+                  </option>
                 ))}
-                <option value="new">+ Add New Sub-Category</option>
               </select>
             </div>
-
-            {showNewSubCategory && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  New Sub-Category Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={newSubCategory}
-                  onChange={(e) => setNewSubCategory(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                  placeholder="Enter new sub-category name"
-                  required
-                />
-              </div>
-            )}
 
             {/* Service Name */}
             <div>
@@ -288,6 +281,7 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="Enter service name"
                 required
+                disabled={!fieldsEnabled}
               />
             </div>
 
@@ -304,6 +298,7 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="Brief description (1-2 lines)"
                 required
+                disabled={!fieldsEnabled}
               />
             </div>
 
@@ -318,9 +313,12 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                     <input
                       type="text"
                       value={pointer}
-                      onChange={(e) => handlePointerChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handlePointerChange(index, e.target.value)
+                      }
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                       placeholder={`Pointer ${index + 1}`}
+                      disabled={!fieldsEnabled}
                     />
                     {formData.topPointers.length > 1 && (
                       <button
@@ -337,6 +335,7 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                   type="button"
                   onClick={addPointer}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm"
+                  disabled={!fieldsEnabled}
                 >
                   <MdAdd className="w-4 h-4" /> Add Pointer
                 </button>
@@ -356,6 +355,7 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
                 placeholder="Enter detailed description of the service"
                 required
+                disabled={!fieldsEnabled}
               />
             </div>
           </div>
@@ -372,15 +372,19 @@ const AddServiceModal = ({ isOpen, onClose, onAddService, editingService = null 
             <button
               type="submit"
               className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-blue-300"
-              disabled={loading}
+              disabled={loading || !fieldsEnabled}
             >
-              {loading ? 'Saving...' : (editingService ? 'Update Service' : 'Create Service')}
+              {loading
+                ? "Saving..."
+                : editingService
+                ? "Update Service"
+                : "Create Service"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddServiceModal
+export default AddServiceModal;

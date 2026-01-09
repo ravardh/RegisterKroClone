@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import Service from "../models/ServiceModel.js";
 import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
+import bcrypt from "bcrypt";
 
 export const getAllLeads = (req, res) => {
   res.send("Get All Leads endpoint");
@@ -12,7 +13,7 @@ export const getRm = async (req, res, next) => {
     const rms = await User.find({ role: "rm" }).select("-password");
     res.status(200).json({
       message: "Relationship Managers fetched successfully",
-      data: rms
+      data: rms,
     });
   } catch (error) {
     next(error);
@@ -20,19 +21,28 @@ export const getRm = async (req, res, next) => {
 };
 export const createRm = async (req, res, next) => {
   try {
-    const { fullName, email, phone } = req.body;
+    const { fullName, email, phone, password } = req.body;
 
-    if (!fullName || !email || !phone) {
+    if (!fullName || !email || !phone || !password) {
       const error = new Error("All fields are required");
       error.statusCode = 400;
       return next(error);
     }
 
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error("User with this email already exists");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newRm = await User.create({
       fullName,
       email,
       phone,
-      password: "Rm123",
+      password: hashedPassword,
       role: "rm",
     });
 
@@ -40,11 +50,10 @@ export const createRm = async (req, res, next) => {
 
     res.status(201).json({
       message: "Relationship Manager created successfully",
-      data: newRm
+      data: newRm,
     });
-  }
-  catch (error) {
-    next(error)
+  } catch (error) {
+    next(error);
   }
 };
 export const deleteRm = async (req, res, next) => {
@@ -69,23 +78,60 @@ export const deleteRm = async (req, res, next) => {
 
     res.status(200).json({
       message: "Relationship Manager deleted successfully",
-      data: deletedRm
+      data: deletedRm,
     });
   } catch (error) {
     next(error);
   }
 };
-export const updateRm = (req, res) => {
-  res.send("Update RM endpoint");
+export const updateRm = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { fullName, email, phone, password } = req.body;
+
+    if (!id) {
+      const error = new Error("RM ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      const error = new Error("Relationship Manager not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    existingUser.fullName = fullName || existingUser.fullName;
+    existingUser.email = email || existingUser.email;
+    existingUser.phone = phone || existingUser.phone;
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      existingUser.password = hashedPassword;
+    }
+
+    await existingUser.save();
+
+    res.status(200).json({
+      message: "Relationship Manager updated successfully",
+      data: existingUser,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Service Management
 export const getAllServices = async (req, res, next) => {
   try {
-    const services = await Service.find().populate('LastEditedBy', 'fullName email');
+    const services = await Service.find().populate(
+      "LastEditedBy",
+      "fullName email"
+    );
     res.status(200).json({
       message: "Services fetched successfully",
-      data: services
+      data: services,
     });
   } catch (error) {
     next(error);
@@ -94,10 +140,10 @@ export const getAllServices = async (req, res, next) => {
 
 export const getCategories = async (req, res, next) => {
   try {
-    const categories = await Service.distinct('category');
+    const categories = await Service.distinct("category");
     res.status(200).json({
       message: "Categories fetched successfully",
-      data: categories
+      data: categories,
     });
   } catch (error) {
     next(error);
@@ -108,16 +154,16 @@ export const getSubCategories = async (req, res, next) => {
   try {
     const { category } = req.query;
     let subCategories;
-    
+
     if (category) {
-      subCategories = await Service.distinct('subCategory', { category });
+      subCategories = await Service.distinct("subCategory", { category });
     } else {
-      subCategories = await Service.distinct('subCategory');
+      subCategories = await Service.distinct("subCategory");
     }
-    
+
     res.status(200).json({
       message: "Sub-categories fetched successfully",
-      data: subCategories
+      data: subCategories,
     });
   } catch (error) {
     next(error);
@@ -126,9 +172,22 @@ export const getSubCategories = async (req, res, next) => {
 
 export const createService = async (req, res, next) => {
   try {
-    const { category, subCategory, serviceName, shortDescription, topPointers, description } = req.body;
+    const {
+      category,
+      subCategory,
+      serviceName,
+      shortDescription,
+      topPointers,
+      description,
+    } = req.body;
 
-    if (!category || !subCategory || !serviceName || !shortDescription || !description) {
+    if (
+      !category ||
+      !subCategory ||
+      !serviceName ||
+      !shortDescription ||
+      !description
+    ) {
       const error = new Error("All required fields must be provided");
       error.statusCode = 400;
       return next(error);
@@ -141,21 +200,38 @@ export const createService = async (req, res, next) => {
       return next(error);
     }
 
+    const categoryDoc = await Category.findById(category);
+    if (!categoryDoc) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const subCategoryDoc = await SubCategory.findById(subCategory);
+    if (!subCategoryDoc) {
+      const error = new Error("Sub-category not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
     const newService = await Service.create({
-      category,
-      subCategory,
+      category: categoryDoc._id,
+      subCategory: subCategoryDoc._id,
       serviceName,
       shortDescription,
       topPointers: topPointers || [],
       description,
-      LastEditedBy: req.user.id
+      LastEditedBy: req.user.id,
     });
 
-    const populatedService = await Service.findById(newService._id).populate('LastEditedBy', 'fullName email');
+    const populatedService = await Service.findById(newService._id).populate(
+      "LastEditedBy",
+      "fullName email"
+    );
 
     res.status(201).json({
       message: "Service created successfully",
-      data: populatedService
+      data: populatedService,
     });
   } catch (error) {
     next(error);
@@ -165,7 +241,14 @@ export const createService = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { category, subCategory, serviceName, shortDescription, topPointers, description } = req.body;
+    const {
+      category,
+      subCategory,
+      serviceName,
+      shortDescription,
+      topPointers,
+      description,
+    } = req.body;
 
     if (!id) {
       const error = new Error("Service ID is required");
@@ -199,14 +282,14 @@ export const updateService = async (req, res, next) => {
         shortDescription: shortDescription || existingService.shortDescription,
         topPointers: topPointers || existingService.topPointers,
         description: description || existingService.description,
-        LastEditedBy: req.user.id
+        LastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }
-    ).populate('LastEditedBy', 'fullName email');
+    ).populate("LastEditedBy", "fullName email");
 
     res.status(200).json({
       message: "Service updated successfully",
-      data: updatedService
+      data: updatedService,
     });
   } catch (error) {
     next(error);
@@ -233,7 +316,7 @@ export const deleteService = async (req, res, next) => {
 
     res.status(200).json({
       message: "Service deleted successfully",
-      data: deletedService
+      data: deletedService,
     });
   } catch (error) {
     next(error);
@@ -246,7 +329,7 @@ export const getAllCategories = async (req, res, next) => {
     const categories = await Category.find().sort({ name: 1 });
     res.status(200).json({
       message: "Categories fetched successfully",
-      data: categories
+      data: categories,
     });
   } catch (error) {
     next(error);
@@ -273,12 +356,12 @@ export const createCategory = async (req, res, next) => {
     const newCategory = await Category.create({
       name,
       shortDescription: shortDescription || "",
-      isActive: true
+      isActive: true,
     });
 
     res.status(201).json({
       message: "Category created successfully",
-      data: newCategory
+      data: newCategory,
     });
   } catch (error) {
     next(error);
@@ -317,15 +400,18 @@ export const updateCategory = async (req, res, next) => {
       id,
       {
         name: name || existingCategory.name,
-        shortDescription: shortDescription !== undefined ? shortDescription : existingCategory.shortDescription,
-        isActive: isActive !== undefined ? isActive : existingCategory.isActive
+        shortDescription:
+          shortDescription !== undefined
+            ? shortDescription
+            : existingCategory.shortDescription,
+        isActive: isActive !== undefined ? isActive : existingCategory.isActive,
       },
       { new: true, runValidators: true }
     );
 
     res.status(200).json({
       message: "Category updated successfully",
-      data: updatedCategory
+      data: updatedCategory,
     });
   } catch (error) {
     next(error);
@@ -350,17 +436,25 @@ export const deleteCategory = async (req, res, next) => {
     }
 
     // Check if category has subcategories
-    const subCategoriesCount = await SubCategory.countDocuments({ category: id });
+    const subCategoriesCount = await SubCategory.countDocuments({
+      category: id,
+    });
     if (subCategoriesCount > 0) {
-      const error = new Error(`Cannot delete category. It has ${subCategoriesCount} subcategories. Please delete them first.`);
+      const error = new Error(
+        `Cannot delete category. It has ${subCategoriesCount} subcategories. Please delete them first.`
+      );
       error.statusCode = 400;
       return next(error);
     }
 
     // Check if category has services
-    const servicesCount = await Service.countDocuments({ category: category.name });
+    const servicesCount = await Service.countDocuments({
+      category: category.name,
+    });
     if (servicesCount > 0) {
-      const error = new Error(`Cannot delete category. It has ${servicesCount} services. Please delete or reassign them first.`);
+      const error = new Error(
+        `Cannot delete category. It has ${servicesCount} services. Please delete or reassign them first.`
+      );
       error.statusCode = 400;
       return next(error);
     }
@@ -369,7 +463,7 @@ export const deleteCategory = async (req, res, next) => {
 
     res.status(200).json({
       message: "Category deleted successfully",
-      data: category
+      data: category,
     });
   } catch (error) {
     next(error);
@@ -381,18 +475,44 @@ export const getAllSubCategories = async (req, res, next) => {
   try {
     const { categoryId } = req.query;
     let query = {};
-    
+
     if (categoryId) {
       query.category = categoryId;
     }
 
     const subCategories = await SubCategory.find(query)
-      .populate('category', 'name')
+      .populate("category", "name")
       .sort({ name: 1 });
-    
+
     res.status(200).json({
       message: "Sub-categories fetched successfully",
-      data: subCategories
+      data: subCategories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllSubCategoriesbyCategory = async (req, res, next) => {
+  try {
+    const { category } = req.params;
+    if (!category) {
+      const error = new Error("Category is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+    const categoryDoc = await Category.findOne({ name: category });
+    if (!categoryDoc) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    const subCategories = await SubCategory.find({ category: categoryDoc._id })
+      .populate("category", "name")
+      .sort({ name: 1 });
+    res.status(200).json({
+      message: "Sub-categories fetched successfully",
+      data: subCategories,
     });
   } catch (error) {
     next(error);
@@ -416,9 +536,14 @@ export const createSubCategory = async (req, res, next) => {
       return next(error);
     }
 
-    const existingSubCategory = await SubCategory.findOne({ name, category: categoryId });
+    const existingSubCategory = await SubCategory.findOne({
+      name,
+      category: categoryId,
+    });
     if (existingSubCategory) {
-      const error = new Error("Sub-category with this name already exists in this category");
+      const error = new Error(
+        "Sub-category with this name already exists in this category"
+      );
       error.statusCode = 400;
       return next(error);
     }
@@ -427,15 +552,16 @@ export const createSubCategory = async (req, res, next) => {
       name,
       category: categoryId,
       shortDescription: shortDescription || "",
-      isActive: true
+      isActive: true,
     });
 
-    const populatedSubCategory = await SubCategory.findById(newSubCategory._id)
-      .populate('category', 'name');
+    const populatedSubCategory = await SubCategory.findById(
+      newSubCategory._id
+    ).populate("category", "name");
 
     res.status(201).json({
       message: "Sub-category created successfully",
-      data: populatedSubCategory
+      data: populatedSubCategory,
     });
   } catch (error) {
     next(error);
@@ -472,12 +598,14 @@ export const updateSubCategory = async (req, res, next) => {
 
     // Check if name is being changed and if it's already taken in the category
     if (name && name !== existingSubCategory.name) {
-      const duplicateSubCategory = await SubCategory.findOne({ 
-        name, 
-        category: categoryId || existingSubCategory.category 
+      const duplicateSubCategory = await SubCategory.findOne({
+        name,
+        category: categoryId || existingSubCategory.category,
       });
       if (duplicateSubCategory) {
-        const error = new Error("Sub-category with this name already exists in this category");
+        const error = new Error(
+          "Sub-category with this name already exists in this category"
+        );
         error.statusCode = 400;
         return next(error);
       }
@@ -488,15 +616,19 @@ export const updateSubCategory = async (req, res, next) => {
       {
         name: name || existingSubCategory.name,
         category: categoryId || existingSubCategory.category,
-        shortDescription: shortDescription !== undefined ? shortDescription : existingSubCategory.shortDescription,
-        isActive: isActive !== undefined ? isActive : existingSubCategory.isActive
+        shortDescription:
+          shortDescription !== undefined
+            ? shortDescription
+            : existingSubCategory.shortDescription,
+        isActive:
+          isActive !== undefined ? isActive : existingSubCategory.isActive,
       },
       { new: true, runValidators: true }
-    ).populate('category', 'name');
+    ).populate("category", "name");
 
     res.status(200).json({
       message: "Sub-category updated successfully",
-      data: updatedSubCategory
+      data: updatedSubCategory,
     });
   } catch (error) {
     next(error);
@@ -513,7 +645,10 @@ export const deleteSubCategory = async (req, res, next) => {
       return next(error);
     }
 
-    const subCategory = await SubCategory.findById(id).populate('category', 'name');
+    const subCategory = await SubCategory.findById(id).populate(
+      "category",
+      "name"
+    );
     if (!subCategory) {
       const error = new Error("Sub-category not found");
       error.statusCode = 404;
@@ -521,13 +656,15 @@ export const deleteSubCategory = async (req, res, next) => {
     }
 
     // Check if subcategory has services
-    const servicesCount = await Service.countDocuments({ 
+    const servicesCount = await Service.countDocuments({
       category: subCategory.category.name,
-      subCategory: subCategory.name 
+      subCategory: subCategory.name,
     });
-    
+
     if (servicesCount > 0) {
-      const error = new Error(`Cannot delete sub-category. It has ${servicesCount} services. Please delete or reassign them first.`);
+      const error = new Error(
+        `Cannot delete sub-category. It has ${servicesCount} services. Please delete or reassign them first.`
+      );
       error.statusCode = 400;
       return next(error);
     }
@@ -536,7 +673,7 @@ export const deleteSubCategory = async (req, res, next) => {
 
     res.status(200).json({
       message: "Sub-category deleted successfully",
-      data: subCategory
+      data: subCategory,
     });
   } catch (error) {
     next(error);

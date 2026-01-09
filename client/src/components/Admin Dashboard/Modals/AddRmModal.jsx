@@ -1,56 +1,62 @@
-import React, { useState } from 'react'
-import { MdClose } from 'react-icons/md'
-import axios from '../../../config/api'
+import React, { useState } from "react";
+import { MdClose } from "react-icons/md";
+import axios from "../../../config/api";
 
 const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: ''
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+    fullName: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-    setError('')
-  }
+      [name]: value,
+    }));
+    setError("");
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.post('/admin/create-rm', formData)
+      const res = await axios.post("/admin/create-rm", formData);
       if (res.data.data) {
-        onAddManager(res.data.data)
+        onAddManager(res.data.data);
         setFormData({
-          fullName: '',
-          email: '',
-          phone: ''
-        })
-        onClose()
+          fullName: "",
+          email: "",
+          phone: "",
+          password: "",
+        });
+        onClose();
       }
     } catch (error) {
-      console.error('Error creating RM:', error)
-      setError(error.response?.data?.message || 'Failed to create relationship manager')
+      console.error("Error creating RM:", error);
+      setError(
+        error.response?.data?.message || "Failed to create relationship manager"
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">Add Relationship Manager</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Add Relationship Manager
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition duration-200"
@@ -58,7 +64,7 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
             <MdClose className="w-6 h-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
             {error && (
@@ -82,7 +88,6 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
               />
             </div>
 
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email <span className="text-red-500">*</span>
@@ -98,7 +103,6 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
               />
             </div>
 
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number <span className="text-red-500">*</span>
@@ -109,14 +113,26 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="+91 **********"
+                placeholder="9876543210"
                 required
               />
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                placeholder="Enter password"
+                required
+              />
+            </div>
           </div>
 
-          
           <div className="flex gap-3 mt-6">
             <button
               type="button"
@@ -131,13 +147,13 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-lg font-medium transition duration-200 disabled:opacity-50"
             >
-              {loading ? 'Adding...' : 'Add Manager'}
+              {loading ? "Adding..." : "Add Manager"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddRmModal
+export default AddRmModal;

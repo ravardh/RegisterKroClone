@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import User from "../models/userModel.js";
 
 export const Register = async (req, res, next) => {
   try {
@@ -58,7 +59,7 @@ export const Login = async (req, res, next) => {
       return next(error);
     }
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: "Login successful", data: user });
   } catch (error) {
     next(error);
   }
