@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { MdAdd, MdDelete, MdEmail, MdPhone, MdBadge, MdPeople } from 'react-icons/md'
+import { MdAdd, MdDelete, MdEmail, MdPhone, MdBadge, MdPeople, MdEdit } from 'react-icons/md'
 import AddRmModal from './Modals/AddRmModal'
+import EditRmModal from './Modals/EditRmModel'
 import axios from '../../config/api'
 
 const RelationshipManagers = () => {
   const [managers, setManagers] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedManager, setSelectedManager] = useState(null)
   const [loading, setLoading] = useState(false)
 
   const fetchRm = async () => {
@@ -29,6 +32,17 @@ const RelationshipManagers = () => {
   const handleAddManager = (newManager) => {
     fetchRm()
     setIsModalOpen(false)
+  }
+
+  const handleUpdateManager = (updatedManager) => {
+    fetchRm()
+    setIsEditModalOpen(false)
+    setSelectedManager(null)
+  }
+
+  const handleEdit = (manager) => {
+    setSelectedManager(manager)
+    setIsEditModalOpen(true)
   }
 
   const handleDelete = async (id) => {
@@ -95,13 +109,22 @@ const RelationshipManagers = () => {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDelete(manager._id)}
-                  className="ml-4 text-red-500 hover:text-red-700 transition duration-200"
-                  title="Delete Manager"
-                >
-                  <MdDelete className="w-6 h-6" />
-                </button>
+                <div className="flex gap-2 ml-4">
+                  <button
+                    onClick={() => handleEdit(manager)}
+                    className="text-blue-500 hover:text-blue-700 transition duration-200"
+                    title="Edit Manager"
+                  >
+                    <MdEdit className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(manager._id)}
+                    className="text-red-500 hover:text-red-700 transition duration-200"
+                    title="Delete Manager"
+                  >
+                    <MdDelete className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -112,6 +135,16 @@ const RelationshipManagers = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddManager={handleAddManager}
+      />
+
+      <EditRmModal 
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedManager(null)
+        }}
+        onUpdateManager={handleUpdateManager}
+        manager={selectedManager}
       />
     </div>
   )
