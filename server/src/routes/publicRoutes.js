@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/contact", ContactUs);
 router.post("/lead", LeadCapture);
-router.get("track", TrackService);
+router.get("/track", TrackService);
 
 export default router;

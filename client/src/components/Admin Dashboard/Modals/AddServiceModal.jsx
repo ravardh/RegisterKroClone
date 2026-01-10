@@ -58,7 +58,7 @@ const AddServiceModal = ({
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("/admin/categories-list");
+      const res = await axios.get("/services/categories-list");
       setCategories(res.data.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -68,7 +68,7 @@ const AddServiceModal = ({
   const fetchSubCategories = async (category) => {
     try {
       const res = await axios.get(
-        `/admin/subcategories-list?categoryId=${category}`
+        `/services/subcategories-list?categoryId=${category}`
       );
       setSubCategories(res.data.data || []);
     } catch (error) {
@@ -163,11 +163,11 @@ const AddServiceModal = ({
       let res;
       if (editingService) {
         res = await axios.put(
-          `/admin/services/${editingService._id}`,
+          `/services/services/${editingService._id}`,
           submitData
         );
       } else {
-        res = await axios.post("/admin/services", submitData);
+        res = await axios.post("/services/services", submitData);
       }
 
       if (res.data.data) {

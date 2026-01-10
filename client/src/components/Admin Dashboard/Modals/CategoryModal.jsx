@@ -39,9 +39,9 @@ const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
     try {
       let res
       if (editingCategory) {
-        res = await axios.put(`/admin/categories/${editingCategory._id}`, formData)
+        res = await axios.put(`/services/categories/${editingCategory._id}`, formData)
       } else {
-        res = await axios.post('/admin/categories', formData)
+        res = await axios.post('/services/categories', formData)
       }
 
       if (res.data.data) {

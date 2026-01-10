@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { IoMenuSharp, IoClose } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import CommonData from "../assets/common.json";
+import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
+  const { user, isLoggedIn, isAdmin } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isDashboard = location.pathname === "/adminDashboard";
