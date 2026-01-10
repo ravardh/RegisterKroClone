@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   --primary: #4f46e5;
   --primary-light: #a5b4fc;
@@ -16,3 +17,4 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+

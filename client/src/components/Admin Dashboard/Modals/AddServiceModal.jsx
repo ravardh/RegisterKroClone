@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MdClose, MdAdd, MdDelete } from "react-icons/md";
 import axios from "../../../config/api";
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 const AddServiceModal = ({
   isOpen,
@@ -8,7 +10,6 @@ const AddServiceModal = ({
   onAddService,
   editingService = null,
 }) => {
-  const createEmptyFaq = () => ({ question: "", answer: "" });
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [formData, setFormData] = useState({
@@ -18,58 +19,91 @@ const AddServiceModal = ({
     shortDescription: "",
     topPointers: [""],
     description: "",
-    faqs: [createEmptyFaq()],
-    isActive: true,
+    faqs: [{ question: "", answer: "" }],
   });
-  const [subEnabled, setSubEnabled] = useState(false);
-  const [fieldsEnabled, setFieldsEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showNewSubCategory, setShowNewSubCategory] = useState(false);
-  const [newSubCategory, setNewSubCategory] = useState("");
+
+  const quillRef = useRef(null);
+  const quillInstanceRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       fetchCategories();
-      setSubEnabled(false);
-      setFieldsEnabled(false);
-      setShowNewSubCategory(false);
-      setNewSubCategory("");
       if (editingService) {
         setFormData({
-          category: typeof editingService.category === 'object' 
-            ? editingService.category._id 
-            : editingService.category,
-          subCategory: typeof editingService.subCategory === 'object'
-            ? editingService.subCategory._id
-            : editingService.subCategory,
+          category: editingService.category?._id || editingService.category,
+          subCategory:
+            editingService.subCategory?._id || editingService.subCategory,
           serviceName: editingService.serviceName,
           shortDescription: editingService.shortDescription,
-          topPointers:
-            editingService.topPointers.length > 0
-              ? editingService.topPointers
-              : [""],
-          description: editingService.description,
-          faqs:
-            editingService.faqs && editingService.faqs.length > 0
-              ? editingService.faqs
-              : [createEmptyFaq()],
-          isActive:
-            editingService.isActive !== undefined
-              ? editingService.isActive
-              : true,
+          topPointers: editingService.topPointers?.length
+            ? editingService.topPointers
+            : [""],
+          faqs: editingService.faqs?.length
+            ? editingService.faqs
+            : [{ question: "", answer: "" }],
         });
-        setSubEnabled(true);
-        setFieldsEnabled(true);
+        fetchSubCategories(
+          editingService.category?._id || editingService.category
+        );
       }
     }
   }, [isOpen, editingService]);
 
   useEffect(() => {
-    if (formData.category) {
-      fetchSubCategories(formData.category);
+    // When modal closes, clean up Quill
+    if (!isOpen) {
+      if (quillInstanceRef.current) {
+        quillInstanceRef.current.off("text-change");
+        quillInstanceRef.current = null;
+      }
+      return;
     }
-  }, [formData.category]);
+
+    // When modal opens and no Quill instance exists, initialize it
+    if (!quillRef.current || quillInstanceRef.current) return;
+
+    // Clear any residual Quill HTML from previous sessions
+    quillRef.current.innerHTML = "";
+
+    quillInstanceRef.current = new Quill(quillRef.current, {
+      theme: "snow",
+      placeholder: "Enter detailed description of the service...",
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link"],
+        ],
+      },
+    });
+
+    quillInstanceRef.current.on("text-change", () => {
+      setFormData((prev) => ({
+        ...prev,
+        description: quillInstanceRef.current.root.innerHTML,
+      }));
+    });
+  }, [isOpen]);
+
+  // Separate effect for updating content when editing service changes
+  useEffect(() => {
+    if (!quillInstanceRef.current) return;
+
+    if (editingService?.description) {
+      quillInstanceRef.current.root.innerHTML = editingService.description;
+    } else if (isOpen && !editingService) {
+      quillInstanceRef.current.root.innerHTML = "";
+    }
+  }, [editingService, isOpen]);
+
+  // Effect to enable/disable Quill editor based on form state
+  useEffect(() => {
+    if (!quillInstanceRef.current) return;
+    quillInstanceRef.current.enable(!!formData.subCategory);
+  }, [formData.subCategory]);
 
   const fetchCategories = async () => {
     try {
@@ -105,28 +139,15 @@ const AddServiceModal = ({
     setFormData((prev) => ({ ...prev, category: value, subCategory: "" }));
     setError("");
     if (value) {
-      setSubEnabled(true);
-      setFieldsEnabled(false);
       fetchSubCategories(value);
     } else {
-      setSubEnabled(false);
-      setFieldsEnabled(false);
       setSubCategories([]);
     }
   };
 
   const handleSubCategoryChange = (e) => {
     const value = e.target.value;
-    if (value === "new") {
-      setShowNewSubCategory(true);
-      setFormData((prev) => ({ ...prev, subCategory: "" }));
-      setFieldsEnabled(false);
-    } else {
-      setShowNewSubCategory(false);
-      setNewSubCategory("");
-      setFormData((prev) => ({ ...prev, subCategory: value }));
-      setFieldsEnabled(!!value);
-    }
+    setFormData((prev) => ({ ...prev, subCategory: value }));
     setError("");
   };
 
@@ -147,7 +168,7 @@ const AddServiceModal = ({
   const addFaq = () => {
     setFormData((prev) => ({
       ...prev,
-      faqs: [...prev.faqs, createEmptyFaq()],
+      faqs: [...prev.faqs, { question: "", answer: "" }],
     }));
   };
 
@@ -156,13 +177,10 @@ const AddServiceModal = ({
       const updatedFaqs = prev.faqs.filter((_, i) => i !== index);
       return {
         ...prev,
-        faqs: updatedFaqs.length > 0 ? updatedFaqs : [createEmptyFaq()],
+        faqs:
+          updatedFaqs.length > 0 ? updatedFaqs : [{ question: "", answer: "" }],
       };
     });
-  };
-
-  const toggleIsActive = () => {
-    setFormData((prev) => ({ ...prev, isActive: !prev.isActive }));
   };
 
   const addPointer = () => {
@@ -186,12 +204,7 @@ const AddServiceModal = ({
     setError("");
 
     try {
-      const finalCategory = formData.category;
-      const finalSubCategory = showNewSubCategory
-        ? newSubCategory
-        : formData.subCategory;
-
-      if (!finalCategory || !finalSubCategory) {
+      if (!formData.category || !formData.subCategory) {
         setError("Category and Sub-category are required");
         setLoading(false);
         return;
@@ -199,24 +212,23 @@ const AddServiceModal = ({
 
       const submitData = {
         ...formData,
-        category: finalCategory,
-        subCategory: finalSubCategory,
-        topPointers: formData.topPointers.filter((p) => p.trim() !== ""),
-        faqs: formData.faqs
-          .map((faq) => ({
-            question: faq.question?.trim(),
-            answer: faq.answer?.trim(),
-          }))
-          .filter((faq) => faq.question && faq.answer),
-        isActive: formData.isActive,
+        topPointers: formData.topPointers.filter((p) => p.trim()),
+        faqs: formData.faqs.filter(
+          (faq) => faq.question?.trim() && faq.answer?.trim()
+        ),
       };
 
-      let res;
-      if (editingService) {
-        res = await axios.put(`/services/${editingService._id}`, submitData);
-      } else {
-        res = await axios.post("/services", submitData);
+      const plainText = quillInstanceRef.current?.getText().trim();
+
+      if (!plainText) {
+        setError("Detailed description is required");
+        setLoading(false);
+        return;
       }
+
+      const res = editingService
+        ? await axios.put(`/services/${editingService._id}`, submitData)
+        : await axios.post("/services", submitData);
 
       if (res.data.data) {
         onAddService(res.data.data);
@@ -224,7 +236,6 @@ const AddServiceModal = ({
         onClose();
       }
     } catch (error) {
-      console.error("Error saving service:", error);
       setError(error.response?.data?.message || "Failed to save service");
     } finally {
       setLoading(false);
@@ -239,11 +250,13 @@ const AddServiceModal = ({
       shortDescription: "",
       topPointers: [""],
       description: "",
-      faqs: [createEmptyFaq()],
-      isActive: true,
+      faqs: [{ question: "", answer: "" }],
     });
-    setShowNewSubCategory(false);
-    setNewSubCategory("");
+
+    if (quillInstanceRef.current) {
+      quillInstanceRef.current.root.innerHTML = "";
+    }
+
     setError("");
   };
 
@@ -285,13 +298,13 @@ const AddServiceModal = ({
               <select
                 value={formData.category}
                 onChange={handleCategoryChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               >
                 <option value="">Select Category</option>
-                {categories.map((cat, index) => (
-                  <option key={index} value={cat?._id || cat}>
-                    {cat?.name || cat}
+                {categories.map((cat) => (
+                  <option key={cat._id || cat} value={cat._id || cat}>
+                    {cat.name || cat}
                   </option>
                 ))}
               </select>
@@ -303,16 +316,19 @@ const AddServiceModal = ({
                 Sub-Category <span className="text-red-500">*</span>
               </label>
               <select
-                value={showNewSubCategory ? "new" : formData.subCategory}
+                value={formData.subCategory}
                 onChange={handleSubCategoryChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
-                disabled={!subEnabled}
+                disabled={!formData.category}
               >
                 <option value="">Select Sub-Category</option>
-                {subCategories.map((subCat, index) => (
-                  <option key={index} value={subCat?._id || subCat}>
-                    {subCat?.name || subCat}
+                {subCategories.map((subCat) => (
+                  <option
+                    key={subCat._id || subCat}
+                    value={subCat._id || subCat}
+                  >
+                    {subCat.name || subCat}
                   </option>
                 ))}
               </select>
@@ -328,10 +344,10 @@ const AddServiceModal = ({
                 name="serviceName"
                 value={formData.serviceName}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Enter service name"
                 required
-                disabled={!fieldsEnabled}
+                disabled={!formData.subCategory}
               />
             </div>
 
@@ -345,40 +361,11 @@ const AddServiceModal = ({
                 name="shortDescription"
                 value={formData.shortDescription}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Brief description (1-2 lines)"
                 required
-                disabled={!fieldsEnabled}
+                disabled={!formData.subCategory}
               />
-            </div>
-
-            {/* Service Status */}
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Service Status
-                </label>
-                <p className="text-xs text-gray-500">
-                  Control whether the service is visible to clients.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={toggleIsActive}
-                disabled={!fieldsEnabled}
-                aria-pressed={formData.isActive}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition focus:outline-none ${
-                  formData.isActive
-                    ? "bg-emerald-500 text-white shadow-lg"
-                    : "bg-gray-200 text-gray-700"
-                } ${
-                  !fieldsEnabled
-                    ? "opacity-60 cursor-not-allowed"
-                    : "hover:opacity-90"
-                }`}
-              >
-                {formData.isActive ? "Active" : "Inactive"}
-              </button>
             </div>
 
             {/* Top Pointers */}
@@ -395,17 +382,17 @@ const AddServiceModal = ({
                       onChange={(e) =>
                         handlePointerChange(index, e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                       placeholder={`Pointer ${index + 1}`}
-                      disabled={!fieldsEnabled}
+                      disabled={!formData.subCategory}
                     />
                     {formData.topPointers.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removePointer(index)}
-                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
-                        <MdDelete className="w-5 h-5" />
+                        <MdDelete />
                       </button>
                     )}
                   </div>
@@ -413,21 +400,19 @@ const AddServiceModal = ({
                 <button
                   type="button"
                   onClick={addPointer}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm"
-                  disabled={!fieldsEnabled}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+                  disabled={!formData.subCategory}
                 >
-                  <MdAdd className="w-4 h-4" /> Add Pointer
+                  <MdAdd /> Add Pointer
                 </button>
               </div>
             </div>
 
             {/* FAQs */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  FAQs
-                </label>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                FAQs
+              </label>
               <div className="space-y-3">
                 {formData.faqs.map((faq, index) => (
                   <div
@@ -442,13 +427,10 @@ const AddServiceModal = ({
                         <button
                           type="button"
                           onClick={() => removeFaq(index)}
-                          disabled={!fieldsEnabled}
+                          disabled={!formData.subCategory}
                           className="text-red-500 hover:text-red-600 disabled:opacity-60"
                         >
-                          <MdDelete className="w-4 h-4" />
-                          <span className="sr-only">
-                            Remove FAQ {index + 1}
-                          </span>
+                          <MdDelete />
                         </button>
                       )}
                     </div>
@@ -459,8 +441,8 @@ const AddServiceModal = ({
                         handleFaqChange(index, "question", e.target.value)
                       }
                       placeholder="Question"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                      disabled={!fieldsEnabled}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      disabled={!formData.subCategory}
                     />
                     <textarea
                       rows="3"
@@ -469,8 +451,8 @@ const AddServiceModal = ({
                         handleFaqChange(index, "answer", e.target.value)
                       }
                       placeholder="Answer"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
-                      disabled={!fieldsEnabled}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      disabled={!formData.subCategory}
                     />
                   </div>
                 ))}
@@ -478,27 +460,24 @@ const AddServiceModal = ({
               <button
                 type="button"
                 onClick={addFaq}
-                disabled={!fieldsEnabled}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm mt-2"
+                disabled={!formData.subCategory}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
               >
-                <MdAdd className="w-4 h-4" /> Add FAQ
+                <MdAdd /> Add FAQ
               </button>
             </div>
 
             {/* Description */}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Detailed Description <span className="text-red-500">*</span>
               </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows="6"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
-                placeholder="Enter detailed description of the service"
-                required
-                disabled={!fieldsEnabled}
+
+              <div
+                ref={quillRef}
+                className="bg-white"
+                style={{ minHeight: "180px" }}
               />
             </div>
           </div>
@@ -507,15 +486,15 @@ const AddServiceModal = ({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+              className="flex-1 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-blue-300"
-              disabled={loading || !fieldsEnabled}
+              className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300"
+              disabled={loading || !formData.subCategory}
             >
               {loading
                 ? "Saving..."
