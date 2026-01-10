@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { MdCheckCircle } from 'react-icons/md'
 
 const TrackStatus = () => {
@@ -115,6 +116,25 @@ const TrackStatus = () => {
                 </div>
               </section>
             )}
+
+            <section className="mt-10">
+              <div className="bg-white/90 border border-slate-200 rounded-3xl p-6 md:p-8 shadow-[0_20px_40px_rgba(15,23,42,0.15)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Observed a gap?</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2">Let us know how the journey went</h3>
+                <p className="text-gray-600 mt-2 md:mt-3 max-w-2xl">
+                  Share a quick note about what we got right or where we can improve. A short send-off helps the team keep every service consistent.
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <Link
+                    to="/feedback"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-(--primary) text-white font-semibold shadow-lg transition-transform duration-200 hover:-translate-y-0.5 hover:bg-(--primary-hover)"
+                  >
+                    Post feedback
+                  </Link>
+                  <span className="text-sm text-gray-500">Feedback is anonymous unless you choose to share contact info.</span>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
