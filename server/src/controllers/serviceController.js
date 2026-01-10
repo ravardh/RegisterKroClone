@@ -2,13 +2,26 @@ import Service from "../models/ServiceModel.js";
 import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
 
+const sanitizeFaqs = (faqs) => {
+	if (!Array.isArray(faqs)) {
+		return [];
+	}
+
+	return faqs
+		.map((faq) => ({
+			question: faq.question?.trim(),
+			answer: faq.answer?.trim(),
+		}))
+		.filter((faq) => faq.question && faq.answer);
+};
+
 // Service Management
 export const getAllServices = async (req, res, next) => {
 	try {
-		const services = await Service.find().populate(
-			"LastEditedBy",
-			"fullName email"
-		);
+		const services = await Service.find()
+			.populate("category", "name")
+			.populate("subCategory", "name")
+			.populate("lastEditedBy", "fullName email");
 		res.status(200).json({
 			message: "Services fetched successfully",
 			data: services,
@@ -27,7 +40,10 @@ export const createService = async (req, res, next) => {
 			shortDescription,
 			topPointers,
 			description,
+			faqs,
+			isActive,
 		} = req.body;
+
 
 		if (
 			!category ||
@@ -62,6 +78,8 @@ export const createService = async (req, res, next) => {
 			return next(error);
 		}
 
+		const sanitizedFaqs = sanitizeFaqs(faqs);
+
 		const newService = await Service.create({
 			category: categoryDoc._id,
 			subCategory: subCategoryDoc._id,
@@ -69,11 +87,13 @@ export const createService = async (req, res, next) => {
 			shortDescription,
 			topPointers: topPointers || [],
 			description,
-			LastEditedBy: req.user.id,
+			faqs: sanitizedFaqs,
+			isActive: typeof isActive === "boolean" ? isActive : true,
+			lastEditedBy: req.user._id,
 		});
 
 		const populatedService = await Service.findById(newService._id).populate(
-			"LastEditedBy",
+			"lastEditedBy",
 			"fullName email"
 		);
 
@@ -96,6 +116,8 @@ export const updateService = async (req, res, next) => {
 			shortDescription,
 			topPointers,
 			description,
+			faqs,
+			isActive,
 		} = req.body;
 
 		if (!id) {
@@ -121,6 +143,10 @@ export const updateService = async (req, res, next) => {
 			}
 		}
 
+		const sanitizedFaqs = sanitizeFaqs(faqs);
+		const shouldUpdateFaqs = faqs !== undefined;
+		const hasIsActive = typeof isActive === "boolean";
+
 		const updatedService = await Service.findByIdAndUpdate(
 			id,
 			{
@@ -130,6 +156,8 @@ export const updateService = async (req, res, next) => {
 				shortDescription: shortDescription || existingService.shortDescription,
 				topPointers: topPointers || existingService.topPointers,
 				description: description || existingService.description,
+				faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
+				isActive: hasIsActive ? isActive : existingService.isActive,
 				LastEditedBy: req.user.id,
 			},
 			{ new: true, runValidators: true }

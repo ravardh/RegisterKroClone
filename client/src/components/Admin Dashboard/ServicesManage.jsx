@@ -9,6 +9,11 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const getDisplayName = (entity) => {
+    if (!entity) return "";
+    if (typeof entity === "string") return entity;
+    return entity.name || "";
+  };
 
   useEffect(() => {
     fetchServices();
@@ -62,8 +67,8 @@ const Services = () => {
     return (
       (s.serviceName || "").toLowerCase().includes(q) ||
       (s.shortDescription || "").toLowerCase().includes(q) ||
-      (s.category || "").toLowerCase().includes(q) ||
-      (s.subCategory || "").toLowerCase().includes(q)
+      getDisplayName(s.category).toLowerCase().includes(q) ||
+      getDisplayName(s.subCategory).toLowerCase().includes(q)
     );
   });
 
@@ -122,8 +127,12 @@ const Services = () => {
               filtered.map((svc) => (
                 <tr key={svc._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 align-top">{svc.serviceName}</td>
-                  <td className="px-4 py-3 align-top">{svc.category}</td>
-                  <td className="px-4 py-3 align-top">{svc.subCategory}</td>
+                  <td className="px-4 py-3 align-top">
+                    {getDisplayName(svc.category)}
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    {getDisplayName(svc.subCategory)}
+                  </td>
                   <td className="px-4 py-3 align-top">
                     <button
                       onClick={() => handleEdit(svc)}

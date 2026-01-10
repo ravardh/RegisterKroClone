@@ -8,6 +8,7 @@ const AddServiceModal = ({
   onAddService,
   editingService = null,
 }) => {
+  const createEmptyFaq = () => ({ question: "", answer: "" });
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [formData, setFormData] = useState({
@@ -17,6 +18,8 @@ const AddServiceModal = ({
     shortDescription: "",
     topPointers: [""],
     description: "",
+    faqs: [createEmptyFaq()],
+    isActive: true,
   });
   const [subEnabled, setSubEnabled] = useState(false);
   const [fieldsEnabled, setFieldsEnabled] = useState(false);
@@ -43,6 +46,14 @@ const AddServiceModal = ({
               ? editingService.topPointers
               : [""],
           description: editingService.description,
+          faqs:
+            editingService.faqs && editingService.faqs.length > 0
+              ? editingService.faqs
+              : [createEmptyFaq()],
+          isActive:
+            editingService.isActive !== undefined
+              ? editingService.isActive
+              : true,
         });
         setSubEnabled(true);
         setFieldsEnabled(true);
@@ -121,6 +132,35 @@ const AddServiceModal = ({
     setFormData((prev) => ({ ...prev, topPointers: newPointers }));
   };
 
+  const handleFaqChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updatedFaqs = [...prev.faqs];
+      updatedFaqs[index] = { ...updatedFaqs[index], [field]: value };
+      return { ...prev, faqs: updatedFaqs };
+    });
+  };
+
+  const addFaq = () => {
+    setFormData((prev) => ({
+      ...prev,
+      faqs: [...prev.faqs, createEmptyFaq()],
+    }));
+  };
+
+  const removeFaq = (index) => {
+    setFormData((prev) => {
+      const updatedFaqs = prev.faqs.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        faqs: updatedFaqs.length > 0 ? updatedFaqs : [createEmptyFaq()],
+      };
+    });
+  };
+
+  const toggleIsActive = () => {
+    setFormData((prev) => ({ ...prev, isActive: !prev.isActive }));
+  };
+
   const addPointer = () => {
     setFormData((prev) => ({
       ...prev,
@@ -158,6 +198,13 @@ const AddServiceModal = ({
         category: finalCategory,
         subCategory: finalSubCategory,
         topPointers: formData.topPointers.filter((p) => p.trim() !== ""),
+        faqs: formData.faqs
+          .map((faq) => ({
+            question: faq.question?.trim(),
+            answer: faq.answer?.trim(),
+          }))
+          .filter((faq) => faq.question && faq.answer),
+        isActive: formData.isActive,
       };
 
       let res;
@@ -188,6 +235,8 @@ const AddServiceModal = ({
       shortDescription: "",
       topPointers: [""],
       description: "",
+      faqs: [createEmptyFaq()],
+      isActive: true,
     });
     setShowNewSubCategory(false);
     setNewSubCategory("");
@@ -204,7 +253,7 @@ const AddServiceModal = ({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-49">
           <h2 className="text-2xl font-bold text-gray-800">
             {editingService ? "Edit Service" : "Add New Service"}
           </h2>
@@ -299,6 +348,35 @@ const AddServiceModal = ({
               />
             </div>
 
+            {/* Service Status */}
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Service Status
+                </label>
+                <p className="text-xs text-gray-500">
+                  Control whether the service is visible to clients.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleIsActive}
+                disabled={!fieldsEnabled}
+                aria-pressed={formData.isActive}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition focus:outline-none ${
+                  formData.isActive
+                    ? "bg-emerald-500 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-700"
+                } ${
+                  !fieldsEnabled
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:opacity-90"
+                }`}
+              >
+                {formData.isActive ? "Active" : "Inactive"}
+              </button>
+            </div>
+
             {/* Top Pointers */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -337,6 +415,70 @@ const AddServiceModal = ({
                   <MdAdd className="w-4 h-4" /> Add Pointer
                 </button>
               </div>
+            </div>
+
+            {/* FAQs */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  FAQs
+                </label>
+              </div>
+              <div className="space-y-3">
+                {formData.faqs.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-700">
+                        FAQ {index + 1}
+                      </span>
+                      {formData.faqs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeFaq(index)}
+                          disabled={!fieldsEnabled}
+                          className="text-red-500 hover:text-red-600 disabled:opacity-60"
+                        >
+                          <MdDelete className="w-4 h-4" />
+                          <span className="sr-only">
+                            Remove FAQ {index + 1}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={faq.question}
+                      onChange={(e) =>
+                        handleFaqChange(index, "question", e.target.value)
+                      }
+                      placeholder="Question"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      disabled={!fieldsEnabled}
+                    />
+                    <textarea
+                      rows="3"
+                      value={faq.answer}
+                      onChange={(e) =>
+                        handleFaqChange(index, "answer", e.target.value)
+                      }
+                      placeholder="Answer"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                      disabled={!fieldsEnabled}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addFaq}
+                disabled={!fieldsEnabled}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm mt-2"
+              >
+                <MdAdd className="w-4 h-4" /> Add FAQ
+              </button>
             </div>
 
             {/* Description */}
