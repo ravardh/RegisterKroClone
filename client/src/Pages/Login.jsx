@@ -4,8 +4,10 @@ import axios from "../config/api";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Login = () => {
+  const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState({});
   const [loginData, setLoginData] = useState({
@@ -18,28 +20,8 @@ const Login = () => {
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validate = () => {
-    let isValid = true;
-    const error = {};
-    if (!/^[a-zA-Z0-9._]+@gmail.com$/.test(loginData.email)) {
-      error.email = "Email must be a valid Gmail address";
-      isValid = false;
-    }
-    if (!loginData.password || loginData.password.length < 6) {
-      error.password = "Password must be at least 6 characters long";
-      isValid = false;
-    }
-
-    setError(error);
-    return isValid;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
 
     try {
       const res = await axios.post("/auth/login", loginData);

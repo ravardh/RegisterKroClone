@@ -30,7 +30,7 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/admin/categories-list')
+      const res = await axios.get('/services/categories-list')
       setCategories(res.data.data || [])
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -54,9 +54,9 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
     try {
       let res
       if (editingSubCategory) {
-        res = await axios.put(`/admin/subcategories/${editingSubCategory._id}`, formData)
+        res = await axios.put(`/services/subcategories/${editingSubCategory._id}`, formData)
       } else {
-        res = await axios.post('/admin/subcategories', formData)
+        res = await axios.post('/services/subcategories', formData)
       }
 
       if (res.data.data) {

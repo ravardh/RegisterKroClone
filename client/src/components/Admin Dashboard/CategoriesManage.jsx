@@ -33,7 +33,7 @@ const Categories = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/admin/categories-list')
+      const res = await axios.get('/services/categories-list')
       setCategories(res.data.data || [])
     } catch (err) {
       console.error('fetchCategories', err)
@@ -42,7 +42,7 @@ const Categories = () => {
 
   const fetchSubCategories = async () => {
     try {
-      const res = await axios.get('/admin/subcategories-list')
+      const res = await axios.get('/services/subcategories-list')
       setSubCategories(res.data.data || [])
     } catch (err) {
       console.error('fetchSubCategories', err)
@@ -67,7 +67,7 @@ const Categories = () => {
   const handleDeleteCategory = async (id) => {
     if (!window.confirm('Delete category?')) return
     try {
-      await axios.delete(`/admin/categories/${id}`)
+      await axios.delete(`/services/categories/${id}`)
       setCategories(prev => prev.filter(c => c._id !== id))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete category')
@@ -93,7 +93,7 @@ const Categories = () => {
   const handleDeleteSubCategory = async (id) => {
     if (!window.confirm('Delete sub-category?')) return
     try {
-      await axios.delete(`/admin/subcategories/${id}`)
+      await axios.delete(`/services/subcategories/${id}`)
       setSubCategories(prev => prev.filter(s => s._id !== id))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete sub-category')

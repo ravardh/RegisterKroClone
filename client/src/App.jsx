@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
+import NotFound from "./pages/NotFound";
 
 const Layout = () => {
   const location = useLocation();
@@ -38,6 +39,7 @@ const Layout = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/adminDashboard" element={<AdminDashboard />} />
           <Route path="/rmDashboard" element={<RMDashboard />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

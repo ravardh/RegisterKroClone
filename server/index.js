@@ -3,10 +3,14 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./src/config/db.js";
 
 import AuthRoutes from "./src/routes/authRoutes.js";
 import AdminRoutes from "./src/routes/adminRoutes.js";
+import PublicRoutes from "./src/routes/publicRoutes.js";
+import RmRoutes from "./src/routes/rmRoutes.js";
+import ServiceRoutes from "./src/routes/serviceRoutes.js";
 
 const app = express();
 
@@ -18,11 +22,15 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(morgan("dev"));
 
-// Example route
+// Routes
 app.use("/auth", AuthRoutes);
 app.use("/admin", AdminRoutes);
+app.use("/services", ServiceRoutes);
+app.use("/public", PublicRoutes);
+app.use("/rm", RmRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running");
@@ -32,7 +40,7 @@ app.use((err, req, res, next) => {
   console.error("Error occurred:", err);
   res.status(err.statusCode || 500).json({
     message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
   });
 });
 

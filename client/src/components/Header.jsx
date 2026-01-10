@@ -1,12 +1,38 @@
 import React, { useState } from "react";
 import { IoMenuSharp, IoClose } from "react-icons/io5";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
+import { useAuth } from "../context/AuthContext.jsx";
+import axios from "../config/api";
 
 const Header = () => {
+  const {
+    user,
+    isLoggedIn,
+    isAdmin,
+    isRM,
+    setUser,
+    setIsLoggedIn,
+    setIsAdmin,
+    setIsRM,
+  } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const isDashboard = ["/adminDashboard", "/RMDashboard"].includes(location.pathname);
+  const navigate = useNavigate();
+  const isDashboard = location.pathname.includes("Dashboard");
+
+  // Get dashboard link based on user role
+  const getDashboardLink = () => {
+    if (isAdmin) return "/adminDashboard";
+    if (isRM) return "/rmDashboard";
+    return "/dashboard";
+  };
+
+  const getDashboardLabel = () => {
+    if (isAdmin) return "Admin Dashboard";
+    if (isRM) return "RM Dashboard";
+    return "Dashboard";
+  };
 
   const navLinks = [
     { name: "Home", to: "/" },
@@ -15,6 +41,21 @@ const Header = () => {
     { name: "Contact", to: "/contact" },
     { name: "Track Status", to: "/trackStatus" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("/auth/logout");
+      sessionStorage.removeItem("user");
+      setUser(null);
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      setIsRM(false);
+      navigate("/");
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <>
@@ -34,7 +75,10 @@ const Header = () => {
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="shrink-0">
-              <Link to="/" className="text-lg sm:text-xl md:text-2xl font-bold text-(--primary)">
+              <Link
+                to="/"
+                className="text-lg sm:text-xl md:text-2xl font-bold text-(--primary)"
+              >
                 {CommonData.companyName}
               </Link>
             </div>
@@ -51,18 +95,33 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Login Button */}
-            <div className="hidden md:block">
-              <Link
-                to="/login"
-                className={`px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base ${
-                  isDashboard
-                    ? "bg-white text-indigo-600 hover:bg-indigo-50"
-                    : "bg-(--primary) text-white hover:bg-(--primary-hover)"
-                }`}
-              >
-                Login
-              </Link>
+            {/* Auth Actions */}
+            <div className="hidden md:flex items-center gap-4">
+              {isLoggedIn ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      to={getDashboardLink()}
+                      className="text-sm lg:text-base text-(--text) font-medium hover:text-(--primary-hover)"
+                    >
+                      {user?.fullName || user?.email}
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
+                >
+                  Login
+                </Link>
+              )}
             </div>
 
             <button
@@ -92,13 +151,36 @@ const Header = () => {
                   </Link>
                 ))}
 
-                <Link
-                  to="/login"
-                  className="bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base mt-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <div className="border-t border-gray-200 pt-2 mt-2 space-y-2">
+                      <Link
+                        to={getDashboardLink()}
+                        className="block px-3 py-2 text-sm text-gray-600 font-medium hover:text-(--primary) hover:bg-gray-50 rounded-md"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {user?.fullName || user?.email}
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base mt-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                )}
               </div>
             </div>
           )}
