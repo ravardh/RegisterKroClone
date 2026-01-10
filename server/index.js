@@ -7,6 +7,7 @@ import { connectDB } from "./src/config/db.js";
 
 import AuthRoutes from "./src/routes/authRoutes.js";
 import AdminRoutes from "./src/routes/adminRoutes.js";
+import RmRoutes from "./src/routes/rmRoutes.js";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(morgan("dev"));
 // Example route
 app.use("/auth", AuthRoutes);
 app.use("/admin", AdminRoutes);
+app.use("/rm", RmRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

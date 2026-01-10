@@ -44,7 +44,15 @@ const Login = () => {
     try {
       const res = await axios.post("/auth/login", loginData);
       toast.success("Login successful!");
-      res.data.data.role === "SuperAdmin" ? navigate("/adminDashboard") : null;
+      const user = res.data?.data;
+      if (user?._id) {
+        localStorage.setItem("userId", user._id);
+      }
+      if (user?.role === "SuperAdmin" || user?.role === "admin") {
+        navigate("/adminDashboard");
+      } else if (user?.role === "rm") {
+        navigate("/rmDashboard");
+      }
     } catch (error) {
       console.error("Error during login:", error);
     }

@@ -6,7 +6,7 @@ import CommonData from "../assets/common.json";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const isDashboard = location.pathname === "/adminDashboard";
+  const isDashboard = ["/adminDashboard", "/RMDashboard"].includes(location.pathname);
 
   const navLinks = [
     { name: "Home", to: "/" },

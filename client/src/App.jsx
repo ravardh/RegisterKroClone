@@ -11,11 +11,12 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 
 const Layout = () => {
   const location = useLocation();
-  const isDashboard = location.pathname === "/adminDashboard";
+  const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(location.pathname);
 
   return (
     <>
@@ -36,6 +37,7 @@ const Layout = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/adminDashboard" element={<AdminDashboard />} />
+          <Route path="/rmDashboard" element={<RMDashboard />} />
         </Routes>
       </main>
 
