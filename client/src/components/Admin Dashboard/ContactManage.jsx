@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdDelete, MdSearch, MdEmail, MdPhone, MdPerson, MdClose } from "react-icons/md";
-import axios from "../../config/api";
-
+import axios from "../../config/api";import toast from "react-hot-toast";
 const ContactManage = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +18,7 @@ const ContactManage = () => {
       setContacts(res.data.data || []);
     } catch (err) {
       console.error("fetchContacts", err);
+      toast.error("Failed to load contacts");
       setContacts([]);
     } finally {
       setLoading(false);
@@ -26,14 +26,22 @@ const ContactManage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this contact submission?")) return;
-    try {
-      await axios.delete(`/admin/contacts/${id}`);
-      setContacts((prev) => prev.filter((c) => c._id !== id));
-    } catch (err) {
-      console.error("deleteContact", err);
-      alert(err.response?.data?.message || "Failed to delete contact");
-    }
+    confirmDialog(
+      "Are you sure you want to delete this contact submission? This action cannot be undone.",
+      async () => {
+        try {
+          await axios.delete(`/admin/contacts/${id}`);
+          setContacts((prev) => prev.filter((c) => c._id !== id));
+          toast.success("Contact deleted successfully!");
+        } catch (err) {
+          console.error("deleteContact", err);
+          toast.error(err.response?.data?.message || "Failed to delete contact");
+        }
+      },
+      () => {
+        // Cancelled
+      }
+    );
   };
 
   const filtered = contacts.filter((c) => {
@@ -237,7 +245,7 @@ const ContactManage = () => {
                   Message
                 </label>
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-64 overflow-y-auto">
-                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed break-words">
+                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed break-all">
                     {selectedContact.message}
                   </p>
                 </div>

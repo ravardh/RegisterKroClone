@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MdClose } from "react-icons/md";
 import axios from "../../../config/api";
+import toast from "react-hot-toast";
 
 const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
     try {
       const res = await axios.post("/admin/create-rm", formData);
       if (res.data.data) {
+        toast.success("Relationship Manager added successfully!");
         onAddManager(res.data.data);
         setFormData({
           fullName: "",
@@ -39,10 +41,9 @@ const AddRmModal = ({ isOpen, onClose, onAddManager }) => {
         onClose();
       }
     } catch (error) {
-      console.error("Error creating RM:", error);
-      setError(
-        error.response?.data?.message || "Failed to create relationship manager"
-      );
+      const message = error.response?.data?.message || "Failed to create relationship manager";
+      toast.error(message);
+      setError(message);
     } finally {
       setLoading(false);
     }

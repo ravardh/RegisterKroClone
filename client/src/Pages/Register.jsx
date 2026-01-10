@@ -3,8 +3,9 @@ import { useState } from "react";
 import CommonData from "../assets/common.json";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../config/api";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Register = () => {
 
@@ -76,19 +77,26 @@ const Register = () => {
     }
 
     try {
-      console.log("Register Data Submitted:", registerData);
-      navigate("/login");
+      const res = await axios.post("/auth/register", {
+        fullName: registerData.fullName,
+        email: registerData.email,
+        phone: registerData.phone,
+        password: registerData.password,
+      });
+      toast.success("Registration successful! Redirecting to login...");
+      setRegisterData({
+        fullName: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       console.error("Error during registration:", error);
+      toast.error(error.response?.data?.message || "Registration failed. Please try again.");
     }
-
-    setRegisterData({
-      fullName: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    });
+  };
   };
 
   return (

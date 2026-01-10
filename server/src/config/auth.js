@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export const genUserToken = async (user, res) => {
   try {
     const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
 
     res.cookie("token", token, {
@@ -12,7 +12,6 @@ export const genUserToken = async (user, res) => {
       sameSite: "Lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
-    
   } catch (error) {
     const err = new Error("Token generation failed");
     err.statusCode = 500;

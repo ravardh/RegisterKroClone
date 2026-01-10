@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../config/api";
+import toast from "react-hot-toast";
 
 const dummyLeads = [
   { leadID: "LD001", clientName: "John Smith", interestedService: "Company Registration", leadStatus: "new", createdAt: "2026-01-08T10:30:00Z" },
@@ -28,6 +29,8 @@ const Dashboard = () => {
         const data = res?.data?.data;
         setLeads(Array.isArray(data) && data.length ? data : dummyLeads);
       } catch (err) {
+        console.error('Error fetching leads:', err);
+        toast.error("Failed to load leads. Showing sample data.");
         setLeads(dummyLeads);
       } finally {
         setLoading(false);

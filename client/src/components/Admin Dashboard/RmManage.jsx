@@ -3,6 +3,8 @@ import { MdAdd, MdDelete, MdEmail, MdPhone, MdBadge, MdPeople, MdEdit } from 're
 import AddRmModal from './Modals/AddRmModal'
 import EditRmModal from './Modals/EditRmModel'
 import axios from '../../config/api'
+import toast from 'react-hot-toast'
+import { confirmDialog } from '../../utils/confirmDialog'
 
 const RelationshipManagers = () => {
   const [managers, setManagers] = useState([])
@@ -20,6 +22,7 @@ const RelationshipManagers = () => {
       }
     } catch (error) {
       console.error('Error fetching RMs:', error)
+      toast.error('Failed to load relationship managers')
     } finally {
       setLoading(false)
     }
@@ -46,12 +49,22 @@ const RelationshipManagers = () => {
   }
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`/admin/delete-rm/${id}`)
-      setManagers(prev => prev.filter(manager => manager._id !== id))
-    } catch (error) {
-      console.error('Error deleting RM:', error)
-    }
+    confirmDialog(
+      "Are you sure you want to delete this relationship manager? This action cannot be undone.",
+      async () => {
+        try {
+          await axios.delete(`/admin/delete-rm/${id}`)
+          setManagers(prev => prev.filter(manager => manager._id !== id))
+          toast.success('Relationship Manager deleted successfully!')
+        } catch (error) {
+          console.error('Error deleting RM:', error)
+          toast.error(error.response?.data?.message || 'Failed to delete relationship manager')
+        }
+      },
+      () => {
+        // Cancelled
+      }
+    )
   }
 
   return (

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MdAdd, MdEdit, MdDelete, MdSearch } from "react-icons/md";
 import axios from "../../config/api";
+import toast from "react-hot-toast";
+import { confirmDialog } from "../../utils/confirmDialog";
 import AddServiceModal from "./Modals/AddServiceModal";
 
 const Services = () => {
@@ -26,6 +28,7 @@ const Services = () => {
       setServices(res.data.data || []);
     } catch (err) {
       console.error("fetchServices", err);
+      toast.error("Failed to load services");
       setServices([]);
     } finally {
       setLoading(false);
@@ -51,14 +54,22 @@ const Services = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this service?")) return;
-    try {
-      await axios.delete(`/services/${id}`);
-      setServices((prev) => prev.filter((s) => s._id !== id));
-    } catch (err) {
-      console.error("deleteService", err);
-      alert(err.response?.data?.message || "Failed to delete service");
-    }
+    confirmDialog(
+      "Are you sure you want to delete this service? This action cannot be undone.",
+      async () => {
+        try {
+          await axios.delete(`/services/${id}`);
+          setServices((prev) => prev.filter((s) => s._id !== id));
+          toast.success("Service deleted successfully!");
+        } catch (err) {
+          console.error("deleteService", err);
+          toast.error(err.response?.data?.message || "Failed to delete service");
+        }
+      },
+      () => {
+        // Cancelled
+      }
+    );
   };
 
   const filtered = services.filter((s) => {

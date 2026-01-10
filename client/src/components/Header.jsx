@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "../config/api";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const {
@@ -50,10 +51,12 @@ const Header = () => {
       setIsLoggedIn(false);
       setIsAdmin(false);
       setIsRM(false);
+      toast.success("Logged out successfully!");
       navigate("/");
       setIsMenuOpen(false);
     } catch (error) {
       console.error("Logout error:", error);
+      toast.error("Failed to logout");
     }
   };
 

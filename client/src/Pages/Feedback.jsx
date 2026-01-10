@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "../config/api";
 import CommonData from "../assets/common.json";
 
@@ -115,7 +115,6 @@ const Feedback = () => {
 
   return (
     <>
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-[url('hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
         <div className="w-full px-4 md:px-8 lg:px-10 flex items-center min-h-screen py-30">
           <div className="w-full">

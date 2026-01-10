@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdClose } from 'react-icons/md'
 import axios from '../../../config/api'
+import toast from 'react-hot-toast'
 
 const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
   const [formData, setFormData] = useState({
@@ -45,12 +46,15 @@ const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
       }
 
       if (res.data.data) {
+        toast.success(`Category ${editingCategory ? 'updated' : 'created'} successfully!`);
         onSave(res.data.data)
         onClose()
       }
     } catch (error) {
+      const message = error.response?.data?.message || 'Failed to save category'
       console.error('Error saving category:', error)
-      setError(error.response?.data?.message || 'Failed to save category')
+      toast.error(message)
+      setError(message)
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdClose } from 'react-icons/md'
 import axios from '../../../config/api'
+import toast from 'react-hot-toast'
 
 const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }) => {
   const [categories, setCategories] = useState([])
@@ -60,12 +61,15 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
       }
 
       if (res.data.data) {
+        toast.success(`Sub-category ${editingSubCategory ? 'updated' : 'created'} successfully!`)
         onSave(res.data.data)
         onClose()
       }
     } catch (error) {
+      const message = error.response?.data?.message || 'Failed to save sub-category'
       console.error('Error saving sub-category:', error)
-      setError(error.response?.data?.message || 'Failed to save sub-category')
+      toast.error(message)
+      setError(message)
     } finally {
       setLoading(false)
     }

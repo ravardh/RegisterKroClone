@@ -3,6 +3,7 @@ import { MdClose, MdAdd, MdDelete } from "react-icons/md";
 import axios from "../../../config/api";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import toast from "react-hot-toast";
 
 const AddServiceModal = ({
   isOpen,
@@ -231,12 +232,15 @@ const AddServiceModal = ({
         : await axios.post("/services", submitData);
 
       if (res.data.data) {
+        toast.success(`Service ${editingService ? 'updated' : 'added'} successfully!`);
         onAddService(res.data.data);
         resetForm();
         onClose();
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to save service");
+      const message = error.response?.data?.message || "Failed to save service";
+      toast.error(message);
+      setError(message);
     } finally {
       setLoading(false);
     }
