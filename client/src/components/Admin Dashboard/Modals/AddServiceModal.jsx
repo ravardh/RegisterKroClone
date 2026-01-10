@@ -37,8 +37,12 @@ const AddServiceModal = ({
       setNewSubCategory("");
       if (editingService) {
         setFormData({
-          category: editingService.category,
-          subCategory: editingService.subCategory,
+          category: typeof editingService.category === 'object' 
+            ? editingService.category._id 
+            : editingService.category,
+          subCategory: typeof editingService.subCategory === 'object'
+            ? editingService.subCategory._id
+            : editingService.subCategory,
           serviceName: editingService.serviceName,
           shortDescription: editingService.shortDescription,
           topPointers:

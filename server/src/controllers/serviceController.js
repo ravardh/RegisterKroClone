@@ -92,10 +92,10 @@ export const createService = async (req, res, next) => {
 			lastEditedBy: req.user._id,
 		});
 
-		const populatedService = await Service.findById(newService._id).populate(
-			"lastEditedBy",
-			"fullName email"
-		);
+		const populatedService = await Service.findById(newService._id)
+			.populate("category", "name")
+			.populate("subCategory", "name")
+			.populate("lastEditedBy", "fullName email");
 
 		res.status(201).json({
 			message: "Service created successfully",
@@ -161,7 +161,10 @@ export const updateService = async (req, res, next) => {
 				lastEditedBy: req.user.id,
 			},
 			{ new: true, runValidators: true }
-		).populate("lastEditedBy", "fullName email");
+		)
+			.populate("category", "name")
+			.populate("subCategory", "name")
+			.populate("lastEditedBy", "fullName email");
 
 		res.status(200).json({
 			message: "Service updated successfully",
