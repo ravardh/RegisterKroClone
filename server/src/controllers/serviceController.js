@@ -158,10 +158,10 @@ export const updateService = async (req, res, next) => {
 				description: description || existingService.description,
 				faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
 				isActive: hasIsActive ? isActive : existingService.isActive,
-				LastEditedBy: req.user.id,
+				lastEditedBy: req.user.id,
 			},
 			{ new: true, runValidators: true }
-		).populate("LastEditedBy", "fullName email");
+		).populate("lastEditedBy", "fullName email");
 
 		res.status(200).json({
 			message: "Service updated successfully",
