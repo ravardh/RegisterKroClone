@@ -4,6 +4,7 @@ import { MdOutlinePhoneIphone } from "react-icons/md";
 import { FiMail } from "react-icons/fi";
 import toast, { Toaster } from "react-hot-toast";
 import CommonData from "../assets/common.json";
+import axios from "../config/api";
 
 const ContactForm = () => {
   const [contactData, setContactData] = useState({
@@ -63,15 +64,26 @@ const ContactForm = () => {
       return;
     }
     
-    console.log("Form submitted:", contactData);
-    toast.success("Message sent successfully!");
-    
-    setContactData({
-      name: "",
-      email: "",
-      phone: "",
-      formMessage: "",
-    });
+    try {
+      const response = await axios.post("/public/contact", {
+        fullName: contactData.name,
+        email: contactData.email,
+        phone: contactData.phone,
+        message: contactData.formMessage,
+      });
+      
+      toast.success("Message sent successfully! Our team will contact you soon.");
+      
+      setContactData({
+        name: "",
+        email: "",
+        phone: "",
+        formMessage: "",
+      });
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      toast.error(error.response?.data?.message || "Failed to send message. Please try again.");
+    }
   };
   
   return (
