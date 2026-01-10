@@ -162,12 +162,9 @@ const AddServiceModal = ({
 
       let res;
       if (editingService) {
-        res = await axios.put(
-          `/services/services/${editingService._id}`,
-          submitData
-        );
+        res = await axios.put(`/services/${editingService._id}`, submitData);
       } else {
-        res = await axios.post("/services/services", submitData);
+        res = await axios.post("/services", submitData);
       }
 
       if (res.data.data) {

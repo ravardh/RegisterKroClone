@@ -1,12 +1,18 @@
 @import "tailwindcss";
 
-
 :root {
-    --primary: #4F46E5;
-    --primary-light: #A5B4FC;
-    --primary-hover: #4338CA;
-    --secondary: #6B7280;
-    --background: #F9FAFB;
-    --text: #111827;
+  --primary: #4f46e5;
+  --primary-light: #a5b4fc;
+  --primary-hover: #4338ca;
+  --secondary: #6b7280;
+  --background: #f9fafb;
+  --text: #111827;
 }
 
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

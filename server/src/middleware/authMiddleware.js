@@ -25,6 +25,8 @@ export const userProtect = async (req, res, next) => {
     }
 };
 
+const isAdminRole = (role) => ["admin", "SuperAdmin"].includes(role);
+
 export const adminProtect = async (req, res, next) => {
     try {
         const token = req.cookies.token;
@@ -40,7 +42,7 @@ export const adminProtect = async (req, res, next) => {
             error.statusCode = 401;
             return next(error);
         }
-        if (user.role !== 'admin') {
+        if (!isAdminRole(user.role)) {
             const error = new Error('Not authorized, admin access required');
             error.statusCode = 403;
             return next(error);

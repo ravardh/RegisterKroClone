@@ -17,7 +17,7 @@ const Services = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/services/services");
+      const res = await axios.get("/services");
       setServices(res.data.data || []);
     } catch (err) {
       console.error("fetchServices", err);
@@ -48,7 +48,7 @@ const Services = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this service?")) return;
     try {
-      await axios.delete(`/services/services/${id}`);
+      await axios.delete(`/services/${id}`);
       setServices((prev) => prev.filter((s) => s._id !== id));
     } catch (err) {
       console.error("deleteService", err);

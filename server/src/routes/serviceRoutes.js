@@ -21,10 +21,10 @@ const router = express.Router();
 router.use(adminProtect);
 
 // Service routes
-router.get("/services", getAllServices);
-router.post("/services", createService);
-router.put("/services/:id", updateService);
-router.delete("/services/:id", deleteService);
+router.get("/", getAllServices);
+router.post("/", createService);
+router.put("/:id", updateService);
+router.delete("/:id", deleteService);
 
 // Category CRUD routes
 router.get("/categories-list", getAllCategories);
