@@ -26,21 +26,14 @@ const Login = () => {
     try {
       const res = await axios.post("/auth/login", loginData);
       toast.success("Login successful!");
-      setUser(res.data.data);
-      sessionStorage.setItem("user", JSON.stringify(res.data.data));
-      setIsLoggedIn(true);
-      if (res.data.data.role === "SuperAdmin") {
+      const user = res.data?.data;
+      if (user?._id) {
+        localStorage.setItem("userId", user._id);
+      }
+      if (user?.role === "SuperAdmin" || user?.role === "admin") {
         navigate("/adminDashboard");
-        setIsAdmin(true);
-        setIsRM(false);
-      } else if (res.data.data.role === "rm") {
-        setIsAdmin(false);
-        setIsRM(true);
+      } else if (user?.role === "rm") {
         navigate("/rmDashboard");
-      } else {
-        setIsAdmin(false);
-        setIsRM(false);
-        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error during login:", error);
