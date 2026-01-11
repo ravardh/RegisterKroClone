@@ -55,7 +55,7 @@ const Login = () => {
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center bg-(--root) px-4">
+      <div className="min-h-screen bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 flex items-center justify-center bg-(--root) px-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <div className="mb-6 text-center">
             <h2 className="text-2xl font-semibold text-(--root)">

@@ -100,8 +100,8 @@ const Register = () => {
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-(--background) text-(--text)">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+      <div className="min-h-screen flex bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 items-center justify-center py-12 px-4 bg-(--background) text-(--text)">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border mt-20 border-gray-200">
           <div className="space-y-3 mb-6 text-center">
             <h1 className="text-2xl font-semibold text-(--text)">
               Create your account
