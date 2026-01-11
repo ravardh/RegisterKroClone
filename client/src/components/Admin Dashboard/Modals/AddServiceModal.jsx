@@ -29,6 +29,19 @@ const AddServiceModal = ({
   const quillInstanceRef = useRef(null);
 
   useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `
+      .ql-toolbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       fetchCategories();
       if (editingService) {
@@ -480,8 +493,8 @@ const AddServiceModal = ({
 
               <div
                 ref={quillRef}
-                className="bg-white"
-                style={{ minHeight: "180px" }}
+                className="bg-white rounded border border-gray-300"
+                style={{ minHeight: "200px", maxHeight: "400px", overflow: "auto" }}
               />
             </div>
           </div>
