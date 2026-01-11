@@ -97,7 +97,6 @@ const Register = () => {
       toast.error(error.response?.data?.message || "Registration failed. Please try again.");
     }
   };
-  };
 
   return (
     <div>
