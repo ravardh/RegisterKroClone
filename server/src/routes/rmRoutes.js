@@ -1,5 +1,5 @@
 import express from "express";
-import { AssignedLeads, UpdateLeadStatus } from "../controllers/rmController.js";
+import { AssignedLeads, UpdateLeadStage, UpdateLeadStatus } from "../controllers/rmController.js";
 import { rmProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(rmProtect);
 
 router.get("/leads", AssignedLeads);
+router.put("/update-stage/:leadId", UpdateLeadStage);
 router.put("/update-status/:leadId", UpdateLeadStatus);
 
 export default router;

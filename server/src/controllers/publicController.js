@@ -67,16 +67,22 @@ export const LeadCapture = async (req, res, next) => {
     // Generate unique lead ID
     const leadID = `LEAD-${Date.now()}`;
 
-    // Create new lead assigned to admin by default
+    // Create new lead with initial "new" stage
     const newLead = await Leads.create({
       leadID,
       clientName: fullName,
       clientEmail: email,
       clientPhone: phoneNumber,
       interestedService,
-      leadStatus: "new",
       assignedTo: admin._id,
       closeRemarks: "",
+      leadStages: [
+        {
+          stageName: "new",
+          updatedby: admin._id,
+          updatedAt: new Date(),
+        }
+      ],
     });
 
     res.status(201).json({
@@ -87,8 +93,48 @@ export const LeadCapture = async (req, res, next) => {
     next(error);
   }
 };
-export const TrackService = (req, res) => {
-  res.send("Track Service endpoint");
+export const TrackService = async (req, res, next) => {
+  try {
+    const { leadId } = req.params;
+
+    if (!leadId) {
+      const error = new Error("Lead ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const lead = await Leads.findOne({ leadID: leadId })
+      .select("leadID clientName clientEmail clientPhone interestedService leadStages")
+      .populate("leadStages.updatedby", "fullName role");
+
+    if (!lead) {
+      const error = new Error("Lead not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Map stages to stage names for display
+    const stages = lead.leadStages.map((stage) => ({
+      stageName: stage.stageName,
+      updatedAt: stage.updatedAt,
+      updatedby: stage.updatedby?.fullName || "System",
+    }));
+
+    res.status(200).json({
+      message: "Lead tracking information fetched successfully",
+      data: {
+        leadId: lead.leadID,
+        clientName: lead.clientName,
+        clientEmail: lead.clientEmail,
+        clientPhone: lead.clientPhone,
+        interestedService: lead.interestedService,
+        stages: stages,
+        currentStage: stages.length > 0 ? stages[stages.length - 1].stageName : "new",
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const PostFeedback = async (req, res, next) => {

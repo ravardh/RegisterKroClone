@@ -2,36 +2,21 @@ import React, { useEffect, useState } from "react";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
 
-const dummyLeads = [
-  { leadID: "LD001", clientName: "John Smith", interestedService: "Company Registration", leadStatus: "new", createdAt: "2026-01-08T10:30:00Z" },
-  { leadID: "LD002", clientName: "Sarah Johnson", interestedService: "GST Registration", leadStatus: "contacted", createdAt: "2026-01-07T14:20:00Z" },
-  { leadID: "LD003", clientName: "Michael Brown", interestedService: "Income Tax Filing", leadStatus: "qualified", createdAt: "2026-01-06T09:15:00Z" },
-  { leadID: "LD004", clientName: "Emily Davis", interestedService: "Trademark Registration", leadStatus: "converted", createdAt: "2026-01-05T16:45:00Z" },
-  { leadID: "LD005", clientName: "Robert Wilson", interestedService: "Accounting Services", leadStatus: "new", createdAt: "2026-01-09T11:00:00Z" },
-  { leadID: "LD006", clientName: "Jessica Martinez", interestedService: "Business Consulting", leadStatus: "contacted", createdAt: "2026-01-04T13:30:00Z" },
-  { leadID: "LD007", clientName: "David Anderson", interestedService: "FSSAI Registration", leadStatus: "unqualified", createdAt: "2026-01-03T10:20:00Z" },
-];
-
 const Dashboard = () => {
-  const [leads, setLeads] = useState(dummyLeads);
+  const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const rmId = localStorage.getItem("userId");
-        if (!rmId) {
-          setLeads(dummyLeads);
-          setLoading(false);
-          return;
-        }
-        const res = await axios.get(`/rm/leads`, { params: { rmId } });
+        setLoading(true);
+        const res = await axios.get(`/rm/leads`);
         const data = res?.data?.data;
-        setLeads(Array.isArray(data) && data.length ? data : dummyLeads);
+        setLeads(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error fetching leads:', err);
-        toast.error("Failed to load leads. Showing sample data.");
-        setLeads(dummyLeads);
+        toast.error("Failed to load assigned leads");
+        setLeads([]);
       } finally {
         setLoading(false);
       }
@@ -39,93 +24,94 @@ const Dashboard = () => {
     fetchLeads();
   }, []);
 
-  const leadCounts = {
-    new: leads.filter((l) => l.leadStatus === "new").length,
-    contacted: leads.filter((l) => l.leadStatus === "contacted").length,
-    qualified: leads.filter((l) => l.leadStatus === "qualified").length,
-    converted: leads.filter((l) => l.leadStatus === "converted").length,
-    unqualified: leads.filter((l) => l.leadStatus === "unqualified").length,
+  const stages = [
+    "new",
+    "contacted",
+    "proposal sent",
+    "negotiation",
+    "document collected",
+    "Application done",
+    "In Progress",
+    "Completed",
+  ];
+
+  const getCurrentStage = (lead) => {
+    if (lead.leadStages && lead.leadStages.length > 0) {
+      return lead.leadStages[lead.leadStages.length - 1].stageName;
+    }
+    return null;
   };
 
-  const totalLeads = leads.length;
-  const conversionRate = totalLeads > 0 ? Math.round((leadCounts.converted / totalLeads) * 100) : 0;
+  const stageCounts = {};
+  stages.forEach((stage) => {
+    stageCounts[stage] = leads.filter((l) => getCurrentStage(l) === stage).length;
+  });
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  const totalLeads = leads.length;
+  const completedLeads = stageCounts["Completed"] || 0;
+  const completionRate = totalLeads > 0 ? Math.round((completedLeads / totalLeads) * 100) : 0;
+
+  if (loading) return <div className="p-6 text-center text-gray-600">Loading your assigned leads...</div>;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-white min-h-screen">
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Overview of your leads and performance</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
+        <p className="text-sm text-gray-500">Overview of your assigned leads and performance</p>
       </div>
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
-          <div className="text-sm text-gray-600">New</div>
-          <div className="text-2xl font-bold text-blue-600">{leadCounts.new}</div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">Total Leads</p>
+          <p className="text-2xl font-bold text-blue-600 mt-1">{totalLeads}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-500">
-          <div className="text-sm text-gray-600">Contacted</div>
-          <div className="text-2xl font-bold text-yellow-600">{leadCounts.contacted}</div>
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">In Progress</p>
+          <p className="text-2xl font-bold text-orange-600 mt-1">{(stageCounts["In Progress"] || 0)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
-          <div className="text-sm text-gray-600">Qualified</div>
-          <div className="text-2xl font-bold text-purple-600">{leadCounts.qualified}</div>
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">Completed</p>
+          <p className="text-2xl font-bold text-green-600 mt-1">{completedLeads}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
-          <div className="text-sm text-gray-600">Converted</div>
-          <div className="text-2xl font-bold text-green-600">{leadCounts.converted}</div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500">
-          <div className="text-sm text-gray-600">Unqualified</div>
-          <div className="text-2xl font-bold text-red-600">{leadCounts.unqualified}</div>
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">Completion Rate</p>
+          <p className="text-2xl font-bold text-purple-600 mt-1">{completionRate}%</p>
         </div>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="text-sm text-gray-600 mb-2">Total Leads</div>
-          <div className="text-4xl font-bold text-gray-800 mb-4">{totalLeads}</div>
-          <div className="text-xs text-gray-500">All assigned leads</div>
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-2">Active Leads</p>
+          <p className="text-3xl font-bold text-gray-900">
+            {leads.filter(l => {
+              const stage = getCurrentStage(l);
+              return stage && stage !== "Completed";
+            }).length}
+          </p>
+          <p className="text-xs text-gray-500 mt-2">Leads in progress</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="text-sm text-gray-600 mb-2">Conversion Rate</div>
-          <div className="text-4xl font-bold text-green-600 mb-4">{conversionRate}%</div>
-          <div className="text-xs text-gray-500">{leadCounts.converted} out of {totalLeads} converted</div>
+        <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition">
+          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-2">No Stage Assigned</p>
+          <p className="text-3xl font-bold text-gray-900">
+            {leads.filter(l => !getCurrentStage(l)).length}
+          </p>
+          <p className="text-xs text-gray-500 mt-2">Awaiting stage assignment</p>
         </div>
       </div>
 
-      {/* Quick Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600 mb-2">Pending Follow-up</div>
-              <div className="text-3xl font-bold text-yellow-600">{leadCounts.new + leadCounts.contacted}</div>
+      {/* Stage Distribution */}
+      <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Stage Distribution</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {stages.map((stage) => (
+            <div key={stage} className="text-center p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-300 transition">
+              <p className="text-2xl font-bold text-gray-900">{stageCounts[stage] || 0}</p>
+              <p className="text-xs text-gray-500 mt-1">{stage}</p>
             </div>
-            <div className="text-5xl opacity-10">📞</div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600 mb-2">Ready to Proceed</div>
-              <div className="text-3xl font-bold text-purple-600">{leadCounts.qualified}</div>
-            </div>
-            <div className="text-5xl opacity-10">✓</div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600 mb-2">Success Rate</div>
-              <div className="text-3xl font-bold text-green-600">{totalLeads > 0 ? Math.round(((leadCounts.qualified + leadCounts.converted) / totalLeads) * 100) : 0}%</div>
-            </div>
-            <div className="text-5xl opacity-10">🎯</div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

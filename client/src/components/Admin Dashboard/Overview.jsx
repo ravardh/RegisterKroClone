@@ -3,15 +3,37 @@ import axios from '../../config/api';
 import toast from 'react-hot-toast';
 import { FaLeaf, FaUsers, FaBox, FaClipboardCheck } from 'react-icons/fa';
 
+const stages = [
+  "new",
+  "contacted",
+  "proposal sent",
+  "negotiation",
+  "document collected",
+  "Application done",
+  "In Progress",
+  "Completed",
+];
+
+const stageColors = {
+  new: "bg-gray-100 text-gray-700",
+  contacted: "bg-blue-100 text-blue-700",
+  "proposal sent": "bg-purple-100 text-purple-700",
+  negotiation: "bg-orange-100 text-orange-700",
+  "document collected": "bg-yellow-100 text-yellow-700",
+  "Application done": "bg-indigo-100 text-indigo-700",
+  "In Progress": "bg-cyan-100 text-cyan-700",
+  Completed: "bg-green-100 text-green-700",
+};
+
 const Overview = () => {
   const [stats, setStats] = useState({
     totalLeads: 0,
-    newLeads: 0,
-    contactedLeads: 0,
-    convertedLeads: 0,
-    closedLeads: 0,
+    completedLeads: 0,
+    inProgressLeads: 0,
+    noStageLeads: 0,
     totalRMs: 0,
     totalServices: 0,
+    stageCounts: {},
   });
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +41,13 @@ const Overview = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const getCurrentStage = (lead) => {
+    if (lead.leadStages && lead.leadStages.length > 0) {
+      return lead.leadStages[lead.leadStages.length - 1].stageName;
+    }
+    return null;
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -33,20 +62,24 @@ const Overview = () => {
       const rms = rmsRes.data.data || [];
       const services = servicesRes.data.data || [];
 
-      // Calculate stats
-      const newCount = leads.filter(l => l.leadStatus === 'new').length;
-      const contactedCount = leads.filter(l => l.leadStatus === 'contacted').length;
-      const convertedCount = leads.filter(l => l.leadStatus === 'converted').length;
-      const closedCount = leads.filter(l => l.leadStatus === 'closed').length;
+      // Calculate stats based on stages
+      const stageCounts = {};
+      stages.forEach(stage => {
+        stageCounts[stage] = leads.filter(l => getCurrentStage(l) === stage).length;
+      });
+
+      const completedLeads = stageCounts["Completed"] || 0;
+      const inProgressLeads = stageCounts["In Progress"] || 0;
+      const noStageLeads = leads.filter(l => !getCurrentStage(l)).length;
 
       setStats({
         totalLeads: leads.length,
-        newLeads: newCount,
-        contactedLeads: contactedCount,
-        convertedLeads: convertedCount,
-        closedLeads: closedCount,
+        completedLeads,
+        inProgressLeads,
+        noStageLeads,
         totalRMs: rms.length,
         totalServices: services.length,
+        stageCounts,
       });
 
       // Get recent 5 leads
@@ -102,8 +135,8 @@ const Overview = () => {
         />
         <StatCard
           icon={FaClipboardCheck}
-          label="New Leads"
-          value={stats.newLeads}
+          label="Completed"
+          value={stats.completedLeads}
           bgColor="bg-green-500"
         />
         <StatCard
@@ -120,25 +153,19 @@ const Overview = () => {
         />
       </div>
 
-      {/* Lead Status Overview */}
+      {/* Lead Stage Distribution */}
       <div className="border border-gray-100 rounded-lg p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Status Distribution</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <p className="text-3xl font-bold text-blue-600">{stats.newLeads}</p>
-            <p className="text-xs text-gray-600 mt-1">New</p>
-          </div>
-          <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-            <p className="text-3xl font-bold text-yellow-600">{stats.contactedLeads}</p>
-            <p className="text-xs text-gray-600 mt-1">Contacted</p>
-          </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
-            <p className="text-3xl font-bold text-green-600">{stats.convertedLeads}</p>
-            <p className="text-xs text-gray-600 mt-1">Converted</p>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <p className="text-3xl font-bold text-gray-600">{stats.closedLeads}</p>
-            <p className="text-xs text-gray-600 mt-1">Closed</p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Stage Distribution</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {stages.map(stage => (
+            <div key={stage} className={`text-center p-3 rounded-lg border ${stageColors[stage]}`}>
+              <p className="text-2xl font-bold">{stats.stageCounts[stage] || 0}</p>
+              <p className="text-xs mt-1">{stage}</p>
+            </div>
+          ))}
+          <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-2xl font-bold text-gray-600">{stats.noStageLeads}</p>
+            <p className="text-xs text-gray-600 mt-1">No Stage</p>
           </div>
         </div>
       </div>
@@ -150,51 +177,48 @@ const Overview = () => {
           {recentLeads.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-4">No leads yet</p>
           ) : (
-            recentLeads.map((lead) => (
-              <div
-                key={lead._id}
-                className="border border-gray-100 rounded-lg p-3 hover:border-gray-300 transition duration-150"
-              >
-                <div className="flex justify-between items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {lead.clientName}
-                      </h3>
-                      <span className="text-xs text-gray-400 flex-shrink-0">
-                        #{lead.leadID}
-                      </span>
+            recentLeads.map((lead) => {
+              const currentStage = getCurrentStage(lead);
+              return (
+                <div
+                  key={lead._id}
+                  className="border border-gray-100 rounded-lg p-3 hover:border-gray-300 transition duration-150"
+                >
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                          {lead.clientName}
+                        </h3>
+                        <span className="text-xs text-gray-400 flex-shrink-0">
+                          #{lead.leadID}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5 truncate">
+                        {lead.clientEmail}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                          {lead.interestedService}
+                        </span>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            stageColors[currentStage] || 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          {currentStage || 'No Stage'}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 truncate">
-                      {lead.clientEmail}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
-                        {lead.interestedService}
-                      </span>
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          lead.leadStatus === 'new'
-                            ? 'bg-blue-100 text-blue-700'
-                            : lead.leadStatus === 'contacted'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : lead.leadStatus === 'converted'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {lead.leadStatus}
-                      </span>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs text-gray-500">
+                        {lead.assignedTo?.fullName || '—'}
+                      </p>
                     </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-gray-500">
-                      {lead.assignedTo?.fullName || '—'}
-                    </p>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -204,10 +228,10 @@ const Overview = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
-            <p className="text-xs text-gray-500 uppercase font-medium">Conversion Rate</p>
+            <p className="text-xs text-gray-500 uppercase font-medium">Completion Rate</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">
               {stats.totalLeads > 0
-                ? ((stats.convertedLeads / stats.totalLeads) * 100).toFixed(1)
+                ? ((stats.completedLeads / stats.totalLeads) * 100).toFixed(1)
                 : 0}
               %
             </p>
@@ -219,9 +243,9 @@ const Overview = () => {
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase font-medium">Active Leads</p>
+            <p className="text-xs text-gray-500 uppercase font-medium">In Progress</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">
-              {stats.newLeads + stats.contactedLeads}
+              {stats.inProgressLeads}
             </p>
           </div>
         </div>

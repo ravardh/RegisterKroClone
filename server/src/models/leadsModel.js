@@ -23,11 +23,33 @@ const leadsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    leadStatus: {
-      type: String,
-      enum: ["new", "contacted", "converted", "closed"],
-      default: "new",
-    },
+    leadStages: [
+      {
+        stageName: {
+          type: String,
+          enum: [
+            "new",
+            "contacted",
+            "proposal sent",
+            "negotiation",
+            "document collected",
+            "Application done",
+            "In Progress",
+            "Completed",
+          ],
+          required: true,
+        },
+        updatedby: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

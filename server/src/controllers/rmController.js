@@ -18,6 +18,65 @@ export const AssignedLeads = async (req, res, next) => {
   }
 };
 
+export const UpdateLeadStage = async (req, res, next) => {
+  try {
+    const { leadId } = req.params;
+    const { stageName } = req.body;
+    const rmId = req.user._id;
+
+    if (!stageName) {
+      const error = new Error("Stage name is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const validStages = [
+      "new",
+      "contacted",
+      "proposal sent",
+      "negotiation",
+      "document collected",
+      "Application done",
+      "In Progress",
+      "Completed",
+    ];
+
+    if (!validStages.includes(stageName)) {
+      const error = new Error("Invalid stage name");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Add the new stage to the leadStages array
+    const updatedLead = await Leads.findByIdAndUpdate(
+      leadId,
+      {
+        $push: {
+          leadStages: {
+            stageName,
+            updatedby: rmId,
+            updatedAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    ).populate("assignedTo", "fullName email phone role");
+
+    if (!updatedLead) {
+      const error = new Error("Lead not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Lead stage updated successfully",
+      data: updatedLead,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const UpdateLeadStatus = async (req, res, next) => {
   try {
     const { leadId } = req.params;

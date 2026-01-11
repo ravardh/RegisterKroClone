@@ -10,7 +10,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: FaChartBar },
-    { id: "leadstatus", label: "Lead Status", icon: FaClipboardList },
+    { id: "leadstatus", label: "Assigned Leads", icon: FaClipboardList },
   ];
 
   const handleLogout = async () => {

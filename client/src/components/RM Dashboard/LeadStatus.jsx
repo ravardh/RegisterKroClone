@@ -1,105 +1,80 @@
-import React, { useState } from "react";
-import { FaPhone, FaEnvelope, FaEdit, FaEye, FaFilter } from "react-icons/fa";
-import ViewLeadModal from "./Modals/ViewLeadModal";
+import React, { useState, useEffect } from "react";
+import { FaPhone, FaEnvelope, FaEdit, FaCheckCircle } from "react-icons/fa";
+import axios from "../../config/api";
+import toast from "react-hot-toast";
 
-const dummyLeads = [
-  {
-    leadID: "LD001",
-    clientName: "John Smith",
-    clientEmail: "john.smith@example.com",
-    clientPhone: "+1 234-567-8900",
-    interestedService: "Company Registration",
-    leadStatus: "new",
-    createdAt: "2026-01-08T10:30:00Z",
-  },
-  {
-    leadID: "LD002",
-    clientName: "Sarah Johnson",
-    clientEmail: "sarah.j@example.com",
-    clientPhone: "+1 234-567-8901",
-    interestedService: "GST Registration",
-    leadStatus: "contacted",
-    createdAt: "2026-01-07T14:20:00Z",
-  },
-  {
-    leadID: "LD003",
-    clientName: "Michael Brown",
-    clientEmail: "m.brown@example.com",
-    clientPhone: "+1 234-567-8902",
-    interestedService: "Income Tax Filing",
-    leadStatus: "qualified",
-    createdAt: "2026-01-06T09:15:00Z",
-  },
-  {
-    leadID: "LD004",
-    clientName: "Emily Davis",
-    clientEmail: "emily.davis@example.com",
-    clientPhone: "+1 234-567-8903",
-    interestedService: "Trademark Registration",
-    leadStatus: "converted",
-    createdAt: "2026-01-05T16:45:00Z",
-  },
-  {
-    leadID: "LD005",
-    clientName: "Robert Wilson",
-    clientEmail: "r.wilson@example.com",
-    clientPhone: "+1 234-567-8904",
-    interestedService: "Accounting Services",
-    leadStatus: "new",
-    createdAt: "2026-01-09T11:00:00Z",
-  },
-  {
-    leadID: "LD006",
-    clientName: "Jessica Martinez",
-    clientEmail: "jessica.m@example.com",
-    clientPhone: "+1 234-567-8905",
-    interestedService: "Business Consulting",
-    leadStatus: "contacted",
-    createdAt: "2026-01-04T13:30:00Z",
-  },
-  {
-    leadID: "LD007",
-    clientName: "David Anderson",
-    clientEmail: "d.anderson@example.com",
-    clientPhone: "+1 234-567-8906",
-    interestedService: "FSSAI Registration",
-    leadStatus: "unqualified",
-    createdAt: "2026-01-03T10:20:00Z",
-  },
+const stages = [
+  "new",
+  "contacted",
+  "proposal sent",
+  "negotiation",
+  "document collected",
+  "Application done",
+  "In Progress",
+  "Completed",
 ];
 
-const statuses = ["new", "contacted", "qualified", "converted", "unqualified"];
-
-const statusColors = {
-  new: "bg-blue-100 text-blue-800 border-blue-300",
-  contacted: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  qualified: "bg-purple-100 text-purple-800 border-purple-300",
-  converted: "bg-green-100 text-green-800 border-green-300",
-  unqualified: "bg-red-100 text-red-800 border-red-300",
+const stageColors = {
+  new: "bg-gray-100 text-gray-800 border-gray-300",
+  contacted: "bg-blue-100 text-blue-800 border-blue-300",
+  "proposal sent": "bg-purple-100 text-purple-800 border-purple-300",
+  negotiation: "bg-orange-100 text-orange-800 border-orange-300",
+  "document collected": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Application done": "bg-indigo-100 text-indigo-800 border-indigo-300",
+  "In Progress": "bg-cyan-100 text-cyan-800 border-cyan-300",
+  Completed: "bg-green-100 text-green-800 border-green-300",
 };
 
 const LeadStatus = () => {
-  const [leads, setLeads] = useState(dummyLeads);
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedLead, setSelectedLead] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [leads, setLeads] = useState([]);
+  const [filterStage, setFilterStage] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [editingLead, setEditingLead] = useState(null);
+  const [selectedStage, setSelectedStage] = useState("");
 
-  const filteredLeads =
-    filterStatus === "all"
-      ? leads
-      : leads.filter((lead) => lead.leadStatus === filterStatus);
+  useEffect(() => {
+    fetchLeads();
+  }, []);
 
-  const handleStatusChange = (leadID, newStatus) => {
-    setLeads((prev) =>
-      prev.map((lead) =>
-        lead.leadID === leadID ? { ...lead, leadStatus: newStatus } : lead
-      )
-    );
+  const fetchLeads = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/rm/leads`);
+      const data = res?.data?.data;
+      setLeads(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+      toast.error("Failed to load assigned leads");
+      setLeads([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const viewLeadDetails = (lead) => {
-    setSelectedLead(lead);
-    setShowModal(true);
+  const getCurrentStage = (lead) => {
+    if (lead.leadStages && lead.leadStages.length > 0) {
+      return lead.leadStages[lead.leadStages.length - 1].stageName;
+    }
+    return null;
+  };
+
+  const filteredLeads = leads.filter((lead) => {
+    if (filterStage === "all") return true;
+    return getCurrentStage(lead) === filterStage;
+  });
+
+  const handleStageChange = async (leadId, newStage) => {
+    try {
+      const payload = { stageName: newStage };
+      await axios.put(`/rm/update-stage/${leadId}`, payload);
+      toast.success("Lead stage updated successfully");
+      setEditingLead(null);
+      setSelectedStage("");
+      fetchLeads();
+    } catch (error) {
+      console.error('Error updating stage:', error);
+      toast.error(error.response?.data?.message || "Failed to update stage");
+    }
   };
 
   const formatDate = (dateString) => {
@@ -111,178 +86,186 @@ const LeadStatus = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm">Loading your leads...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-white min-h-screen">
       
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Lead Management</h1>
-        <p className="text-gray-600">Track and manage your assigned leads</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Lead Management</h1>
+        <p className="text-sm text-gray-500">Track and update your assigned leads</p>
       </div>
 
       
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
-          <div className="text-sm text-gray-600">New</div>
-          <div className="text-2xl font-bold text-blue-600">
-            {leads.filter((l) => l.leadStatus === "new").length}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-500">
-          <div className="text-sm text-gray-600">Contacted</div>
-          <div className="text-2xl font-bold text-yellow-600">
-            {leads.filter((l) => l.leadStatus === "contacted").length}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
-          <div className="text-sm text-gray-600">Qualified</div>
-          <div className="text-2xl font-bold text-purple-600">
-            {leads.filter((l) => l.leadStatus === "qualified").length}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
-          <div className="text-sm text-gray-600">Converted</div>
-          <div className="text-2xl font-bold text-green-600">
-            {leads.filter((l) => l.leadStatus === "converted").length}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500">
-          <div className="text-sm text-gray-600">Unqualified</div>
-          <div className="text-2xl font-bold text-red-600">
-            {leads.filter((l) => l.leadStatus === "unqualified").length}
-          </div>
-        </div>
-      </div>
-
-      
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div className="flex items-center gap-3 flex-wrap">
-          <FaFilter className="text-gray-600" />
-          <span className="font-medium text-gray-700">Filter by Status:</span>
+      <div className="border border-gray-100 rounded-lg p-4 mb-6 bg-gray-50">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-medium text-gray-700 text-sm">Filter:</span>
           <button
-            onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "all"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            onClick={() => setFilterStage("all")}
+            className={`px-3 py-1.5 rounded-lg text-sm transition ${
+              filterStage === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-white border border-gray-200 text-gray-700 hover:border-gray-300"
             }`}
           >
             All ({leads.length})
           </button>
-          {statuses.map((status) => (
+          {stages.map((stage) => (
             <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`px-4 py-2 rounded-lg transition-colors capitalize ${
-                filterStatus === status
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              key={stage}
+              onClick={() => setFilterStage(stage)}
+              className={`px-3 py-1.5 rounded-lg text-sm transition ${
+                filterStage === stage
+                  ? "bg-blue-600 text-white"
+                  : "bg-white border border-gray-200 text-gray-700 hover:border-gray-300"
               }`}
             >
-              {status} ({leads.filter((l) => l.leadStatus === status).length})
+              {stage} ({leads.filter((l) => getCurrentStage(l) === stage).length})
             </button>
           ))}
         </div>
       </div>
 
       
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Lead ID
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Client Details
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Service
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLeads.map((lead) => (
-                <tr
-                  key={lead.leadID}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {lead.leadID}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {lead.clientName}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <FaEnvelope className="mr-1" />
-                        {lead.clientEmail}
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <FaPhone className="mr-1" />
-                        {lead.clientPhone}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      {lead.interestedService}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <select
-                      value={lead.leadStatus}
-                      onChange={(e) =>
-                        handleStatusChange(lead.leadID, e.target.value)
-                      }
-                      className={`px-3 py-1 text-xs font-semibold rounded-full border capitalize cursor-pointer ${
-                        statusColors[lead.leadStatus]
-                      }`}
-                    >
-                      {statuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(lead.createdAt)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <button
-                      onClick={() => viewLeadDetails(lead)}
-                      className="inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                      <FaEye className="mr-2" />
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {filteredLeads.length === 0 ? (
+        <div className="text-center py-12 border border-gray-100 rounded-lg">
+          <p className="text-gray-500 text-sm">No leads found in this stage</p>
         </div>
-      </div>
+      ) : (
+        <div className="space-y-3">
+          {filteredLeads.map((lead) => {
+            const currentStage = getCurrentStage(lead);
+            return (
+              <div
+                key={lead._id}
+                className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition"
+              >
+                <div className="flex justify-between items-start gap-4 flex-wrap md:flex-nowrap">
+                  {/* Lead Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {lead.clientName}
+                      </h3>
+                      <span className="text-xs text-gray-400">#{lead.leadID}</span>
+                    </div>
 
-      
-      <ViewLeadModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        selectedLead={selectedLead}
-      />
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-2 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <FaEnvelope className="text-gray-400" />
+                        <a href={`mailto:${lead.clientEmail}`} className="hover:text-blue-600">
+                          {lead.clientEmail}
+                        </a>
+                      </div>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <FaPhone className="text-gray-400" />
+                        <a href={`tel:${lead.clientPhone}`} className="hover:text-blue-600">
+                          {lead.clientPhone}
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        {lead.interestedService}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {formatDate(lead.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Stage and Actions */}
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap md:flex-nowrap">
+                    {editingLead === lead._id ? (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <select
+                          value={selectedStage}
+                          onChange={(e) => setSelectedStage(e.target.value)}
+                          className="text-xs border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value="">Select stage</option>
+                          {stages.map((stage) => (
+                            <option key={stage} value={stage}>
+                              {stage}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => handleStageChange(lead._id, selectedStage)}
+                          className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingLead(null);
+                            setSelectedStage("");
+                          }}
+                          className="text-xs bg-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span
+                          className={`text-xs font-medium px-2.5 py-1 rounded border ${
+                            stageColors[currentStage] || "bg-gray-100 text-gray-800 border-gray-300"
+                          }`}
+                        >
+                          {currentStage || "No Stage"}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setEditingLead(lead._id);
+                            setSelectedStage(currentStage || "");
+                          }}
+                          className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1"
+                        >
+                          <FaEdit size={12} />
+                          Edit
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Stage History */}
+                {lead.leadStages && lead.leadStages.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 font-medium mb-2">Stage History:</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {lead.leadStages.map((stage, idx) => (
+                        <div key={idx} className="flex items-center gap-1">
+                          <FaCheckCircle size={12} className="text-green-600" />
+                          <span className="text-xs text-gray-600">{stage.stageName}</span>
+                          <span className="text-xs text-gray-400">
+                            {formatDate(stage.updatedAt)}
+                          </span>
+                          {idx < lead.leadStages.length - 1 && (
+                            <span className="text-gray-300 ml-1">→</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

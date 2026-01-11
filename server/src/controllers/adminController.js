@@ -22,10 +22,11 @@ export const getAllLeads = async (req, res, next) => {
 export const assignLeadToRM = async (req, res, next) => {
   try {
     const { leadId } = req.params;
-    const { rmId, leadStatus } = req.body;
+    const { rmId, stageName } = req.body;
+    const adminId = req.user._id;
 
-    if (!rmId && !leadStatus) {
-      const error = new Error("Either RM ID or lead status is required");
+    if (!rmId && !stageName) {
+      const error = new Error("Either RM ID or stage name is required");
       error.statusCode = 400;
       return next(error);
     }
@@ -36,14 +37,30 @@ export const assignLeadToRM = async (req, res, next) => {
       updateData.assignedTo = rmId;
     }
     
-    if (leadStatus) {
-      const validStatuses = ["new", "contacted", "converted", "closed"];
-      if (!validStatuses.includes(leadStatus)) {
-        const error = new Error("Invalid status value");
+    if (stageName) {
+      const validStages = [
+        "new",
+        "contacted",
+        "proposal sent",
+        "negotiation",
+        "document collected",
+        "Application done",
+        "In Progress",
+        "Completed",
+      ];
+      if (!validStages.includes(stageName)) {
+        const error = new Error("Invalid stage name");
         error.statusCode = 400;
         return next(error);
       }
-      updateData.leadStatus = leadStatus;
+      // Push new stage to leadStages array
+      updateData.$push = {
+        leadStages: {
+          stageName,
+          updatedby: adminId,
+          updatedAt: new Date(),
+        },
+      };
     }
 
     const updatedLead = await Leads.findByIdAndUpdate(
