@@ -2,17 +2,31 @@ import React from "react";
 import { FaChartBar, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from "../../config/api";
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
+  const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: FaChartBar },
     { id: "leadstatus", label: "Lead Status", icon: FaClipboardList },
   ];
 
-  const handleLogout = () => {
-    toast.success("Logged out successfully!");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post("/auth/logout");
+      sessionStorage.removeItem("user");
+      setUser(null);
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      setIsRM(false);
+      toast.success("Logged out successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+      toast.error(error.response?.data?.message || "Logout failed. Please try again.");
+    }
   };
 
   return (
