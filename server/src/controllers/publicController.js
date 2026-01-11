@@ -1,5 +1,29 @@
-export const ContactUs = (req, res) => {
-  res.send("Contact Us endpoint");
+import Contact from "../models/contactModel.js";
+
+export const ContactUs = async (req, res, next) => {
+  try {
+    const { fullName, email, phone, message } = req.body;
+
+    if (!fullName || !email || !phone || !message) {
+      const error = new Error("All fields are required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const newContact = await Contact.create({
+      fullName,
+      email,
+      phone,
+      message,
+    });
+
+    res.status(201).json({
+      message: "Contact form submitted successfully",
+      data: newContact,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 export const LeadCapture = (req, res) => {
   res.send("Lead Capture endpoint");

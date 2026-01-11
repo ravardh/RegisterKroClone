@@ -1,8 +1,48 @@
 import User from "../models/userModel.js";
+import Contact from "../models/contactModel.js";
 import bcrypt from "bcrypt";
 
 export const getAllLeads = (req, res) => {
   res.send("Get All Leads endpoint");
+};
+
+export const getAllContacts = async (req, res, next) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      message: "Contacts fetched successfully",
+      data: contacts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteContact = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("Contact ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const deletedContact = await Contact.findByIdAndDelete(id);
+
+    if (!deletedContact) {
+      const error = new Error("Contact not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Contact deleted successfully",
+      data: deletedContact,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getRm = async (req, res, next) => {
