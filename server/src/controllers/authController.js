@@ -70,7 +70,13 @@ export const Login = async (req, res, next) => {
 
 export const Logout = (req, res, next) => {
   try {
-    //remainig logic after implementing sessions or tokens
+    // Clear auth cookie to invalidate session/token
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+    });
+
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     next(error);
