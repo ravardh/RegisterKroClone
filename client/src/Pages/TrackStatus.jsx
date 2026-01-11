@@ -79,8 +79,8 @@ const TrackStatus = () => {
 
   return (
     <div className="bg-[url('hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
-      <div className="w-full px-4 md:px-8 lg:px-10 flex items-center min-h-screen py-8">
-        <div className="w-full">
+      <div className="w-full px-4 md:px-8 lg:px-10 flex flex-col py-18">
+        <div className="w-full grow">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 mb-8 lg:mb-12">
               
