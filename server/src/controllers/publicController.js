@@ -82,9 +82,22 @@ export const PostFeedback = async (req, res, next) => {
   }
 };
 
-export const getAllFeedback = (req, res) => {
-  res.send("Get All Feedback endpoint");
+export const getAllFeedback = async (req, res, next) => {
+  try {
+    const feedbacks = await Feedback.find({ starRating: { $gte: 4 } })
+      .populate("serviceAvailed", "serviceName")
+      .sort({ starRating: -1, createdAt: -1 })
+      .limit(20);
+
+    res.status(200).json({
+      message: "Feedbacks fetched successfully",
+      data: feedbacks,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
 export const getFeedbackByserviceId = (req, res) => {
   res.send("Get Feedback By Service ID endpoint");
 };
