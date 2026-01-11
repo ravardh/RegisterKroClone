@@ -507,10 +507,9 @@ export const deleteSubCategory = async (req, res, next) => {
       return next(error);
     }
 
-    // Check if subcategory has services
+    // Check if any services reference this sub-category
     const servicesCount = await Service.countDocuments({
-      category: subCategory.category.name,
-      subCategory: subCategory.name,
+      subCategory: subCategory._id,
     });
 
     if (servicesCount > 0) {
