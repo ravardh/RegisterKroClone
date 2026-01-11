@@ -1,5 +1,6 @@
 import Contact from "../models/contactModel.js";
 import Category from "../models/categoryModel.js";
+import SubCategory from "../models/subCategoryModel.js";
 import Service from "../models/ServiceModel.js";
 import Feedback from "../models/feedbackModel.js";
 
@@ -98,6 +99,91 @@ export const getPublicServices = async (req, res, next) => {
     res.status(200).json({
       message: "Services fetched successfully",
       data: services,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPublicSubCategories = async (req, res, next) => {
+  try {
+    const { categoryId } = req.params;
+    
+    if (!categoryId) {
+      const error = new Error("Category ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const subCategories = await SubCategory.find({ 
+      category: categoryId, 
+      isActive: true 
+    }).sort({ name: 1 });
+    
+    res.status(200).json({
+      message: "Subcategories fetched successfully",
+      data: subCategories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPublicServicesBySubCategory = async (req, res, next) => {
+  try {
+    const { subCategoryId } = req.params;
+    
+    if (!subCategoryId) {
+      const error = new Error("SubCategory ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const services = await Service.find({ 
+      subCategory: subCategoryId, 
+      isActive: true 
+    })
+      .select("serviceName shortDescription")
+      .sort({ serviceName: 1 });
+    
+    res.status(200).json({
+      message: "Services fetched successfully",
+      data: services,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getServiceById = async (req, res, next) => {
+  try {
+    const { serviceId } = req.params;
+    
+    if (!serviceId) {
+      const error = new Error("Service ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const service = await Service.findById(serviceId)
+      .populate("category", "name")
+      .populate("subCategory", "name");
+    
+    if (!service) {
+      const error = new Error("Service not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (!service.isActive) {
+      const error = new Error("Service is not available");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Service details fetched successfully",
+      data: service,
     });
   } catch (error) {
     next(error);

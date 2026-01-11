@@ -35,7 +35,7 @@ const Layout = () => {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route
-            path="/services/:category/:subcategory/:service"
+            path="/service/:serviceId"
             element={<ServiceDetail />}
           />
           <Route path="/trackStatus" element={<TrackStatus />} />
