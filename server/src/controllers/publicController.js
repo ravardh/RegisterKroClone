@@ -1,4 +1,5 @@
 import Contact from "../models/contactModel.js";
+import Category from "../models/categoryModel.js";
 import Service from "../models/ServiceModel.js";
 import Feedback from "../models/feedbackModel.js";
 
@@ -22,6 +23,18 @@ export const ContactUs = async (req, res, next) => {
     res.status(201).json({
       message: "Contact form submitted successfully",
       data: newContact,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPublicCategories = async (req, res, next) => {
+  try {
+    const categories = await Category.find({ isActive: true }).sort({ name: 1 });
+    res.status(200).json({
+      message: "Categories fetched successfully",
+      data: categories,
     });
   } catch (error) {
     next(error);

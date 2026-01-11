@@ -6,6 +6,7 @@ import {
   PostFeedback,
   getAllFeedback,
   getFeedbackByserviceId,
+  getPublicCategories,
   getPublicServices,
 } from "../controllers/publicController.js";
 
@@ -17,6 +18,7 @@ router.get("/track", TrackService);
 router.post("/feedback", PostFeedback);
 router.get("/feedback", getAllFeedback);
 router.get("/feedback/:id", getFeedbackByserviceId);
+router.get("/categories", getPublicCategories);
 router.get("/services", getPublicServices);
 
 export default router;

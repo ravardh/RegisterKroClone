@@ -6,53 +6,10 @@ import Step1 from "../assets/comp1.svg";
 import Step2 from "../assets/comp2.svg";
 import Step3 from "../assets/comp3.svg";
 import Step4 from "../assets/comp4.svg";
+import axiosInstance from "../config/api";
 
 const Home = () => {
-  const services = [
-    {
-      title: "Company Registration",
-      description:
-        "Register your business quickly and easily with our expert assistance.",
-    },
-    {
-      title: "Tax Filing",
-      description:
-        "Ensure compliance with our hassle-free tax filing services.",
-    },
-    {
-      title: "Business Consultation",
-      description: "Get expert advice to help your business grow and succeed.",
-    },
-    {
-      title: "Trademark Registration",
-      description:
-        "Protect your brand with our comprehensive trademark services.",
-    },
-    {
-      title: "GST Registration",
-      description: "Simplified GST registration and compliance management.",
-    },
-    {
-      title: "Legal Documentation",
-      description:
-        "Professional legal documentation services for your business.",
-    },
-    {
-      title: "Annual Compliance",
-      description:
-        "Stay compliant with annual filing and regulatory requirements.",
-    },
-    {
-      title: "Accounting Services",
-      description:
-        "Expert accounting and bookkeeping solutions for your business.",
-    },
-    {
-      title: "License & Permits",
-      description:
-        "Obtain all necessary licenses and permits for your business.",
-    },
-  ];
+  const [categories, setCategories] = useState([]);
 
   const reviews = [
     {
@@ -94,11 +51,25 @@ const Home = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const servicesPerPage = 3;
-  const maxIndex = Math.ceil(services.length / servicesPerPage) - 1;
+  const maxIndex = Math.ceil(categories.length / servicesPerPage) - 1;
 
   const [reviewIndex, setReviewIndex] = useState(0);
   const reviewsPerPage = 3;
   const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
+
+  useEffect(() => {
+    // Fetch categories from the backend
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get("/public/categories");
+        setCategories(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -129,7 +100,7 @@ const Home = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
   };
 
-  const visibleServices = services.slice(
+  const visibleCategories = categories.slice(
     currentIndex * servicesPerPage,
     (currentIndex + 1) * servicesPerPage
   );
@@ -162,15 +133,15 @@ const Home = () => {
           </p>
           <div className="relative px-6 sm:px-12 md:px-20 lg:px-25 mx-auto">
             <div className="services-grid grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
-              {visibleServices.map((service, index) => (
+              {visibleCategories.map((category) => (
                 <div
-                  key={index}
+                  key={category._id}
                   className="service-card bg-white p-6 rounded-2xl shadow-md text-center"
                 >
                   <h3 className="text-(--text) text-2xl font-semibold mb-4">
-                    {service.title}
+                    {category.name}
                   </h3>
-                  <p className="text-(--secondary)">{service.description}</p>
+                  <p className="text-(--secondary)">{category.shortDescription || "Explore our comprehensive services in this category."}</p>
                   <Link
                     to="/services"
                     className="mt-4 flex text-(--primary) hover:text-(--primary-hover) font-medium"
