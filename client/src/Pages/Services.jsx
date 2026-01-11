@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../config/api";
 
 const Services = () => {
   const navigate = useNavigate();
@@ -7,6 +8,10 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
   
   const stats = [
     { number: "5000+", title: "Happy Clients", description: "Businesses served" },
@@ -16,179 +21,72 @@ const Services = () => {
     { number: "24/7", title: "Support", description: "Always available" }
   ];
 
-  const serviceCategories = [
-    "Company Registration",
-    "GST Services",
-    "Tax Filing",
-    "Trademark & IP",
-    "Licenses & Permits",
-    "Accounting Services",
-    "Legal Compliance",
-    "Annual Filings"
-  ];
+  useEffect(() => {
+    // Fetch categories on component mount
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get("/public/categories");
+        setCategories(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
 
-  const servicesData = {
-    "Company Registration": {
-      "Private Limited Company": [
-        "Private Limited Company Registration",
-        "Director KYC",
-        "Digital Signature Certificate (DSC)",
-        "Annual Compliance"
-      ],
-      "Public Limited Company": [
-        "Public Limited Company Registration",
-        "Share Certificate Printing",
-        "Board Meetings",
-        "Annual General Meeting"
-      ],
-      "LLP": [
-        "LLP Registration",
-        "LLP Agreement",
-        "Annual Filing",
-        "Conversion to LLP"
-      ],
-      "Sole Proprietorship": [
-        "Proprietorship Registration",
-        "MSME Registration",
-        "Shop Act License"
-      ],
-      "Partnership Firm": [
-        "Partnership Deed",
-        "Partnership Registration",
-        "Partnership Modification"
-      ]
-    },
-    "GST Services": {
-      "GST Registration": [
-        "New GST Registration",
-        "GST Modification",
-        "GST Cancellation",
-        "GST Migration"
-      ],
-      "GST Returns": [
-        "GSTR-1 Filing",
-        "GSTR-3B Filing",
-        "GSTR-9 Annual Return",
-        "GST Refund"
-      ],
-      "GST Compliance": [
-        "Input Tax Credit Reconciliation",
-        "E-Way Bill Generation",
-        "GST Notice Response"
-      ]
-    },
-    "Tax Filing": {
-      "Income Tax Returns": [
-        "Individual ITR Filing",
-        "Business ITR Filing",
-        "Professional ITR Filing",
-        "Capital Gains ITR"
-      ],
-      "TDS Returns": [
-        "TDS Return Filing",
-        "TDS Payment",
-        "Form 16 Issuance",
-        "Lower TDS Certificate"
-      ]
-    },
-    "Trademark & IP": {
-      "Trademark": [
-        "Trademark Registration",
-        "Trademark Search",
-        "Trademark Objection Reply",
-        "Trademark Renewal"
-      ],
-      "Copyright": [
-        "Copyright Registration",
-        "Copyright Assignment",
-        "Copyright Infringement"
-      ],
-      "Patent": [
-        "Patent Registration",
-        "Patent Search",
-        "Provisional Patent"
-      ]
-    },
-    "Licenses & Permits": {
-      "FSSAI License": [
-        "Basic FSSAI Registration",
-        "State FSSAI License",
-        "Central FSSAI License",
-        "FSSAI Renewal"
-      ],
-      "Import Export Code": [
-        "IEC Registration",
-        "IEC Modification",
-        "DGFT Services"
-      ],
-      "Professional Tax": [
-        "Professional Tax Registration",
-        "PT Return Filing"
-      ]
-    },
-    "Accounting Services": {
-      "Bookkeeping": [
-        "Monthly Bookkeeping",
-        "Accounts Reconciliation",
-        "Financial Statement Preparation"
-      ],
-      "Payroll": [
-        "Payroll Processing",
-        "PF/ESI Registration",
-        "Salary Structure Design"
-      ],
-      "Audit": [
-        "Statutory Audit",
-        "Tax Audit",
-        "Internal Audit"
-      ]
-    },
-    "Legal Compliance": {
-      "Company Law": [
-        "Board Resolutions",
-        "Shareholder Agreements",
-        "MoA/AoA Amendments"
-      ],
-      "Contract Drafting": [
-        "Employment Contracts",
-        "Vendor Agreements",
-        "NDA Agreements"
-      ]
-    },
-    "Annual Filings": {
-      "ROC Filings": [
-        "Annual Return (MGT-7)",
-        "Financial Statement Filing (AOC-4)",
-        "DIR-3 KYC",
-        "DPT-3 Filing"
-      ],
-      "Compliance Calendar": [
-        "Compliance Tracking",
-        "Due Date Reminders",
-        "Penalty Calculation"
-      ]
+    fetchCategories();
+  }, []);
+
+  const handleCategoryClick = async (category) => {
+    setSelectedCategory(category);
+    setIsModalOpen(true);
+    setLoading(true);
+    
+    try {
+      // Fetch subcategories for the selected category
+      const response = await axiosInstance.get(`/public/categories/${category._id}/subcategories`);
+      const fetchedSubCategories = response.data.data || [];
+      setSubCategories(fetchedSubCategories);
+      
+      // Auto-select the first subcategory
+      if (fetchedSubCategories.length > 0) {
+        setSelectedSubCategory(fetchedSubCategories[0]);
+        // Fetch services for the first subcategory
+        await fetchServicesForSubCategory(fetchedSubCategories[0]._id);
+      }
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-    const subCategories = Object.keys(servicesData[category] || {});
-    setSelectedSubCategory(subCategories[0] || null);
-    setIsModalOpen(true);
+  const fetchServicesForSubCategory = async (subCategoryId) => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/public/subcategories/${subCategoryId}/services`);
+      setServices(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubCategoryClick = async (subCategory) => {
+    setSelectedSubCategory(subCategory);
+    await fetchServicesForSubCategory(subCategory._id);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedCategory(null);
     setSelectedSubCategory(null);
+    setSubCategories([]);
+    setServices([]);
   };
 
-  const handleServiceClick = (categoryName, subCategoryName, serviceName) => {
-    // Convert to URL-friendly slugs
-    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
-    const subCategorySlug = subCategoryName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
-    const serviceSlug = serviceName.toLowerCase().replace(/\s+/g, '-').replace(/[()&]/g, '');
-    navigate(`/services/${categorySlug}/${subCategorySlug}/${serviceSlug}`);
+  const handleServiceClick = (serviceId) => {
+    navigate(`/service/${serviceId}`);
   };
 
   useEffect(() => {
@@ -255,15 +153,22 @@ const Services = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {serviceCategories.map((category, index) => (
-              <div 
-                key={index}
-                onClick={() => handleCategoryClick(category)}
-                className="bg-white border-l-4 border-(--primary) p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
-                <h3 className="text-lg font-semibold text-gray-800">{category}</h3>
+            {categories.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Loading categories...
               </div>
-            ))}
+            ) : (
+              categories.map((category) => (
+                <div 
+                  key={category._id}
+                  onClick={() => handleCategoryClick(category)}
+                  className="bg-white border-l-4 border-(--primary) p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+                >
+                  <h2 className="text-lg font-semibold text-gray-800">{category.name}</h2>
+                  
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -274,7 +179,7 @@ const Services = () => {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="bg-(--primary) px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">{selectedCategory}</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">{selectedCategory?.name}</h2>
               <button
                 onClick={handleCloseModal}
                 className="text-white hover:text-gray-200 transition-colors text-3xl font-light"
@@ -288,20 +193,26 @@ const Services = () => {
               {/* Left Section - Sub-categories - Dropdown on small screens, sidebar on larger */}
               <div className="hidden sm:block w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
                 <div className="p-3 sm:p-4">
-                  {servicesData[selectedCategory] && Object.keys(servicesData[selectedCategory]).map((subCat, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedSubCategory(subCat)}
-                      onMouseEnter={() => setSelectedSubCategory(subCat)}
-                      className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl mb-2 transition-all duration-200 text-sm sm:text-base ${
-                        selectedSubCategory === subCat
-                          ? "bg-(--primary) text-white shadow-md"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {subCat}
-                    </button>
-                  ))}
+                  {loading ? (
+                    <div className="text-center py-4 text-gray-500">Loading...</div>
+                  ) : subCategories.length === 0 ? (
+                    <div className="text-center py-4 text-gray-500">No subcategories found</div>
+                  ) : (
+                    subCategories.map((subCat) => (
+                      <button
+                        key={subCat._id}
+                        onClick={() => handleSubCategoryClick(subCat)}
+                        onMouseEnter={() => handleSubCategoryClick(subCat)}
+                        className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl mb-2 transition-all duration-200 text-sm sm:text-base ${
+                          selectedSubCategory?._id === subCat._id
+                            ? "bg-(--primary) text-white shadow-md"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {subCat.name}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -310,28 +221,35 @@ const Services = () => {
                 {/* Dropdown for mobile */}
                 <div className="sm:hidden p-3 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                   <select
-                    value={selectedSubCategory}
-                    onChange={(e) => setSelectedSubCategory(e.target.value)}
+                    value={selectedSubCategory?._id || ""}
+                    onChange={(e) => {
+                      const subCat = subCategories.find(sc => sc._id === e.target.value);
+                      if (subCat) handleSubCategoryClick(subCat);
+                    }}
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-(--primary)"
                   >
-                    {servicesData[selectedCategory] && Object.keys(servicesData[selectedCategory]).map((subCat, index) => (
-                      <option key={index} value={subCat}>
-                        {subCat}
+                    {subCategories.map((subCat) => (
+                      <option key={subCat._id} value={subCat._id}>
+                        {subCat.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="p-3 sm:p-4 md:p-6">
-                  {servicesData[selectedCategory] && servicesData[selectedCategory][selectedSubCategory] && (
+                  {loading ? (
+                    <div className="text-center py-8 text-gray-500">Loading services...</div>
+                  ) : services.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">No services found for this subcategory</div>
+                  ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                      {servicesData[selectedCategory][selectedSubCategory].map((service, index) => (
+                      {services.map((service) => (
                         <div
-                          key={index}
-                          onClick={() => handleServiceClick(selectedCategory, selectedSubCategory, service)}
+                          key={service._id}
+                          onClick={() => handleServiceClick(service._id)}
                           className="bg-white p-2 sm:p-3 md:p-4 hover:underline hover:underline-offset-2 text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer"
                         >
-                          <p className="hover:text-(--primary) font-medium text-sm sm:text-base">{service}</p>
+                          <p className="hover:text-(--primary) font-medium text-sm sm:text-base">{service.serviceName}</p>
                         </div>
                       ))}
                     </div>

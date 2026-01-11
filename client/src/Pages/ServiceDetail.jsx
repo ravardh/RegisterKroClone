@@ -2,14 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import axiosInstance from "../config/api";
 
 const ServiceDetail = () => {
-  const { category, subcategory, service } = useParams();
+  const { serviceId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewsPerPage, setReviewsPerPage] = useState(3);
+  const [serviceData, setServiceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,144 +65,25 @@ const ServiceDetail = () => {
 
   const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
 
-  // Demo service data - will be replaced with dynamic data later
-  const serviceData = {
-    title: "Private Limited Company Registration",
-    category: "Company Registration",
-    rating: 4.8,
-    reviews: 1250,
-    completedOrders: 5000,
-    description: "Register your Private Limited Company with ease. Get your business legally incorporated and start operations with complete compliance.",
-    highlights: [
-      "100% Online Process",
-      "Quick 7-10 Days Registration",
-      "Expert CA/CS Assistance",
-      "Government Fee Included",
-      "Free Consultation",
-      "Post Registration Support"
-    ],
-    whatYouGet: [
-      "Company Incorporation Certificate",
-      "PAN & TAN",
-      "Digital Signature Certificate (2 DSC)",
-      "DIN for 2 Directors",
-      "Company Name Approval",
-      "MOA & AOA Drafting",
-      "Share Certificates",
-      "First Year Annual Filing Support"
-    ],
-    process: [
-      {
-        step: 1,
-        title: "Submit Documents",
-        description: "Upload required documents through our secure portal"
-      },
-      {
-        step: 2,
-        title: "Name Approval",
-        description: "We get your company name approved from MCA"
-      },
-      {
-        step: 3,
-        title: "DSC & DIN",
-        description: "Digital Signature and Director Identification Number"
-      },
-      {
-        step: 4,
-        title: "File Incorporation",
-        description: "File SPICe+ form with Registrar of Companies"
-      },
-      {
-        step: 5,
-        title: "Get Certificate",
-        description: "Receive Certificate of Incorporation & PAN/TAN"
+  useEffect(() => {
+    const fetchServiceDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`/public/service/${serviceId}`);
+        setServiceData(response.data.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching service details:", err);
+        setError(err.response?.data?.message || "Failed to load service details");
+      } finally {
+        setLoading(false);
       }
-    ],
-    requirements: [
-      "PAN Card of all Directors",
-      "Aadhaar Card of all Directors",
-      "Passport size photographs",
-      "Address proof of registered office",
-      "Electricity bill or rent agreement",
-      "NOC from property owner"
-    ],
-    advantages: [
-      {
-        title: "Limited Liability Protection",
-        description: "Shareholders' personal assets are protected from business liabilities"
-      },
-      {
-        title: "Separate Legal Entity",
-        description: "Company exists as a separate legal entity independent of its owners"
-      },
-      {
-        title: "Easy Fundraising",
-        description: "Easier to raise funds from investors, banks, and financial institutions"
-      },
-      {
-        title: "Perpetual Succession",
-        description: "Company continues to exist even if shareholders change"
-      },
-      {
-        title: "Credibility & Trust",
-        description: "Enhanced brand value and credibility with customers and partners"
-      },
-      {
-        title: "Tax Benefits",
-        description: "Various tax exemptions and deductions available for companies"
-      }
-    ],
-    ourServices: [
-      {
-        title: "Complete Documentation",
-        description: "We handle all paperwork including MOA, AOA, and incorporation forms",
-        icon: "📄"
-      },
-      {
-        title: "Name Approval Assistance",
-        description: "Expert guidance in selecting and getting approval for your company name",
-        icon: "✅"
-      },
-      {
-        title: "DSC & DIN Processing",
-        description: "Quick processing of Digital Signature Certificate and Director Identification Number",
-        icon: "🔐"
-      },
-      {
-        title: "Compliance Support",
-        description: "First year compliance support including annual filing assistance",
-        icon: "📋"
-      },
-      {
-        title: "Expert Consultation",
-        description: "Free consultation with CA/CS for business structure planning",
-        icon: "👨‍💼"
-      },
-      {
-        title: "Post-Registration Support",
-        description: "Ongoing support for bank account opening and other requirements",
-        icon: "🤝"
-      }
-    ],
-    faqs: [
-      {
-        question: "What is a Private Limited Company?",
-        answer: "A Private Limited Company is a type of business entity that offers limited liability protection to its shareholders and restricts the transfer of shares."
-      },
-      {
-        question: "How long does registration take?",
-        answer: "The entire process typically takes 7-10 working days, subject to government processing time and document availability."
-      },
-      {
-        question: "What are the minimum requirements?",
-        answer: "You need minimum 2 directors, 2 shareholders, and a registered office address in India."
-      },
-      {
-        question: "Is physical presence required?",
-        answer: "No, the entire process can be completed online without any physical visit."
-      }
-    ]
-  };
+    };
+
+    if (serviceId) {
+      fetchServiceDetails();
+    }
+  }, [serviceId]);
 
   const handleGetStarted = () => {
     setIsModalOpen(true);
@@ -241,6 +126,49 @@ const ServiceDetail = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-(--background) min-h-screen flex items-center justify-center -mt-20 pt-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--primary) mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading service details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-(--background) min-h-screen flex items-center justify-center -mt-20 pt-20">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate('/services')}
+            className="bg-(--primary) text-white px-6 py-2 rounded-lg hover:bg-(--primary-hover)"
+          >
+            Back to Services
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!serviceData) {
+    return (
+      <div className="bg-(--background) min-h-screen flex items-center justify-center -mt-20 pt-20">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Service not found</p>
+          <button
+            onClick={() => navigate('/services')}
+            className="bg-(--primary) text-white px-6 py-2 rounded-lg hover:bg-(--primary-hover)"
+          >
+            Back to Services
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-(--background) -mt-20">
 
@@ -249,32 +177,31 @@ const ServiceDetail = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 items-start">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl text-(--primary) font-bold mb-3 sm:mb-4">{serviceData.title}</h1>
-              <p className="text-base sm:text-lg font-medium mb-4 sm:mb-6 text-(--text)">{serviceData.description}</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl text-(--primary) font-bold mb-3 sm:mb-4">{serviceData.serviceName}</h1>
+              <p className="text-base sm:text-lg font-medium mb-4 sm:mb-6 text-(--text)">{serviceData.shortDescription}</p>
               
               {/* Highlights */}
-              <div className="mb-4 sm:mb-6 flex justify-center md:justify-start">
-                <div className="space-y-2 sm:space-y-3 flex flex-col items-start">
-                  {serviceData.highlights.map((highlight, index) => (
-                    <div key={index} className="flex items-center">
-                      <span className="text-green-700 mr-2 sm:mr-3 text-lg sm:text-xl"><SiTicktick /></span>
-                      <span className="text-(--text) font-medium text-sm sm:text-base">{highlight}</span>
-                    </div>
-                  ))}
+              {serviceData.topPointers && serviceData.topPointers.length > 0 && (
+                <div className="mb-4 sm:mb-6 flex justify-center md:justify-start">
+                  <div className="space-y-2 sm:space-y-3 flex flex-col items-start">
+                    {serviceData.topPointers.map((pointer, index) => (
+                      <div key={index} className="flex items-center">
+                        <span className="text-green-700 mr-2 sm:mr-3 text-lg sm:text-xl"><SiTicktick /></span>
+                        <span className="text-(--text) font-medium text-sm sm:text-base">{pointer}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Rating and Stats */}
-              <div className="flex flex-col sm:flex-row items-center md:items-start gap-3 sm:gap-6 justify-center md:justify-start">
-                <div className="flex items-center">
-                  <span className="text-xl sm:text-2xl mr-2">⭐</span>
-                  <span className="text-base sm:text-lg font-semibold">{serviceData.rating}</span>
-                  <span className="text-(--text) ml-2 text-sm sm:text-base">({serviceData.reviews} reviews)</span>
-                </div>
-                <div className="sm:border-l border-(--) sm:pl-6">
-                  <span className="text-base sm:text-lg font-semibold">{serviceData.completedOrders}+</span>
-                  <span className="text-(--text) ml-2 text-sm sm:text-base">Orders Completed</span>
-                </div>
+              {/* Category and Subcategory */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                  {serviceData.category?.name}
+                </span>
+                <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
+                  {serviceData.subCategory?.name}
+                </span>
               </div>
             </div>
 
@@ -313,10 +240,10 @@ const ServiceDetail = () => {
                   <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Select Service *</label>
                   <select
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    defaultValue={serviceData.title}
+                    defaultValue={serviceData.serviceName}
                     required
                   >
-                    <option value={serviceData.title}>{serviceData.title}</option>
+                    <option value={serviceData.serviceName}>{serviceData.serviceName}</option>
                     <option value="Public Limited Company Registration">Public Limited Company Registration</option>
                     <option value="LLP Registration">LLP Registration</option>
                     <option value="Sole Proprietorship Registration">Sole Proprietorship Registration</option>
@@ -368,13 +295,21 @@ const ServiceDetail = () => {
           <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
             {/* Overview Section */}
             <div id="overview" className="scroll-mt-32">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">Overview</h2>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                A Private Limited Company is the most popular business structure in India. It provides 
-                limited liability protection, easier funding opportunities, and enhanced credibility. 
-                Perfect for startups and growing businesses looking to scale. This registration process 
-                ensures your business is legally incorporated and compliant with all regulatory requirements.
-              </p>
+              <div 
+                className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
+                  prose-headings:text-gray-900 
+                  prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
+                  prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+                  prose-p:text-gray-700 prose-p:mb-3
+                  prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+                  prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+                  prose-li:text-gray-700 prose-li:mb-1
+                  prose-table:w-full prose-table:border-collapse prose-table:my-4
+                  prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                  prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
+                  prose-strong:font-semibold prose-strong:text-gray-900"
+                dangerouslySetInnerHTML={{ __html: serviceData.description }}
+              />
             </div>
 
             {/* Process Section */}
@@ -452,21 +387,23 @@ const ServiceDetail = () => {
       </section>
 
       {/* FAQs Section - Outside Tabs */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-900">Frequently Asked Questions</h2>
-          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-            {serviceData.faqs.map((faq, index) => (
-              <details key={index} className="bg-gray-50 rounded-lg p-4 sm:p-5 border border-gray-200 hover:border-blue-300 transition-colors">
-                <summary className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 text-base sm:text-lg">
-                  {faq.question}
-                </summary>
-                <p className="mt-2 sm:mt-3 text-gray-600 pl-0 sm:pl-4 text-sm sm:text-base">{faq.answer}</p>
-              </details>
-            ))}
+      {serviceData.faqs && serviceData.faqs.length > 0 && (
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-900">Frequently Asked Questions</h2>
+            <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
+              {serviceData.faqs.map((faq, index) => (
+                <details key={index} className="bg-gray-50 rounded-lg p-4 sm:p-5 border border-gray-200 hover:border-blue-300 transition-colors">
+                  <summary className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 text-base sm:text-lg">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-2 sm:mt-3 text-gray-600 pl-0 sm:pl-4 text-sm sm:text-base">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Reviews Section */}
       <section className="reviews-section py-10 md:py-20 bg-(--background)">

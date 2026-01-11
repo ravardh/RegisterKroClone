@@ -8,6 +8,9 @@ import {
   getFeedbackByserviceId,
   getPublicCategories,
   getPublicServices,
+  getPublicSubCategories,
+  getPublicServicesBySubCategory,
+  getServiceById,
 } from "../controllers/publicController.js";
 
 const router = express.Router();
@@ -19,6 +22,9 @@ router.post("/feedback", PostFeedback);
 router.get("/feedback", getAllFeedback);
 router.get("/feedback/:id", getFeedbackByserviceId);
 router.get("/categories", getPublicCategories);
+router.get("/categories/:categoryId/subcategories", getPublicSubCategories);
+router.get("/subcategories/:subCategoryId/services", getPublicServicesBySubCategory);
 router.get("/services", getPublicServices);
+router.get("/service/:serviceId", getServiceById);
 
 export default router;
