@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import axios from "../config/api";
+import toast from "react-hot-toast";
 import Step1 from "../assets/comp1.svg";
 import Step2 from "../assets/comp2.svg";
 import Step3 from "../assets/comp3.svg";
@@ -54,43 +56,24 @@ const Home = () => {
     },
   ];
 
-  const reviews = [
-    {
-      name: "Rajesh Kumar",
-      company: "Tech Solutions Pvt Ltd",
-      rating: 5,
-      text: "Exceptional service! They handled our company registration seamlessly. The team was professional, responsive, and made the entire process stress-free. Highly recommended!",
-      image: ""
-    },
-    {
-      name: "Priya Sharma",
-      company: "Creative Designs Studio",
-      rating: 5,
-      text: "Amazing experience with their tax filing services. The experts were knowledgeable and guided us through every step. Our business is now fully compliant thanks to them!",
-      image: ""
-    },
-    {
-      name: "Amit Patel",
-      company: "Global Traders Inc",
-      rating: 5,
-      text: "Outstanding support for GST registration and compliance. The relationship manager assigned to us was incredibly helpful and always available to answer our questions.",
-      image: ""
-    },
-    {
-      name: "Sneha Reddy",
-      company: "Fashion Boutique",
-      rating: 5,
-      text: "I was worried about the trademark registration process, but they made it so simple. Great communication, timely updates, and professional service throughout.",
-      image: ""
-    },
-    {
-      name: "Vikram Singh",
-      company: "Manufacturing Hub",
-      rating: 5,
-      text: "Best decision we made was choosing them for our business setup. From documentation to final approval, everything was handled efficiently. Five-star service!",
-      image: ""
-    }
-  ];
+  const [reviews, setReviews] = useState([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get("/public/feedback");
+        setReviews(response.data.data);
+      } catch (error) {
+        console.error("Failed to fetch reviews", error);
+        toast.error("Failed to load reviews");
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const servicesPerPage = 3;
@@ -344,68 +327,76 @@ const Home = () => {
             Trusted by thousands of businesses across the country. Here's what they have to say about our services.
           </p>
 
-          <div className="relative mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
-              {visibleReviews.map((review, index) => (
-                <div key={index} className="bg-white p-6 rounded-2xl shadow-lg">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                      {review.image ? (
-                        <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-(--primary) text-white text-2xl font-semibold">
-                          {review.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-(--text)">{review.name}</h3>
-                      <p className="text-(--secondary) text-sm">{review.company}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1 mb-3">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-lg">★</span>
-                    ))}
-                  </div>
-                  <p className="text-(--secondary) text-base leading-relaxed">
-                    "{review.text}"
-                  </p>
-                </div>
-              ))}
+          {isLoadingReviews ? (
+            <div className="text-center py-12">
+              <p className="text-(--secondary) text-lg">Loading reviews...</p>
             </div>
-
-            <div className="flex justify-center items-center gap-4 mt-8">
-              <button
-                onClick={handleReviewPrev}
-                className="text-(--primary) hover:text-(--primary-hover) transition"
-                aria-label="Previous reviews"
-              >
-                <FaChevronLeft size={24} />
-              </button>
-
-              <div className="flex gap-3">
-                {Array.from({ length: maxReviewIndex + 1 }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setReviewIndex(index)}
-                    className={`w-3 h-3 rounded-full transition ${
-                      reviewIndex === index ? 'bg-(--primary)' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to page ${index + 1}`}
-                  />
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-(--secondary) text-lg">No reviews available yet.</p>
+            </div>
+          ) : (
+            <div className="relative mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
+                {visibleReviews.map((review, index) => (
+                  <div key={review._id || index} className="bg-white p-6 rounded-2xl shadow-lg">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
+                        <div className="w-full h-full flex items-center justify-center bg-(--primary) text-white text-2xl font-semibold">
+                          {review.fullName.charAt(0)}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-(--text)">{review.fullName}</h3>
+                        <p className="text-(--secondary) text-sm">
+                          {review.serviceAvailed?.serviceName || "Service"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 mb-3">
+                      {Array.from({ length: review.starRating }).map((_, i) => (
+                        <span key={i} className="text-yellow-400 text-lg">★</span>
+                      ))}
+                    </div>
+                    <p className="text-(--secondary) text-base leading-relaxed">
+                      "{review.message}"
+                    </p>
+                  </div>
                 ))}
               </div>
 
-              <button
-                onClick={handleReviewNext}
-                className="text-(--primary) hover:text-(--primary-hover) transition"
-                aria-label="Next reviews"
-              >
-                <FaChevronRight size={24} />
-              </button>
+              <div className="flex justify-center items-center gap-4 mt-8">
+                <button
+                  onClick={handleReviewPrev}
+                  className="text-(--primary) hover:text-(--primary-hover) transition"
+                  aria-label="Previous reviews"
+                >
+                  <FaChevronLeft size={24} />
+                </button>
+
+                <div className="flex gap-3">
+                  {Array.from({ length: maxReviewIndex + 1 }).map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setReviewIndex(index)}
+                      className={`w-3 h-3 rounded-full transition ${
+                        reviewIndex === index ? 'bg-(--primary)' : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to page ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleReviewNext}
+                  className="text-(--primary) hover:text-(--primary-hover) transition"
+                  aria-label="Next reviews"
+                >
+                  <FaChevronRight size={24} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </>
