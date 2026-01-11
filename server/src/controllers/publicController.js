@@ -3,6 +3,8 @@ import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
 import Service from "../models/ServiceModel.js";
 import Feedback from "../models/feedbackModel.js";
+import Leads from "../models/leadsModel.js";
+import User from "../models/userModel.js";
 
 export const ContactUs = async (req, res, next) => {
   try {
@@ -41,8 +43,49 @@ export const getPublicCategories = async (req, res, next) => {
     next(error);
   }
 };
-export const LeadCapture = (req, res) => {
-  res.send("Lead Capture endpoint");
+export const LeadCapture = async (req, res, next) => {
+  try {
+    const { fullName, email, phoneNumber, interestedService } = req.body;
+
+    if (!fullName || !email || !phoneNumber || !interestedService) {
+      const error = new Error("All fields are required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Get the first admin user (SuperAdmin or admin)
+    const admin = await User.findOne({
+      role: { $in: ["SuperAdmin", "admin"] }
+    });
+
+    if (!admin) {
+      const error = new Error("No admin found to assign lead");
+      error.statusCode = 500;
+      return next(error);
+    }
+
+    // Generate unique lead ID
+    const leadID = `LEAD-${Date.now()}`;
+
+    // Create new lead assigned to admin by default
+    const newLead = await Leads.create({
+      leadID,
+      clientName: fullName,
+      clientEmail: email,
+      clientPhone: phoneNumber,
+      interestedService,
+      leadStatus: "new",
+      assignedTo: admin._id,
+      closeRemarks: "",
+    });
+
+    res.status(201).json({
+      message: "Lead created successfully",
+      data: newLead,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 export const TrackService = (req, res) => {
   res.send("Track Service endpoint");
@@ -106,7 +149,9 @@ export const getFeedbackByserviceId = (req, res) => {
 export const getPublicServices = async (req, res, next) => {
   try {
     const services = await Service.find({ isActive: true })
-      .select("serviceName")
+      .populate("category", "name")
+      .populate("subCategory", "name")
+      .select("serviceName category subCategory")
       .sort({ serviceName: 1 });
     
     res.status(200).json({

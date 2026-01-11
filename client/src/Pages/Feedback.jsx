@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaStar } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "../config/api";
@@ -35,13 +35,29 @@ const Feedback = () => {
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [searchInput, setSearchInput] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const response = await axios.get("/public/services");
-        const services = response.data.data.map((service) => service.serviceName);
-        setServiceOptions(services);
+        setServiceOptions(response.data.data || []);
       } catch (error) {
         console.error("Failed to fetch services", error);
         toast.error("Failed to load services");
@@ -53,12 +69,20 @@ const Feedback = () => {
     fetchServices();
   }, []);
 
-  const filteredServices = serviceOptions.filter((service) =>
-    service.toLowerCase().includes(searchInput.toLowerCase())
+  const filteredServices = serviceOptions.filter(
+    (service) =>
+      service.serviceName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      service.category?.name
+        .toLowerCase()
+        .includes(searchInput.toLowerCase()) ||
+      service.subCategory?.name
+        .toLowerCase()
+        .includes(searchInput.toLowerCase())
   );
 
   const handleServiceSelect = (service) => {
-    setFormData((prev) => ({ ...prev, serviceAvailed: service }));
+    const displayName = `${service.category?.name} → ${service.subCategory?.name} → ${service.serviceName}`;
+    setFormData((prev) => ({ ...prev, serviceAvailed: displayName }));
     setIsDropdownOpen(false);
     setSearchInput("");
   };
@@ -72,6 +96,10 @@ const Feedback = () => {
     setFormData((prev) => ({ ...prev, serviceAvailed: "" }));
     setSearchInput("");
     setIsDropdownOpen(true);
+  };
+
+  const handleServiceInputClick = () => {
+    setIsDropdownOpen((prev) => !prev);
   };
 
   const handleChange = (event) => {
@@ -161,11 +189,11 @@ const Feedback = () => {
                           Feedback hub
                         </p>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                          Share what happened
+                          Share Your Experience
                         </h1>
                       </div>
 
-                      <div>
+                      <div className="grid gap-4 md:grid-cols-2">
                         <input
                           type="text"
                           name="fullName"
@@ -174,20 +202,17 @@ const Feedback = () => {
                           placeholder="Your Full Name"
                           className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none"
                         />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="you@example.com"
+                          className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none"
+                        />
                       </div>
 
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                          
-                          <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="you@example.com"
-                            className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none"
-                          />
-                        </div>
+                      <div>
                         <div className="relative">
                           <input
                             type="text"
@@ -195,22 +220,30 @@ const Feedback = () => {
                             value={formData.serviceAvailed || searchInput}
                             onChange={handleSearchChange}
                             onFocus={handleSearchFocus}
+                            onClick={handleServiceInputClick}
                             disabled={isLoadingServices}
                             className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none disabled:opacity-50"
                           />
 
                           {isDropdownOpen && !isLoadingServices && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-500 rounded-2xl shadow-lg z-10">
+                            <div
+                              ref={dropdownRef}
+                              className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-500 rounded-2xl shadow-lg z-10"
+                            >
                               <div className="max-h-64 overflow-y-auto">
                                 {filteredServices.length > 0 ? (
                                   filteredServices.map((service) => (
                                     <button
-                                      key={service}
+                                      key={service._id}
                                       type="button"
-                                      onClick={() => handleServiceSelect(service)}
+                                      onClick={() =>
+                                        handleServiceSelect(service)
+                                      }
                                       className="w-full text-left px-4 py-3 text-sm hover:bg-gray-100 transition border-b border-gray-100 last:border-b-0"
                                     >
-                                      {service}
+                                      {service.category?.name} →{" "}
+                                      {service.subCategory?.name} →{" "}
+                                      {service.serviceName}
                                     </button>
                                   ))
                                 ) : (
@@ -240,26 +273,33 @@ const Feedback = () => {
                           Rate your experience*
                         </p>
                         <div className="flex items-center gap-3">
-                          {Array.from({ length: 5 }, (_, index) => index + 1).map(
-                            (rating) => {
-                              const isSelected = formData.starRating === rating;
-                              return (
-                                <button
-                                  key={rating}
-                                  type="button"
-                                  onClick={() => handleRatingClick(rating)}
-                                  aria-label={`${rating} star${rating > 1 ? "s" : ""}`}
-                                  className={`w-11 h-11 flex items-center justify-center rounded-full transition duration-300 shadow-sm text-white group ${
-                                    isSelected
-                                      ? `bg-linear-to-br ${ratingColorClasses[rating]} shadow-[0_10px_30px_rgba(15,23,42,0.25)]`
-                                      : "bg-white border border-slate-200 text-gray-500 hover:text-(--text)"
-                                  }`}
-                                >
-                                  <FaStar className={`h-5 w-5 ${isSelected ? "text-white" : "text-gray-500"} group-hover:text-(--text)`} />
-                                </button>
-                              );
-                            }
-                          )}
+                          {Array.from(
+                            { length: 5 },
+                            (_, index) => index + 1
+                          ).map((rating) => {
+                            const isSelected = formData.starRating === rating;
+                            return (
+                              <button
+                                key={rating}
+                                type="button"
+                                onClick={() => handleRatingClick(rating)}
+                                aria-label={`${rating} star${
+                                  rating > 1 ? "s" : ""
+                                }`}
+                                className={`w-11 h-11 flex items-center justify-center rounded-full transition duration-300 shadow-sm text-white group ${
+                                  isSelected
+                                    ? `bg-linear-to-br ${ratingColorClasses[rating]} shadow-[0_10px_30px_rgba(15,23,42,0.25)]`
+                                    : "bg-white border border-slate-200 text-gray-500 hover:text-(--text)"
+                                }`}
+                              >
+                                <FaStar
+                                  className={`h-5 w-5 ${
+                                    isSelected ? "text-white" : "text-gray-500"
+                                  } group-hover:text-(--text)`}
+                                />
+                              </button>
+                            );
+                          })}
                           <span className="text-sm text-gray-500">
                             {ratingDescriptions[formData.starRating]}
                           </span>
@@ -272,17 +312,20 @@ const Feedback = () => {
                           disabled={isSubmitting}
                           className="w-full bg-(--primary) text-white rounded-3xl py-3 text-lg font-semibold shadow-lg shadow-(--primary)/40 transition-colors duration-200 hover:bg-(--primary-hover) disabled:opacity-70"
                         >
-                          {isSubmitting ? "Sending feedback..." : "Post feedback"}
+                          {isSubmitting
+                            ? "Sending feedback..."
+                            : "Post feedback"}
                         </button>
                       </div>
                       <p className="text-xs text-gray-500">
-                        We respect your privacy and never share your details without consent.
+                        We respect your privacy and never share your details
+                        without consent.
                       </p>
                     </form>
                   </div>
                 </section>
 
-              <section className="lg:col-span-1 text-center lg:text-left space-y-4 rounded-2xl p-6 md:p-8 w-full">
+                <section className="lg:col-span-1 text-center lg:text-left space-y-4 rounded-2xl p-6 md:p-8 w-full">
                   <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-white/80">
                     Customer voice
                   </p>
@@ -290,7 +333,8 @@ const Feedback = () => {
                     Track your satisfaction journey
                   </h1>
                   <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-                    Once the application is tracked, drop a quick note here so we can bring the same clarity to every team member.
+                    Once the application is tracked, drop a quick note here so
+                    we can bring the same clarity to every team member.
                   </p>
                 </section>
               </div>
@@ -317,7 +361,9 @@ const Feedback = () => {
                     Visit {CommonData.companyName}
                   </p>
                   <p>
-                    {CommonData.address.line1}, {CommonData.address.city}, {CommonData.address.state} {CommonData.address.postalCode}, {CommonData.address.country}
+                    {CommonData.address.line1}, {CommonData.address.city},{" "}
+                    {CommonData.address.state} {CommonData.address.postalCode},{" "}
+                    {CommonData.address.country}
                   </p>
                   <p>Phone: {CommonData.phones.primary}</p>
                   <p>Email: {CommonData.emails.support}</p>

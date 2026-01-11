@@ -22,59 +22,63 @@ const Services = () => {
   ];
 
   useEffect(() => {
-    // Fetch categories on component mount
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosInstance.get("/public/categories");
-        setCategories(response.data.data || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchCategories();
+    // Load categories from session storage if available
+    const storedCategories = sessionStorage.getItem("categories");
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    } else {
+      // Fallback to API call if session storage is empty
+      const fetchCategories = async () => {
+        try {
+          const response = await axiosInstance.get("/public/categories");
+          setCategories(response.data.data || []);
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+        }
+      };
+      fetchCategories();
+    }
   }, []);
 
-  const handleCategoryClick = async (category) => {
+  const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
     setLoading(true);
     
     try {
-      // Fetch subcategories for the selected category
-      const response = await axiosInstance.get(`/public/categories/${category._id}/subcategories`);
-      const fetchedSubCategories = response.data.data || [];
+      // Get subcategories from session storage
+      const storedSubCategories = sessionStorage.getItem("subCategories");
+      const allSubCategories = storedSubCategories ? JSON.parse(storedSubCategories) : {};
+      const fetchedSubCategories = allSubCategories[category._id] || [];
+      
       setSubCategories(fetchedSubCategories);
       
       // Auto-select the first subcategory
       if (fetchedSubCategories.length > 0) {
         setSelectedSubCategory(fetchedSubCategories[0]);
-        // Fetch services for the first subcategory
-        await fetchServicesForSubCategory(fetchedSubCategories[0]._id);
+        // Get services for the first subcategory from session storage
+        const storedServices = sessionStorage.getItem("services");
+        const allServices = storedServices ? JSON.parse(storedServices) : {};
+        setServices(allServices[fetchedSubCategories[0]._id] || []);
       }
     } catch (error) {
-      console.error("Error fetching subcategories:", error);
+      console.error("Error loading subcategories:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchServicesForSubCategory = async (subCategoryId) => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get(`/public/subcategories/${subCategoryId}/services`);
-      setServices(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching services:", error);
-      setServices([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubCategoryClick = async (subCategory) => {
+  const handleSubCategoryClick = (subCategory) => {
     setSelectedSubCategory(subCategory);
-    await fetchServicesForSubCategory(subCategory._id);
+    
+    try {
+      // Get services from session storage
+      const storedServices = sessionStorage.getItem("services");
+      const allServices = storedServices ? JSON.parse(storedServices) : {};
+      setServices(allServices[subCategory._id] || []);
+    } catch (error) {
+      console.error("Error loading services:", error);
+    }
   };
 
   const handleCloseModal = () => {

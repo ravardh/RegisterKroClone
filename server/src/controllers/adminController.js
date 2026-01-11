@@ -1,10 +1,72 @@
 import User from "../models/userModel.js";
 import Contact from "../models/contactModel.js";
+import Leads from "../models/leadsModel.js";
 import bcrypt from "bcrypt";
 
-export const getAllLeads = (req, res) => {
-  res.send("Get All Leads endpoint");
+export const getAllLeads = async (req, res, next) => {
+  try {
+    // Admin can view all leads
+    const leads = await Leads.find()
+      .populate("assignedTo", "fullName email phone role")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Leads fetched successfully",
+      data: leads,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
+export const assignLeadToRM = async (req, res, next) => {
+  try {
+    const { leadId } = req.params;
+    const { rmId, leadStatus } = req.body;
+
+    if (!rmId && !leadStatus) {
+      const error = new Error("Either RM ID or lead status is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const updateData = {};
+    
+    if (rmId) {
+      updateData.assignedTo = rmId;
+    }
+    
+    if (leadStatus) {
+      const validStatuses = ["new", "contacted", "converted", "closed"];
+      if (!validStatuses.includes(leadStatus)) {
+        const error = new Error("Invalid status value");
+        error.statusCode = 400;
+        return next(error);
+      }
+      updateData.leadStatus = leadStatus;
+    }
+
+    const updatedLead = await Leads.findByIdAndUpdate(
+      leadId,
+      updateData,
+      { new: true }
+    ).populate("assignedTo", "fullName email phone role");
+
+    if (!updatedLead) {
+      const error = new Error("Lead not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Lead updated successfully",
+      data: updatedLead,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const getAllContacts = async (req, res, next) => {
   try {

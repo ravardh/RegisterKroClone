@@ -9,14 +9,14 @@ const Footer = () => {
       <footer className="bg-gray-900 text-gray-200 py-8 md:py-12">
         <div className="flex flex-col md:flex-row gap-8 md:gap-12 px-4 md:px-6 md:justify-between md:items-start">
           <div className="mb-8 md:mb-0 md:w-1/3">
-            <div className="flex items-center space-x-3">
+            <Link className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-bold text-white">
                 RK
               </div>
-              <span className="text-xl font-semibold">
+              <span to={"/"} className="text-xl font-semibold">
                 {CommonData.companyName}
               </span>
-            </div>
+            </Link>
             <p className="mt-4 text-sm text-gray-400 max-w-sm">
               {CommonData.tagline}
             </p>
@@ -112,6 +112,11 @@ const Footer = () => {
                 <li>
                   <Link to="/contact" className="hover:text-white">
                     Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/feedback" className="hover:text-white">
+                    Post a Feedback
                   </Link>
                 </li>
                 <li>

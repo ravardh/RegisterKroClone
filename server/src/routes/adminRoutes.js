@@ -1,5 +1,14 @@
 import express from "express";
-import { getAllLeads, getRm, createRm, deleteRm, updateRm, getAllContacts, deleteContact } from "../controllers/adminController.js";
+import {
+  getAllLeads,
+  getRm,
+  createRm,
+  deleteRm,
+  updateRm,
+  getAllContacts,
+  deleteContact,
+  assignLeadToRM,
+} from "../controllers/adminController.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -8,6 +17,7 @@ const router = express.Router();
 router.use(adminProtect);
 
 router.get("/leads", getAllLeads);
+router.put("/leads/:leadId/assign", assignLeadToRM);
 router.get("/rm", getRm);
 router.post("/create-rm", createRm);
 router.delete("/delete-rm/:id", deleteRm);

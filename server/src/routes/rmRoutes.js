@@ -8,6 +8,6 @@ const router = express.Router();
 router.use(rmProtect);
 
 router.get("/leads", AssignedLeads);
-router.post("/update-status", UpdateLeadStatus);
+router.put("/update-status/:leadId", UpdateLeadStatus);
 
 export default router;

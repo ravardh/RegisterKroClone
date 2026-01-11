@@ -121,7 +121,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="relative my-6 h-0.5 border-t-0 bg-transparent bg-linear-to-r from-transparent via-neutral-900 to-transparent opacity-75 dark:via-neutral-400">
+          {/* <div className="relative my-6 h-0.5 border-t-0 bg-transparent bg-linear-to-r from-transparent via-neutral-900 to-transparent opacity-75 dark:via-neutral-400">
             <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-(--background) px-2">
               OR
             </span>
@@ -141,7 +141,7 @@ const Login = () => {
             >
               Create one
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

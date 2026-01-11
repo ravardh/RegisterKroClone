@@ -1,5 +1,5 @@
 import React from "react";
-import { FaChartBar, FaUser, FaBookmark, FaSignOutAlt, FaBriefcase, FaClipboardList } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaLeaf, FaSignOutAlt, FaBox, FaTag, FaEnvelope } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/api";
@@ -9,12 +9,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const sidebarItems = [
-    { id: "dashboard", label: "Dashboard", icon: FaChartBar },
-    { id: "relationshipManagers", label: "Relationship Managers", icon: FaUser },
-    { id: "leads", label: "Leads", icon: FaClipboardList },
-    { id: "category", label: "Category", icon: FaClipboardList },
-    { id: "services", label: "Services", icon: FaBriefcase },
-    { id: "contact", label: "Contact", icon: FaBookmark },
+    { id: "overview", label: "Overview", icon: FaTachometerAlt },
+    { id: "relationshipManagers", label: "RM Manage", icon: FaUsers },
+    { id: "leads", label: "Leads", icon: FaLeaf },
+    { id: "category", label: "Category", icon: FaTag },
+    { id: "services", label: "Services", icon: FaBox },
+    { id: "contact", label: "Contact", icon: FaEnvelope },
   ];
 
     const handleLogout = async () => {

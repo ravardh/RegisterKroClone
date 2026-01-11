@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import toast from "react-hot-toast";
 import axiosInstance from "../config/api";
 
 const ServiceDetail = () => {
@@ -14,6 +15,12 @@ const ServiceDetail = () => {
   const [serviceData, setServiceData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -126,6 +133,50 @@ const ServiceDetail = () => {
     }
   };
 
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.fullName.trim()) {
+      toast.error("Please enter your full name");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      toast.error("Please enter your phone number");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // For now, leads will be created without assignment (admin will assign)
+      // If you want to auto-assign, modify the backend to handle null assignedTo
+      const response = await axiosInstance.post("/public/lead", {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        interestedService: serviceData.serviceName,
+        assignedTo: null, // Will be assigned by admin
+      });
+      toast.success("Application submitted successfully! We'll contact you soon.");
+      setFormData({ fullName: "", email: "", phoneNumber: "" });
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast.error(error.response?.data?.message || "Failed to submit application");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-(--background) min-h-screen flex items-center justify-center -mt-20 pt-20">
@@ -173,7 +224,7 @@ const ServiceDetail = () => {
     <div className="bg-(--background) -mt-20">
 
       {/* Hero Section */}
-      <div className="bg-linear-to-r from-amber-50 to-blue-100 min-h-screen text-(--text) pt-16">
+      <div className="bg-linear-to-r from-amber-50 to-blue-100  text-(--text) pt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 items-start">
             <div>
@@ -208,11 +259,14 @@ const ServiceDetail = () => {
             {/* Application Form */}
             <div className="bg-white text-gray-900 rounded-xl p-4 sm:p-6 shadow-2xl">
               <h3 className="text-base sm:text-lg md:text-xl text-center font-bold mb-3 sm:mb-4 px-2 sm:px-4 text-(--primary)">Enter your details to receive a full quote and consultation</h3>
-              <form className="space-y-3 sm:space-y-4">
+              <form onSubmit={handleFormSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Full Name *</label>
                   <input
                     type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleFormChange}
                     placeholder="Enter your full name"
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -222,6 +276,9 @@ const ServiceDetail = () => {
                   <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Email Address *</label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
                     placeholder="your.email@example.com"
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -231,34 +288,26 @@ const ServiceDetail = () => {
                   <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Phone Number *</label>
                   <input
                     type="tel"
-                    placeholder="+91 00000 00000"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleFormChange}
+                    placeholder="9876543210"
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Select Service *</label>
-                  <select
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    defaultValue={serviceData.serviceName}
-                    required
-                  >
-                    <option value={serviceData.serviceName}>{serviceData.serviceName}</option>
-                    <option value="Public Limited Company Registration">Public Limited Company Registration</option>
-                    <option value="LLP Registration">LLP Registration</option>
-                    <option value="Sole Proprietorship Registration">Sole Proprietorship Registration</option>
-                    <option value="Partnership Firm Registration">Partnership Firm Registration</option>
-                    <option value="GST Registration">GST Registration</option>
-                    <option value="Trademark Registration">Trademark Registration</option>
-                    <option value="Income Tax Return Filing">Income Tax Return Filing</option>
-                    <option value="Accounting Services">Accounting Services</option>
-                  </select>
+                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Selected Service</label>
+                  <div className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl bg-gray-50 text-gray-700">
+                    {serviceData.category?.name} → {serviceData.subCategory?.name} → {serviceData.serviceName}
+                  </div>
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-(--primary) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-(--primary-hover) transition-colors"
+                  disabled={isSubmitting}
+                  className="w-full bg-(--primary) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70"
                 >
-                  Submit Application
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
                 </button>
               </form>
               <p className="text-xs text-gray-500 mt-3 sm:mt-4 text-center">

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -15,6 +16,7 @@ import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
+import axiosInstance from "./config/api";
 
 const Layout = () => {
   const location = useLocation();
@@ -43,8 +45,22 @@ const Layout = () => {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/adminDashboard" element={<AdminDashboard />} />
-          <Route path="/rmDashboard" element={<RMDashboard />} />
+          <Route
+            path="/adminDashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rmDashboard"
+            element={
+              <ProtectedRoute requiredRole="rm">
+                <RMDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
@@ -55,6 +71,52 @@ const Layout = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    const initializeAppData = async () => {
+      try {
+        // Check if data already exists in session storage
+        if (sessionStorage.getItem("appDataInitialized")) {
+          return;
+        }
+
+        // Fetch all categories
+        const categoriesResponse = await axiosInstance.get("/public/categories");
+        const categories = categoriesResponse.data.data || [];
+        
+        // Fetch all subcategories and services
+        const allSubCategories = {};
+        const allServices = {};
+
+        for (const category of categories) {
+          const subCategoriesResponse = await axiosInstance.get(
+            `/public/categories/${category._id}/subcategories`
+          );
+          const subCategories = subCategoriesResponse.data.data || [];
+          
+          allSubCategories[category._id] = subCategories;
+
+          for (const subCategory of subCategories) {
+            const servicesResponse = await axiosInstance.get(
+              `/public/subcategories/${subCategory._id}/services`
+            );
+            const services = servicesResponse.data.data || [];
+            allServices[subCategory._id] = services;
+          }
+        }
+
+        // Store all data in session storage
+        sessionStorage.setItem("categories", JSON.stringify(categories));
+        sessionStorage.setItem("subCategories", JSON.stringify(allSubCategories));
+        sessionStorage.setItem("services", JSON.stringify(allServices));
+        sessionStorage.setItem("appDataInitialized", "true");
+      } catch (error) {
+        console.error("Error initializing app data:", error);
+      }
+    };
+
+    initializeAppData();
+  }, []);
+
   return (
     <BrowserRouter>
       <Layout />

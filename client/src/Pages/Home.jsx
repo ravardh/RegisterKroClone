@@ -9,6 +9,7 @@ import Step2 from "../assets/comp2.svg";
 import Step3 from "../assets/comp3.svg";
 import Step4 from "../assets/comp4.svg";
 import axiosInstance from "../config/api";
+import commondata from "../assets/common.json";
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
@@ -119,17 +120,20 @@ const Home = () => {
               {visibleCategories.map((category) => (
                 <div
                   key={category._id}
-                  className="service-card bg-white p-6 rounded-2xl shadow-md text-center"
+                  className="service-card bg-white p-6 rounded-2xl shadow-md text-center h-64 flex flex-col"
                 >
                   <h3 className="text-(--text) text-2xl font-semibold mb-4">
                     {category.name}
                   </h3>
-                  <p className="text-(--secondary)">{category.shortDescription || "Explore our comprehensive services in this category."}</p>
+                  <p className="text-(--secondary) flex-1 overflow-hidden line-clamp-3">
+                    {category.shortDescription ||
+                      "Explore our comprehensive services in this category."}
+                  </p>
                   <Link
                     to="/services"
-                    className="mt-4 flex text-(--primary) hover:text-(--primary-hover) font-medium"
+                    className="mt-4 flex text-(--primary) hover:text-(--primary-hover) font-medium justify-center"
                   >
-                    Learn More <FaArrowRightLong className="pt-2 w-6 h-5"/>
+                    Learn More <FaArrowRightLong className="pt-2 w-6 h-5" />
                   </Link>
                 </div>
               ))}
@@ -176,16 +180,23 @@ const Home = () => {
             Grow Your Business in Just a Few Clicks
           </h2>
           <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-10 md:mb-16 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
-            Simple, guided, and fully online—from application to completion, we handle everything for you.
+            Simple, guided, and fully online—from application to completion, we
+            handle everything for you.
           </p>
 
           <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 mb-12 md:mb-20">
             <div className="w-full md:w-1/2">
-              <img src={Step1} alt="Choose a Service" className="rounded-2xl shadow-lg w-100 h-auto" />
+              <img
+                src={Step1}
+                alt="Choose a Service"
+                className="rounded-2xl shadow-lg w-100 h-auto"
+              />
             </div>
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
-                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 text-xl md:text-2xl font-medium text-white bg-(--primary) rounded-full shrink-0">1</span>
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 text-xl md:text-2xl font-medium text-white bg-(--primary) rounded-full shrink-0">
+                  1
+                </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Choose a Service & Submit Your Application
                 </h3>
@@ -205,14 +216,20 @@ const Home = () => {
           <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
-                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">2</span>
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">
+                  2
+                </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Lead Generation & Manager Assignment
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
-                <li>• Your application instantly creates a lead in our system</li>
-                <li>• An experienced Relationship Manager (RM) is assigned to you</li>
+                <li>
+                  • Your application instantly creates a lead in our system
+                </li>
+                <li>
+                  • An experienced Relationship Manager (RM) is assigned to you
+                </li>
                 <li>• Your RM becomes your single point of contact</li>
               </ul>
               <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
@@ -220,17 +237,27 @@ const Home = () => {
               </button>
             </div>
             <div className="w-full md:w-1/2">
-              <img src={Step2} alt="Lead Generation" className="rounded-2xl shadow-lg w-100 h-auto" />
+              <img
+                src={Step2}
+                alt="Lead Generation"
+                className="rounded-2xl shadow-lg w-100 h-auto"
+              />
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
             <div className="w-full md:w-1/2">
-              <img src={Step3} alt="Document Collection" className="rounded-2xl shadow-lg w-100 h-auto" />
+              <img
+                src={Step3}
+                alt="Document Collection"
+                className="rounded-2xl shadow-lg w-100 h-auto"
+              />
             </div>
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
-                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">3</span>
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">
+                  3
+                </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Document Collection & Expert Handling
                 </h3>
@@ -238,7 +265,9 @@ const Home = () => {
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Your RM contacts you personally</li>
                 <li>• Required documents are collected and verified</li>
-                <li>• Experts take care of filings, compliance, and processing</li>
+                <li>
+                  • Experts take care of filings, compliance, and processing
+                </li>
               </ul>
               <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
                 Continue <FaArrowRightLong />
@@ -249,15 +278,21 @@ const Home = () => {
           <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
-                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">4</span>
+                <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">
+                  4
+                </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
                   Track Progress & Get Confirmation
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
                 <li>• Lead status is updated at every stage</li>
-                <li>• Track your application anytime via our tracking dashboard</li>
-                <li>• Receive confirmations, updates, and documents on email</li>
+                <li>
+                  • Track your application anytime via our tracking dashboard
+                </li>
+                <li>
+                  • Receive confirmations, updates, and documents on email
+                </li>
                 <li>• Get expert support whenever you need it</li>
               </ul>
               <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
@@ -265,7 +300,11 @@ const Home = () => {
               </button>
             </div>
             <div className="w-full md:w-1/2">
-              <img src={Step4} alt="Track Progress" className="rounded-2xl shadow-lg w-100 h-auto" />
+              <img
+                src={Step4}
+                alt="Track Progress"
+                className="rounded-2xl shadow-lg w-100 h-auto"
+              />
             </div>
           </div>
         </div>
@@ -278,12 +317,14 @@ const Home = () => {
               Have Questions? Speak with Our Experts
             </h2>
             <p className="text-white text-sm sm:text-base md:text-lg">
-              Get tailored advice on business registration, legal requirements, and compliance from our seasoned professional available to assist you anytime.
+              Get tailored advice on business registration, legal requirements,
+              and compliance from our seasoned professional available to assist
+              you anytime.
             </p>
           </div>
           <div className="md:ml-8">
             <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl text-base md:text-lg font-medium hover:bg-(--primary-hover) transition whitespace-nowrap">
-              Call Us Now
+              <a href={`tel:${commondata.phones.primary}`}>Call us Now</a>
             </button>
           </div>
         </div>
@@ -295,7 +336,8 @@ const Home = () => {
             What Our Clients Say
           </h2>
           <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
-            Trusted by thousands of businesses across the country. Here's what they have to say about our services.
+            Trusted by thousands of businesses across the country. Here's what
+            they have to say about our services.
           </p>
 
           {isLoadingReviews ? (
@@ -304,32 +346,41 @@ const Home = () => {
             </div>
           ) : reviews.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-(--secondary) text-lg">No reviews available yet.</p>
+              <p className="text-(--secondary) text-lg">
+                No reviews available yet.
+              </p>
             </div>
           ) : (
             <div className="relative mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
                 {visibleReviews.map((review, index) => (
-                  <div key={review._id || index} className="bg-white p-6 rounded-2xl shadow-lg">
-                    <div className="flex items-center gap-4 mb-4">
+                  <div
+                    key={review._id || index}
+                    className="bg-white p-6 rounded-2xl shadow-lg h-80 flex flex-col"
+                  >
+                    <div className="flex items-center gap-4 mb-4 shrink-0">
                       <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
                         <div className="w-full h-full flex items-center justify-center bg-(--primary) text-white text-2xl font-semibold">
                           {review.fullName.charAt(0)}
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-(--text)">{review.fullName}</h3>
-                        <p className="text-(--secondary) text-sm">
+                      <div className="min-w-0">
+                        <h3 className="text-xl font-semibold text-(--text) truncate">
+                          {review.fullName}
+                        </h3>
+                        <p className="text-(--secondary) text-sm truncate">
                           {review.serviceAvailed?.serviceName || "Service"}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-1 mb-3">
+                    <div className="flex gap-1 mb-3 shrink-0">
                       {Array.from({ length: review.starRating }).map((_, i) => (
-                        <span key={i} className="text-yellow-400 text-lg">★</span>
+                        <span key={i} className="text-yellow-400 text-2xl">
+                          ★
+                        </span>
                       ))}
                     </div>
-                    <p className="text-(--secondary) text-base leading-relaxed">
+                    <p className="text-(--secondary) text-base leading-relaxed flex-1 overflow-hidden line-clamp-5">
                       "{review.message}"
                     </p>
                   </div>
@@ -346,16 +397,20 @@ const Home = () => {
                 </button>
 
                 <div className="flex gap-3">
-                  {Array.from({ length: maxReviewIndex + 1 }).map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setReviewIndex(index)}
-                      className={`w-3 h-3 rounded-full transition ${
-                        reviewIndex === index ? 'bg-(--primary)' : 'bg-gray-300'
-                      }`}
-                      aria-label={`Go to page ${index + 1}`}
-                    />
-                  ))}
+                  {Array.from({ length: maxReviewIndex + 1 }).map(
+                    (_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setReviewIndex(index)}
+                        className={`w-3 h-3 rounded-full transition ${
+                          reviewIndex === index
+                            ? "bg-(--primary)"
+                            : "bg-gray-300"
+                        }`}
+                        aria-label={`Go to page ${index + 1}`}
+                      />
+                    )
+                  )}
                 </div>
 
                 <button

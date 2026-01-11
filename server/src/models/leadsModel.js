@@ -25,13 +25,17 @@ const leadsSchema = mongoose.Schema(
     },
     leadStatus: {
       type: String,
-      enum: ["new", "contacted", "qualified", "converted", "unqualified"],
+      enum: ["new", "contacted", "converted", "closed"],
       default: "new",
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null,
+    },
+    closeRemarks: {
+      type: String,
+      default: "",
     },
   },
   {

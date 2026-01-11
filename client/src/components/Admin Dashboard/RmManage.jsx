@@ -68,7 +68,7 @@ const RelationshipManagers = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen mt-20">
+    <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-700 mb-2">Relationship Managers</h1>
         <p className="text-gray-600">Manage your team of relationship managers</p>
