@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { MdAdd, MdEdit, MdDelete, MdSearch } from "react-icons/md";
+import { MdAdd, MdEdit, MdDelete, MdSearch, MdVisibility } from "react-icons/md";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../../utils/confirmDialog";
 import AddServiceModal from "./Modals/AddServiceModal";
+import ViewServiceModal from "./Modals/ViewServiceModal";
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -11,6 +12,7 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedService, setSelectedService] = useState(null);
   const getDisplayName = (entity) => {
     if (!entity) return "";
     if (typeof entity === "string") return entity;
@@ -146,14 +148,23 @@ const Services = () => {
                   </td>
                   <td className="px-4 py-3 align-top">
                     <button
+                      onClick={() => setSelectedService(svc)}
+                      className="text-blue-600 mr-3"
+                      title="View Details"
+                    >
+                      <MdVisibility />
+                    </button>
+                    <button
                       onClick={() => handleEdit(svc)}
                       className="text-blue-600 mr-3"
+                      title="Edit Service"
                     >
                       <MdEdit />
                     </button>
                     <button
                       onClick={() => handleDelete(svc._id)}
                       className="text-red-600"
+                      title="Delete Service"
                     >
                       <MdDelete />
                     </button>
@@ -173,6 +184,16 @@ const Services = () => {
         }}
         onAddService={handleSave}
         editingService={editingService}
+      />
+
+      <ViewServiceModal
+        service={selectedService}
+        onClose={() => setSelectedService(null)}
+        onEdit={(service) => {
+          setEditingService(service);
+          setIsModalOpen(true);
+        }}
+        onDelete={handleDelete}
       />
     </div>
   );
