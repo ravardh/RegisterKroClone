@@ -1,17 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "../config/api";
 import CommonData from "../assets/common.json";
-
-const serviceOptions = [
-  "Company Registration",
-  "GST Compliance & Filing",
-  "Trademark & IP",
-  "Accounting & Bookkeeping",
-  "Startup Advisory",
-  "Tax Planning",
-];
 
 const ratingDescriptions = {
   1: "Very dissatisfied",
@@ -40,6 +31,48 @@ const resetForm = () => ({
 const Feedback = () => {
   const [formData, setFormData] = useState(() => resetForm());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serviceOptions, setServiceOptions] = useState([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get("/public/services");
+        const services = response.data.data.map((service) => service.serviceName);
+        setServiceOptions(services);
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+        toast.error("Failed to load services");
+      } finally {
+        setIsLoadingServices(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const filteredServices = serviceOptions.filter((service) =>
+    service.toLowerCase().includes(searchInput.toLowerCase())
+  );
+
+  const handleServiceSelect = (service) => {
+    setFormData((prev) => ({ ...prev, serviceAvailed: service }));
+    setIsDropdownOpen(false);
+    setSearchInput("");
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchInput(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleSearchFocus = () => {
+    setFormData((prev) => ({ ...prev, serviceAvailed: "" }));
+    setSearchInput("");
+    setIsDropdownOpen(true);
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -155,20 +188,39 @@ const Feedback = () => {
                             className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none"
                           />
                         </div>
-                        <div>
-                          <select
-                            name="serviceAvailed"
-                            value={formData.serviceAvailed}
-                            onChange={handleChange}
-                            className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none"
-                          >
-                            <option value="">Service Availed</option>
-                            {serviceOptions.map((service) => (
-                              <option key={service} value={service}>
-                                {service}
-                              </option>
-                            ))}
-                          </select>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Service Availed"
+                            value={formData.serviceAvailed || searchInput}
+                            onChange={handleSearchChange}
+                            onFocus={handleSearchFocus}
+                            disabled={isLoadingServices}
+                            className="w-full border border-gray-500 rounded-3xl px-4 py-3 text-sm text-gray-700 focus:border-(--primary) focus:outline-none disabled:opacity-50"
+                          />
+
+                          {isDropdownOpen && !isLoadingServices && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-500 rounded-2xl shadow-lg z-10">
+                              <div className="max-h-64 overflow-y-auto">
+                                {filteredServices.length > 0 ? (
+                                  filteredServices.map((service) => (
+                                    <button
+                                      key={service}
+                                      type="button"
+                                      onClick={() => handleServiceSelect(service)}
+                                      className="w-full text-left px-4 py-3 text-sm hover:bg-gray-100 transition border-b border-gray-100 last:border-b-0"
+                                    >
+                                      {service}
+                                    </button>
+                                  ))
+                                ) : (
+                                  <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                                    No services found
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
