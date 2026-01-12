@@ -2,14 +2,15 @@ import React from "react";
 import { useState } from "react";
 import axios from "../config/api";
 import { useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext.jsx";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -89,28 +90,34 @@ const Login = () => {
               <label className="block text-sm font-medium text-(--root) mb-1">
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={loginData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full px-4 py-2 border rounded-md input-focus"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2 border rounded-md input-focus pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                </button>
+              </div>
             </div>
             {error.password && (
               <div className="text-sm text-red-500 mt-1">{error.password}</div>
             )}
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-start text-sm">
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" />
                 <span className="text-(--secondary)">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-(--primary)">
-                Forgot?
-              </a>
             </div>
 
             <button
