@@ -39,7 +39,6 @@ const Header = () => {
   
     
     { name: "Services", to: "/services" },
-    { name: "Contact", to: "/contact" },
     { name: "Track Status", to: "/trackStatus" },
     { name: "About", to: "/about" },
   ];
@@ -120,10 +119,10 @@ const Header = () => {
                 </>
               ) : (
                 <Link
-                  to="/login"
-                  className="px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
+                  to="/contact"
+                  className="px-2 lg:px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
                 >
-                  Login
+                  Contact Us
                 </Link>
               )}
             </div>
@@ -178,11 +177,11 @@ const Header = () => {
                   </>
                 ) : (
                   <Link
-                    to="/login"
+                    to="/contact"
                     className="bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base mt-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Login
+                    Contact Us
                   </Link>
                 )}
               </div>
