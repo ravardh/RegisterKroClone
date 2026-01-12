@@ -104,29 +104,29 @@ const Overview = () => {
   }
 
   const StatCard = ({ icon: Icon, label, value, bgColor }) => (
-    <div className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition duration-150">
+    <div className="border border-gray-100 rounded-lg p-3 sm:p-4 hover:border-gray-300 transition duration-150">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">{label}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{value}</p>
         </div>
-        <div className={`p-3 rounded-lg ${bgColor}`}>
-          <Icon size={24} className="text-white" />
+        <div className={`p-2 sm:p-3 rounded-lg ${bgColor}`}>
+          <Icon size={20} className="text-white sm:w-6 sm:h-6" />
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-white rounded-lg p-4 space-y-6">
+    <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back! Here's your business summary.</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">Welcome back! Here's your business summary.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           icon={FaLeaf}
           label="Total Leads"
@@ -154,55 +154,55 @@ const Overview = () => {
       </div>
 
       {/* Lead Stage Distribution */}
-      <div className="border border-gray-100 rounded-lg p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Stage Distribution</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="border border-gray-100 rounded-lg p-3 sm:p-4">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Lead Stage Distribution</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {stages.map(stage => (
-            <div key={stage} className={`text-center p-3 rounded-lg border ${stageColors[stage]}`}>
-              <p className="text-2xl font-bold">{stats.stageCounts[stage] || 0}</p>
-              <p className="text-xs mt-1">{stage}</p>
+            <div key={stage} className={`text-center p-2 sm:p-3 rounded-lg border ${stageColors[stage]}`}>
+              <p className="text-xl sm:text-2xl font-bold">{stats.stageCounts[stage] || 0}</p>
+              <p className="text-xs mt-1 line-clamp-2">{stage}</p>
             </div>
           ))}
-          <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-2xl font-bold text-gray-600">{stats.noStageLeads}</p>
+          <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-xl sm:text-2xl font-bold text-gray-600">{stats.noStageLeads}</p>
             <p className="text-xs text-gray-600 mt-1">No Stage</p>
           </div>
         </div>
       </div>
 
       {/* Recent Leads */}
-      <div className="border border-gray-100 rounded-lg p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Leads</h2>
+      <div className="border border-gray-100 rounded-lg p-3 sm:p-4">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Recent Leads</h2>
         <div className="space-y-2">
           {recentLeads.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">No leads yet</p>
+            <p className="text-xs sm:text-sm text-gray-500 text-center py-4">No leads yet</p>
           ) : (
             recentLeads.map((lead) => {
               const currentStage = getCurrentStage(lead);
               return (
                 <div
                   key={lead._id}
-                  className="border border-gray-100 rounded-lg p-3 hover:border-gray-300 transition duration-150"
+                  className="border border-gray-100 rounded-lg p-2 sm:p-3 hover:border-gray-300 transition duration-150"
                 >
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3">
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <h3 className="text-xs sm:text-sm font-medium text-gray-900 break-words">
                           {lead.clientName}
                         </h3>
                         <span className="text-xs text-gray-400 flex-shrink-0">
                           #{lead.leadID}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">
+                      <p className="text-xs text-gray-500 mt-0.5 break-all">
                         {lead.clientEmail}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded break-words">
                           {lead.interestedService}
                         </span>
                         <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          className={`text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap ${
                             stageColors[currentStage] || 'bg-gray-100 text-gray-700'
                           }`}
                         >
@@ -210,7 +210,7 @@ const Overview = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto">
                       <p className="text-xs text-gray-500">
                         {lead.assignedTo?.fullName || '—'}
                       </p>
