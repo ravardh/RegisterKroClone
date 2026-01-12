@@ -137,7 +137,7 @@ const ServiceDetail = () => {
     setActiveTab(tabIndex);
     const element = document.getElementById(`tab-${tabIndex}`);
     if (element) {
-      const offset = 100; // Offset for fixed header
+      const offset = 140; // Offset for fixed header (64px main header + 60px tab header + 16px padding)
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({
         top: elementPosition - offset,
