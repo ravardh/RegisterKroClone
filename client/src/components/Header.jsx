@@ -36,11 +36,12 @@ const Header = () => {
   };
 
   const navLinks = [
-    { name: "Home", to: "/" },
-    { name: "About", to: "/about" },
+  
+    
     { name: "Services", to: "/services" },
     { name: "Contact", to: "/contact" },
     { name: "Track Status", to: "/trackStatus" },
+    { name: "About", to: "/about" },
   ];
 
   const handleLogout = async () => {
