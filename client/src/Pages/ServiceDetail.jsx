@@ -8,7 +8,7 @@ import axiosInstance from "../config/api";
 const ServiceDetail = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewsPerPage, setReviewsPerPage] = useState(3);
@@ -21,6 +21,9 @@ const ServiceDetail = () => {
     phoneNumber: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [descriptionTabs, setDescriptionTabs] = useState([]);
+  
+  const tabNames = ["Overview", "Process", "Requirements", "Advantages", "Services"];
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,6 +81,16 @@ const ServiceDetail = () => {
         setLoading(true);
         const response = await axiosInstance.get(`/public/service/${serviceId}`);
         setServiceData(response.data.data);
+        
+        // Split description by # and create tabs
+        if (response.data.data.description) {
+          const parts = response.data.data.description
+            .split('#')
+            .filter(part => part.trim())
+            .map(part => part.trim());
+          setDescriptionTabs(parts);
+        }
+        
         setError(null);
       } catch (err) {
         console.error("Error fetching service details:", err);
@@ -120,9 +133,9 @@ const ServiceDetail = () => {
     (reviewIndex + 1) * reviewsPerPage
   );
 
-  const scrollToSection = (sectionId) => {
-    setActiveTab(sectionId);
-    const element = document.getElementById(sectionId);
+  const scrollToSection = (tabIndex) => {
+    setActiveTab(tabIndex);
+    const element = document.getElementById(`tab-${tabIndex}`);
     if (element) {
       const offset = 100; // Offset for fixed header
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
@@ -324,17 +337,17 @@ const ServiceDetail = () => {
           {/* Tab Navigation */}
           <div className="border-b sticky top-16 bg-white z-10">
             <div className="flex overflow-x-auto scrollbar-hide">
-              {["overview", "process", "requirements", "advantages", "services"].map((tab) => (
+              {descriptionTabs.map((_, index) => (
                 <button
-                  key={tab}
-                  onClick={() => scrollToSection(tab)}
+                  key={index}
+                  onClick={() => scrollToSection(index)}
                   className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
-                    activeTab === tab
+                    activeTab === index
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-600 hover:text-blue-600"
                   }`}
                 >
-                  {tab}
+                  {tabNames[index] || `Tab ${index + 1}`}
                 </button>
               ))}
             </div>
@@ -342,76 +355,25 @@ const ServiceDetail = () => {
 
           {/* Tab Content - All sections displayed */}
           <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
-            {/* Overview Section */}
-            <div id="overview" className="scroll-mt-32">
-              <div 
-                className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
-                  prose-headings:text-gray-900 
-                  prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
-                  prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
-                  prose-p:text-gray-700 prose-p:mb-3
-                  prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
-                  prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
-                  prose-li:text-gray-700 prose-li:mb-1
-                  prose-table:w-full prose-table:border-collapse prose-table:my-4
-                  prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                  prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                  prose-strong:font-semibold prose-strong:text-gray-900"
-                dangerouslySetInnerHTML={{ __html: serviceData.description }}
-              />
-            </div>
-
-            {/* Process Section */}
-            <div id="process" className="scroll-mt-32">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">Process</h2>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                The registration process is simple and streamlined. First, we help you select and get approval 
-                for your company name from the Ministry of Corporate Affairs. Then we obtain Digital Signature 
-                Certificates (DSC) and Director Identification Numbers (DIN) for the directors. Next, we prepare 
-                and file all necessary incorporation documents including Memorandum of Association (MOA) and 
-                Articles of Association (AOA). Finally, once approved, you receive your Certificate of 
-                Incorporation along with PAN and TAN. The entire process typically takes 7-10 working days.
-              </p>
-            </div>
-
-            {/* Requirements Section */}
-            <div id="requirements" className="scroll-mt-32">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">Requirements</h2>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                To register a Private Limited Company, you need minimum 2 directors and 2 shareholders. 
-                Required documents include PAN cards and Aadhaar cards of all directors, passport-sized 
-                photographs, proof of registered office address (rent agreement or property documents), 
-                latest utility bills, and a No Objection Certificate (NOC) from the property owner. 
-                All documents should be clear, valid, and self-attested. Our team will guide you through 
-                the document preparation process.
-              </p>
-            </div>
-
-            {/* Advantages Section */}
-            <div id="advantages" className="scroll-mt-32">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">Advantages</h2>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                Private Limited Companies offer numerous benefits including limited liability protection 
-                for shareholders, perpetual succession regardless of ownership changes, enhanced credibility 
-                with customers and investors, easier access to funding from banks and venture capitalists, 
-                separate legal entity status, and various tax benefits and deductions. The structure is 
-                ideal for businesses planning to scale, raise investment, or build long-term brand value 
-                in the market.
-              </p>
-            </div>
-
-            {/* Services Section */}
-            <div id="services" className="scroll-mt-32">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">Our Services</h2>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                We provide end-to-end support for your company registration. Our services include complete 
-                documentation assistance, expert guidance on name selection and approval, processing of 
-                Digital Signature Certificates and DIN, preparation of MOA and AOA, incorporation filing, 
-                obtaining PAN and TAN, share certificate issuance, and first-year compliance support. We 
-                also offer free consultation with experienced CAs and CSs, post-registration assistance for 
-                bank account opening, and ongoing compliance reminders to keep your business on track.
-              </p>
-            </div>
+            {descriptionTabs.map((content, index) => (
+              <div key={index} id={`tab-${index}`} className="scroll-mt-32">
+                <div 
+                  className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
+                    prose-headings:text-gray-900 
+                    prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
+                    prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+                    prose-p:text-gray-700 prose-p:mb-3
+                    prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+                    prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+                    prose-li:text-gray-700 prose-li:mb-1
+                    prose-table:w-full prose-table:border-collapse prose-table:my-4
+                    prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                    prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
+                    prose-strong:font-semibold prose-strong:text-gray-900"
+                  dangerouslySetInnerHTML={{ __html: content }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
