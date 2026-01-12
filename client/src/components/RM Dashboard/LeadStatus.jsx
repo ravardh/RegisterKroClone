@@ -98,20 +98,20 @@ const LeadStatus = () => {
   }
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    <div className="p-3 sm:p-4 md:p-6 bg-white min-h-screen">
       
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Lead Management</h1>
-        <p className="text-sm text-gray-500">Track and update your assigned leads</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Lead Management</h1>
+        <p className="text-xs sm:text-sm text-gray-500">Track and update your assigned leads</p>
       </div>
 
       
-      <div className="border border-gray-100 rounded-lg p-4 mb-6 bg-gray-50">
+      <div className="border border-gray-100 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 bg-gray-50">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-medium text-gray-700 text-sm">Filter:</span>
+          <span className="font-medium text-gray-700 text-xs sm:text-sm w-full sm:w-auto mb-1 sm:mb-0">Filter:</span>
           <button
             onClick={() => setFilterStage("all")}
-            className={`px-3 py-1.5 rounded-lg text-sm transition ${
+            className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm transition ${
               filterStage === "all"
                 ? "bg-blue-600 text-white"
                 : "bg-white border border-gray-200 text-gray-700 hover:border-gray-300"
@@ -123,7 +123,7 @@ const LeadStatus = () => {
             <button
               key={stage}
               onClick={() => setFilterStage(stage)}
-              className={`px-3 py-1.5 rounded-lg text-sm transition ${
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm transition whitespace-nowrap ${
                 filterStage === stage
                   ? "bg-blue-600 text-white"
                   : "bg-white border border-gray-200 text-gray-700 hover:border-gray-300"
@@ -137,8 +137,8 @@ const LeadStatus = () => {
 
       
       {filteredLeads.length === 0 ? (
-        <div className="text-center py-12 border border-gray-100 rounded-lg">
-          <p className="text-gray-500 text-sm">No leads found in this stage</p>
+        <div className="text-center py-8 sm:py-12 border border-gray-100 rounded-lg">
+          <p className="text-gray-500 text-xs sm:text-sm">No leads found in this stage</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -147,28 +147,28 @@ const LeadStatus = () => {
             return (
               <div
                 key={lead._id}
-                className="border border-gray-100 rounded-lg p-4 hover:border-gray-300 transition"
+                className="border border-gray-100 rounded-lg p-3 sm:p-4 hover:border-gray-300 transition"
               >
-                <div className="flex justify-between items-start gap-4 flex-wrap md:flex-nowrap">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
                   {/* Lead Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">
+                  <div className="flex-1 min-w-0 w-full">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <h3 className="text-xs sm:text-sm font-medium text-gray-900 break-words">
                         {lead.clientName}
                       </h3>
                       <span className="text-xs text-gray-400">#{lead.leadID}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-2 flex-wrap">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs text-gray-500 mb-2">
                       <div className="flex items-center gap-1">
-                        <FaEnvelope className="text-gray-400" />
-                        <a href={`mailto:${lead.clientEmail}`} className="hover:text-blue-600">
+                        <FaEnvelope className="text-gray-400 flex-shrink-0" />
+                        <a href={`mailto:${lead.clientEmail}`} className="hover:text-blue-600 break-all">
                           {lead.clientEmail}
                         </a>
                       </div>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <div className="flex items-center gap-1">
-                        <FaPhone className="text-gray-400" />
+                        <FaPhone className="text-gray-400 flex-shrink-0" />
                         <a href={`tel:${lead.clientPhone}`} className="hover:text-blue-600">
                           {lead.clientPhone}
                         </a>
@@ -176,7 +176,7 @@ const LeadStatus = () => {
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded break-words">
                         {lead.interestedService}
                       </span>
                       <span className="text-xs text-gray-400">
@@ -186,13 +186,13 @@ const LeadStatus = () => {
                   </div>
 
                   {/* Stage and Actions */}
-                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap md:flex-nowrap">
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap w-full sm:w-auto">
                     {editingLead === lead._id ? (
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                         <select
                           value={selectedStage}
                           onChange={(e) => setSelectedStage(e.target.value)}
-                          className="text-xs border border-gray-300 rounded px-2 py-1"
+                          className="text-xs border border-gray-300 rounded px-2 py-1 flex-1 sm:flex-none"
                         >
                           <option value="">Select stage</option>
                           {stages.map((stage) => (
@@ -220,7 +220,7 @@ const LeadStatus = () => {
                     ) : (
                       <>
                         <span
-                          className={`text-xs font-medium px-2.5 py-1 rounded border ${
+                          className={`text-xs font-medium px-2.5 py-1 rounded border whitespace-nowrap ${
                             stageColors[currentStage] || "bg-gray-100 text-gray-800 border-gray-300"
                           }`}
                         >
@@ -231,7 +231,7 @@ const LeadStatus = () => {
                             setEditingLead(lead._id);
                             setSelectedStage(currentStage || "");
                           }}
-                          className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1"
+                          className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1 whitespace-nowrap"
                         >
                           <FaEdit size={12} />
                           Edit
@@ -245,10 +245,10 @@ const LeadStatus = () => {
                 {lead.leadStages && lead.leadStages.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500 font-medium mb-2">Stage History:</p>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
                       {lead.leadStages.map((stage, idx) => (
-                        <div key={idx} className="flex items-center gap-1">
-                          <FaCheckCircle size={12} className="text-green-600" />
+                        <div key={idx} className="flex items-center gap-1 flex-wrap">
+                          <FaCheckCircle size={12} className="text-green-600 flex-shrink-0" />
                           <span className="text-xs text-gray-600">{stage.stageName}</span>
                           <span className="text-xs text-gray-400">
                             {formatDate(stage.updatedAt)}

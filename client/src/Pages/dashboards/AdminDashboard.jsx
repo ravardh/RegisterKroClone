@@ -9,12 +9,19 @@ import Contact from "../../components/Admin Dashboard/ContactManage";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   return (
     <>
       <div className="flex h-[90vh] overflow-hidden bg-[--background)]">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
 
-        <div className="w-4/5 h-[90vh] overflow-auto scrollbar-hide right-0 ml-auto">
+        <div className="w-full lg:w-4/5 h-[90vh] overflow-auto scrollbar-hide right-0 lg:ml-auto">
           {activeTab === "overview" && <Overview />}
           {activeTab === "leads" && <Leads />}
           {activeTab === "category" && <Categories />}
