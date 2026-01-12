@@ -2,8 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import CommonData from "../assets/common.json";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Footer = () => {
+  const { isLoggedIn } = useAuth();
   return (
     <div>
       <footer className="bg-gray-900 text-gray-200 py-8 md:py-12">
@@ -135,13 +137,21 @@ const Footer = () => {
               © {new Date().getFullYear()} {CommonData.companyName}. All rights
               reserved.
             </span>
-            <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start order-2 md:order-2">
+            <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start order-2 md:order-2 items-center">
               <Link to="/privacy" className="hover:text-white">
                 Privacy
               </Link>
               <Link to="/terms" className="hover:text-white">
                 Terms
               </Link>
+              {!isLoggedIn && (
+                <Link
+                  to="/login"
+                  className="hover:text-white"
+                >
+                  Login
+                </Link>
+              )}
               <Link to="/sitemap" className="hover:text-white">
                 Sitemap
               </Link>
