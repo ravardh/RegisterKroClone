@@ -22,6 +22,7 @@ const Header = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
@@ -66,11 +67,8 @@ const Header = () => {
   };
 
   const navLinks = [
-  
-    
-    { name: "Services", to: "/services" },
-    { name: "Track Status", to: "/trackStatus" },
     { name: "About", to: "/about" },
+    { name: "Track Status", to: "/trackStatus" },
   ];
 
   const handleCategorySelect = (category) => {
@@ -78,6 +76,11 @@ const Header = () => {
     setSearchQuery("");
     setSearchResults([]);
     setIsSearching(false);
+  };
+
+  const handleServicesDropdownSelect = (category) => {
+    navigate("/services", { state: { selectedCategory: category } });
+    setIsServicesDropdownOpen(false);
   };
 
   const handleLogout = async () => {
@@ -123,8 +126,34 @@ const Header = () => {
               </Link>
             </div>
 
-            <nav className="hidden md:flex space-x-4 lg:space-x-8">
-              {navLinks.map((link) => (
+            <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
+
+              {/* Services Dropdown */}
+              <div
+                className="relative group"
+                onMouseEnter={() => setIsServicesDropdownOpen(true)}
+                onMouseLeave={() => setIsServicesDropdownOpen(false)}
+              >
+                <button className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover) w-full px-2" onClick = {() => navigate("/services")}>
+                  Services
+                </button>
+
+                {/* Categories Dropdown Menu */}
+                {isServicesDropdownOpen && allCategories.length > 0 && (
+                  <div className="absolute top-full left-0 -mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 pt-2">
+                    {allCategories.map((category) => (
+                      <button
+                        key={category._id}
+                        onClick={() => handleServicesDropdownSelect(category)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors cursor-pointer"
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+                {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.to}
@@ -255,6 +284,15 @@ const Header = () => {
                     {link.name}
                   </Link>
                 ))}
+
+                {/* Mobile Services Link */}
+                <Link
+                  to="/services"
+                  className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Services
+                </Link>
 
                 {isLoggedIn ? (
                   <>
