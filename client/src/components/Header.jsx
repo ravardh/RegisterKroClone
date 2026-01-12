@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { IoMenuSharp, IoClose } from "react-icons/io5";
+import React, { useState, useEffect } from "react";
+import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -18,9 +18,39 @@ const Header = () => {
     setIsRM,
   } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [allCategories, setAllCategories] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
+
+  // Fetch all categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/public/categories");
+        setAllCategories(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Handle search
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const filtered = allCategories.filter((category) =>
+      category.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setSearchResults(filtered);
+  }, [searchQuery, allCategories]);
 
   // Get dashboard link based on user role
   const getDashboardLink = () => {
@@ -42,6 +72,13 @@ const Header = () => {
     { name: "Track Status", to: "/trackStatus" },
     { name: "About", to: "/about" },
   ];
+
+  const handleCategorySelect = (category) => {
+    navigate("/services", { state: { selectedCategory: category } });
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -118,12 +155,45 @@ const Header = () => {
                   </div>
                 </>
               ) : (
-                <Link
-                  to="/contact"
-                  className="px-2 lg:px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
-                >
-                  Contact Us
-                </Link>
+                <>
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                      <IoSearch className="text-gray-500 mr-2" />
+                      <input
+                        type="text"
+                        placeholder="Search categories..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setIsSearching(true)}
+                        onBlur={() => setTimeout(() => setIsSearching(false), 200)}
+                        className="bg-gray-100 outline-none text-sm w-40 text-(--text)"
+                      />
+                    </div>
+                    
+                    {/* Search Results Dropdown */}
+                    {isSearching && searchResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                        {searchResults.map((category) => (
+                          <button
+                            key={category._id}
+                            onClick={() => handleCategorySelect(category)}
+                            className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Link
+                    to="/contact"
+                    className="px-2 lg:px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
+                  >
+                    Contact Us
+                  </Link>
+                </>
               )}
             </div>
 
@@ -143,6 +213,38 @@ const Header = () => {
           {isMenuOpen && (
             <div className="absolute top-full left-0 right-0 mt-2 md:hidden bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
               <div className="flex flex-col p-3 sm:p-4 space-y-1">
+                {/* Mobile Search Bar */}
+                <div className="relative mb-2">
+                  <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                    <IoSearch className="text-gray-500 mr-2" />
+                    <input
+                      type="text"
+                      placeholder="Search categories..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="bg-gray-100 outline-none text-sm flex-1 text-(--text)"
+                    />
+                  </div>
+                  
+                  {/* Mobile Search Results */}
+                  {searchResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                      {searchResults.map((category) => (
+                        <button
+                          key={category._id}
+                          onClick={() => {
+                            handleCategorySelect(category);
+                            setIsMenuOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}

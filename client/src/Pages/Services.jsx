@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../config/api";
 
 const Services = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -39,6 +40,15 @@ const Services = () => {
       fetchCategories();
     }
   }, []);
+
+  // Handle category selection from Header search
+  useEffect(() => {
+    if (location.state?.selectedCategory) {
+      handleCategoryClick(location.state.selectedCategory);
+      // Clear the navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
