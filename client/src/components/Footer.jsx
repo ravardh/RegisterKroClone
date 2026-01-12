@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="mb-8 md:mb-0 md:w-1/3">
             <Link className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-bold text-white">
-                RK
+                TP
               </div>
               <span to={"/"} className="text-xl font-semibold">
                 {CommonData.companyName}
