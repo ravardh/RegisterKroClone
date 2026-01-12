@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Contact from "../models/contactModel.js";
 import Leads from "../models/leadsModel.js";
+import Feedback from "../models/feedbackModel.js";
 import bcrypt from "bcrypt";
 
 export const getAllLeads = async (req, res, next) => {
@@ -232,6 +233,80 @@ export const updateRm = async (req, res, next) => {
     res.status(200).json({
       message: "Relationship Manager updated successfully",
       data: existingUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin feedback management
+export const getAllFeedbacks = async (req, res, next) => {
+  try {
+    const feedbacks = await Feedback.find()
+      .populate("serviceAvailed", "serviceName")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Feedbacks fetched successfully",
+      data: feedbacks,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const approveFeedback = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("Feedback ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const updated = await Feedback.findByIdAndUpdate(
+      id,
+      { status: "approved" },
+      { new: true }
+    ).populate("serviceAvailed", "serviceName");
+
+    if (!updated) {
+      const error = new Error("Feedback not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Feedback approved",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectFeedback = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("Feedback ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const deleted = await Feedback.findByIdAndDelete(id);
+
+    if (!deleted) {
+      const error = new Error("Feedback not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Feedback rejected and removed",
+      data: deleted,
     });
   } catch (error) {
     next(error);

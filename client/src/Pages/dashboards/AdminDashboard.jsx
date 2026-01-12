@@ -6,6 +6,7 @@ import RelationshipManagers from "../../components/Admin Dashboard/RmManage";
 import Leads from "../../components/Admin Dashboard/LeadsManage";
 import Categories from "../../components/Admin Dashboard/CategoriesManage";
 import Contact from "../../components/Admin Dashboard/ContactManage";
+import Feedbacks from "../../components/Admin Dashboard/FeedbackManage";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -28,6 +29,7 @@ const AdminDashboard = () => {
           {activeTab === "contact" && <Contact />}
           {activeTab === "services" && <Services />}
           {activeTab === "relationshipManagers" && <RelationshipManagers />}
+          {activeTab === "feedbacks" && <Feedbacks />}
         </div>
       </div>
     </>

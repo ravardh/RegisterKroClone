@@ -161,6 +161,7 @@ export const PostFeedback = async (req, res, next) => {
       serviceAvailed: service._id,
       message,
       starRating,
+      status: "pending",
     });
 
     res.status(201).json({
@@ -174,7 +175,10 @@ export const PostFeedback = async (req, res, next) => {
 
 export const getAllFeedback = async (req, res, next) => {
   try {
-    const feedbacks = await Feedback.find({ starRating: { $gte: 4 } })
+    const feedbacks = await Feedback.find({ 
+      starRating: { $gte: 4 },
+      status: "approved"
+    })
       .populate("serviceAvailed", "serviceName")
       .sort({ starRating: -1, createdAt: -1 })
       .limit(20);

@@ -8,6 +8,9 @@ import {
   getAllContacts,
   deleteContact,
   assignLeadToRM,
+  getAllFeedbacks,
+  approveFeedback,
+  rejectFeedback,
 } from "../controllers/adminController.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
 
@@ -26,6 +29,11 @@ router.put("/update-rm/:id", updateRm);
 // Contact routes
 router.get("/contacts", getAllContacts);
 router.delete("/contacts/:id", deleteContact);
+
+// Feedback routes
+router.get("/feedbacks", getAllFeedbacks);
+router.patch("/feedbacks/:id/approve", approveFeedback);
+router.delete("/feedbacks/:id", rejectFeedback);
 
 // Service routes
 // service/category/subcategory routes moved to serviceRoutes
