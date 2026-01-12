@@ -4,10 +4,10 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import axios from "../config/api";
 import toast from "react-hot-toast";
-import Step1 from "../assets/comp1.svg";
-import Step2 from "../assets/comp2.svg";
-import Step3 from "../assets/comp3.svg";
-import Step4 from "../assets/comp4.svg";
+import Step1 from "../assets/step1.png";
+import Step2 from "../assets/step2.png";
+import Step3 from "../assets/step3.png";
+import Step4 from "../assets/step4.png";
 import axiosInstance from "../config/api";
 import commondata from "../assets/common.json";
 
