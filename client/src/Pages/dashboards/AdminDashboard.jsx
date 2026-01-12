@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   
   return (
     <>
-      <div className="flex h-[90vh] overflow-hidden bg-[--background)]">
+      <div className="flex h-[90vh] overflow-hidden bg-(--background)">
         <Sidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab}
