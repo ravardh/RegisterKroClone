@@ -16,7 +16,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://taxprosolution.co.in/api",
+      "https://www.taxprosolution.co.in/api",
+    ],
     credentials: true,
   })
 );
