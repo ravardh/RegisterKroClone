@@ -105,7 +105,7 @@ const Header = () => {
       <header
         className={`sticky z-50 ${
           isDashboard
-            ? "bg-[url('hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
+            ? "bg-[url('/hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
             : "bg-white top-2 rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
         }`}
       >
@@ -146,7 +146,7 @@ const Header = () => {
                         <button
                           key={category._id}
                           onClick={() => handleServicesDropdownSelect(category)}
-                          className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer group relative overflow-hidden"
+                          className="w-full text-left px-4 py-3 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer group relative overflow-hidden"
                         >
                           <span className="flex items-center gap-3">
                             <span className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-(--primary) transition-colors duration-200"></span>
