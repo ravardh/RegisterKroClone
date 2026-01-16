@@ -3,28 +3,29 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import ServiceDetail from "./pages/ServiceDetail";
-import TrackStatus from "./pages/TrackStatus";
-import Contact from "./pages/Contact";
-import Feedback from "./pages/Feedback";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Sitemap from "./pages/Sitemap";
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
-import RMDashboard from "./pages/dashboards/RMDashboard";
+import Home from "./mypages/Home";
+import About from "./mypages/About";
+import Services from "./mypages/Services";
+import ServiceDetail from "./mypages/ServiceDetail";
+import TrackStatus from "./mypages/TrackStatus";
+import Contact from "./mypages/Contact";
+import Feedback from "./mypages/Feedback";
+import Login from "./mypages/Login";
+import Register from "./mypages/Register";
+import Privacy from "./mypages/Privacy";
+import Terms from "./mypages/Terms";
+import Sitemap from "./mypages/Sitemap";
+import AdminDashboard from "./mypages/dashboards/AdminDashboard";
+import RMDashboard from "./mypages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
-import NotFound from "./pages/NotFound";
+import NotFound from "./mypages/NotFound";
 import axiosInstance from "./config/api";
 
 const Layout = () => {
   const location = useLocation();
   const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(location.pathname);
-
+  console.log("App Started");
+  
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
   }, [location.pathname, location.search, location.hash]);

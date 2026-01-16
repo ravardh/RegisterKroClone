@@ -16,7 +16,8 @@ const Home = () => {
 
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
-
+  console.log("Home Page");
+  
   useEffect(() => {
     const fetchReviews = async () => {
       try {
