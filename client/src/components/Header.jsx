@@ -140,16 +140,21 @@ const Header = () => {
 
                 {/* Categories Dropdown Menu */}
                 {isServicesDropdownOpen && allCategories.length > 0 && (
-                  <div className="absolute top-full left-0 -mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 pt-2">
-                    {allCategories.map((category) => (
-                      <button
-                        key={category._id}
-                        onClick={() => handleServicesDropdownSelect(category)}
-                        className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors cursor-pointer"
-                      >
-                        {category.name}
-                      </button>
-                    ))}
+                  <div className="absolute top-full -left-2 mt-1 bg-white border border-gray-300 rounded-xl shadow-xl z-50 min-w-64 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2">
+                      {allCategories.map((category, index) => (
+                        <button
+                          key={category._id}
+                          onClick={() => handleServicesDropdownSelect(category)}
+                          className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer group relative overflow-hidden"
+                        >
+                          <span className="flex items-center gap-3">
+                            <span className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-(--primary) transition-colors duration-200"></span>
+                            <span>{category.name}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

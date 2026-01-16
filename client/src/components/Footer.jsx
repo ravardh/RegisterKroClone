@@ -126,6 +126,13 @@ const Footer = () => {
                     FAQ
                   </Link>
                 </li>
+                {!isLoggedIn && (
+                  <li>
+                    <Link to="/login" className="hover:text-white">
+                      Login
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
@@ -144,14 +151,7 @@ const Footer = () => {
               <Link to="/terms" className="hover:text-white">
                 Terms
               </Link>
-              {!isLoggedIn && (
-                <Link
-                  to="/login"
-                  className="hover:text-white"
-                >
-                  Login
-                </Link>
-              )}
+
               <Link to="/sitemap" className="hover:text-white">
                 Sitemap
               </Link>
