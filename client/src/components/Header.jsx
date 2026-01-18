@@ -67,8 +67,9 @@ const Header = () => {
   };
 
   const navLinks = [
-    { name: "About", to: "/about" },
-    { name: "Track Status", to: "/trackStatus" },
+    { name: "Taxation", to: "/about" },
+    { name: "Compliences", to: "/trackStatus" },
+    { name: "Registration", to: "/trackStatus" },
   ];
 
   const handleCategorySelect = (category) => {
@@ -81,6 +82,30 @@ const Header = () => {
   const handleServicesDropdownSelect = (category) => {
     navigate("/services", { state: { selectedCategory: category } });
     setIsServicesDropdownOpen(false);
+  };
+
+  // Normalize header labels to canonical category names
+  const normalizeCategoryName = (name) => {
+    const n = (name || "").toLowerCase().trim();
+    if (["compliences", "compliances", "compliance"].includes(n)) return "Compliance";
+    if (["registeration", "registration"].includes(n)) return "Registration";
+    if (["taxation"].includes(n)) return "Taxation";
+    return name;
+  };
+
+  // Navigate to Services with a specific category by name (handles spelling variants)
+  const handleNavigateToCategoryByName = (name, options = {}) => {
+    const canonical = normalizeCategoryName(name);
+    const category = allCategories.find(
+      (c) => c?.name?.toLowerCase() === canonical.toLowerCase()
+    );
+    if (category) {
+      navigate("/services", { state: { selectedCategory: category } });
+    } else {
+      // Fallback: Services page resolves by name
+      navigate("/services", { state: { selectedCategoryName: canonical } });
+    }
+    if (options.closeMenu) setIsMenuOpen(false);
   };
 
   const handleLogout = async () => {
@@ -128,6 +153,26 @@ const Header = () => {
 
             <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
 
+              {navLinks.map((link) => (
+                ["Taxation", "Compliences", "Compliance", "Registration", "Registeration"].includes(link.name) ? (
+                  <button
+                    key={link.name}
+                    onClick={() => handleNavigateToCategoryByName(link.name)}
+                    className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
+                  >
+                    {normalizeCategoryName(link.name)}
+                  </button>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.to}
+                    className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
+                  >
+                    {link.name}
+                  </Link>
+                )
+              ))}
+
               {/* Services Dropdown */}
               <div
                 className="relative group"
@@ -135,12 +180,12 @@ const Header = () => {
                 onMouseLeave={() => setIsServicesDropdownOpen(false)}
               >
                 <button className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover) w-full px-2" onClick = {() => navigate("/services")}>
-                  Services
+                  Other Services
                 </button>
 
                 {/* Categories Dropdown Menu */}
                 {isServicesDropdownOpen && allCategories.length > 0 && (
-                  <div className="absolute top-full -left-2 mt-1 bg-white border border-gray-300 rounded-xl shadow-xl z-50 min-w-64 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute top-full -left-2 pt-1 bg-white border border-gray-300 rounded-xl shadow-xl z-50 min-w-64 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2">
                       {allCategories.map((category, index) => (
                         <button
@@ -158,15 +203,6 @@ const Header = () => {
                   </div>
                 )}
               </div>
-                {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.to}
-                  className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
-                >
-                  {link.name}
-                </Link>
-              ))}
             </nav>
 
             {/* Auth Actions */}
@@ -280,14 +316,24 @@ const Header = () => {
                 </div>
 
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    to={link.to}
-                    className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.name}
-                  </Link>
+                  ["Taxation", "Compliences", "Compliance", "Registration", "Registeration"].includes(link.name) ? (
+                    <button
+                      key={link.name}
+                      onClick={() => handleNavigateToCategoryByName(link.name, { closeMenu: true })}
+                      className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
+                    >
+                      {normalizeCategoryName(link.name)}
+                    </button>
+                  ) : (
+                    <Link
+                      key={link.name}
+                      to={link.to}
+                      className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  )
                 ))}
 
                 {/* Mobile Services Link */}

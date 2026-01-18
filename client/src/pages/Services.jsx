@@ -50,6 +50,28 @@ const Services = () => {
     }
   }, [location.state]);
 
+  // Fallback: open by category name if only name is provided
+  useEffect(() => {
+    const name = location.state?.selectedCategoryName;
+    if (name && categories.length > 0) {
+      const normalizedName = (() => {
+        const n = (name || "").toLowerCase().trim();
+        if (["compliences", "compliances", "compliance"].includes(n)) return "Compliance";
+        if (["registeration", "registration"].includes(n)) return "Registration";
+        if (["taxation"].includes(n)) return "Taxation";
+        return name;
+      })();
+
+      const cat = categories.find(
+        (c) => c?.name?.toLowerCase() === normalizedName.toLowerCase()
+      );
+      if (cat) {
+        handleCategoryClick(cat);
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [categories, location.state]);
+
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     setIsModalOpen(true);

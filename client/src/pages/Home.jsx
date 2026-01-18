@@ -101,7 +101,9 @@ const Home = () => {
             Fast, reliable, and tailored online business solutions with free
             expert consultation.
           </p>
-          <button className="bg-(--primary) text-white px-6 py-3 rounded-2xl hover:bg-(--primary-hover) transition">
+          <button className="bg-(--primary) text-white px-6 py-3 rounded-2xl hover:bg-(--primary-hover) transition" onClick = {() => {
+            window.location.href = '/services';
+          }}>
             Get Started
           </button>
         </div>
@@ -208,7 +210,10 @@ const Home = () => {
                 <li>• Share only essential details—no complexity</li>
                 <li>• Your information stays safe, secure, and private</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg"
+              onClick={() => {
+                window.location.href = '/services';
+              }}>
                 Start Application <FaArrowRightLong />
               </button>
             </div>
@@ -233,7 +238,10 @@ const Home = () => {
                 </li>
                 <li>• Your RM becomes your single point of contact</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg"
+              onClick={() => {
+                window.location.href = '/services';
+              }}>
                 Proceed <FaArrowRightLong />
               </button>
             </div>
@@ -270,7 +278,10 @@ const Home = () => {
                   • Experts take care of filings, compliance, and processing
                 </li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg"
+              onClick={() => {
+                window.location.href = '/services';
+              }}>
                 Continue <FaArrowRightLong />
               </button>
             </div>
@@ -296,7 +307,10 @@ const Home = () => {
                 </li>
                 <li>• Get expert support whenever you need it</li>
               </ul>
-              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg">
+              <button className="inline-flex border-2 border-(--primary) py-2 px-3 md:px-4 rounded-2xl items-center gap-2 text-(--primary) hover:bg-(--primary-hover) hover:text-white font-semibold text-base md:text-lg"
+              onClick={() => {
+                window.location.href = '/trackStatus';
+              }}>
                 Track Application <FaArrowRightLong />
               </button>
             </div>
