@@ -21,12 +21,17 @@ import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
 import axiosInstance from "./config/api";
+import CommonData from './assets/common.json'
+import { FaWhatsappSquare } from "react-icons/fa";
+import WhatsAppIcon from './assets/whatsapp.png'
 
 const Layout = () => {
   const location = useLocation();
-  const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(location.pathname);
+  const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(
+    location.pathname,
+  );
   console.log("App Started");
-  
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
   }, [location.pathname, location.search, location.hash]);
@@ -42,10 +47,7 @@ const Layout = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
-          <Route
-            path="/service/:serviceId"
-            element={<ServiceDetail />}
-          />
+          <Route path="/service/:serviceId" element={<ServiceDetail />} />
           <Route path="/trackStatus" element={<TrackStatus />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
@@ -89,24 +91,25 @@ const App = () => {
         }
 
         // Fetch all categories
-        const categoriesResponse = await axiosInstance.get("/public/categories");
+        const categoriesResponse =
+          await axiosInstance.get("/public/categories");
         const categories = categoriesResponse.data.data || [];
-        
+
         // Fetch all subcategories and services
         const allSubCategories = {};
         const allServices = {};
 
         for (const category of categories) {
           const subCategoriesResponse = await axiosInstance.get(
-            `/public/categories/${category._id}/subcategories`
+            `/public/categories/${category._id}/subcategories`,
           );
           const subCategories = subCategoriesResponse.data.data || [];
-          
+
           allSubCategories[category._id] = subCategories;
 
           for (const subCategory of subCategories) {
             const servicesResponse = await axiosInstance.get(
-              `/public/subcategories/${subCategory._id}/services`
+              `/public/subcategories/${subCategory._id}/services`,
             );
             const services = servicesResponse.data.data || [];
             allServices[subCategory._id] = services;
@@ -115,7 +118,10 @@ const App = () => {
 
         // Store all data in session storage
         sessionStorage.setItem("categories", JSON.stringify(categories));
-        sessionStorage.setItem("subCategories", JSON.stringify(allSubCategories));
+        sessionStorage.setItem(
+          "subCategories",
+          JSON.stringify(allSubCategories),
+        );
         sessionStorage.setItem("services", JSON.stringify(allServices));
         sessionStorage.setItem("appDataInitialized", "true");
       } catch (error) {
@@ -129,6 +135,14 @@ const App = () => {
   return (
     <BrowserRouter>
       <Layout />
+
+      <a
+        href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
+        target="_blank"
+        className="fixed bottom-5 left-5"
+      >
+        <img src={WhatsAppIcon} alt="" className="h-12 w-12 hover:scale-110 duration-300" />
+      </a>
     </BrowserRouter>
   );
 };

@@ -3,6 +3,7 @@ import Contact from "../models/contactModel.js";
 import Leads from "../models/leadsModel.js";
 import Feedback from "../models/feedbackModel.js";
 import bcrypt from "bcrypt";
+import { sendRmAssignmentEmail, sendLeadUpdateEmail, sendAdminUpdateNotification } from "../config/emailService.js";
 
 export const getAllLeads = async (req, res, next) => {
   try {
@@ -74,6 +75,24 @@ export const assignLeadToRM = async (req, res, next) => {
       const error = new Error("Lead not found");
       error.statusCode = 404;
       return next(error);
+    }
+
+    // Send RM assignment email if RM was assigned
+    if (rmId && updatedLead.assignedTo) {
+      try {
+        await sendRmAssignmentEmail({
+          clientName: updatedLead.clientName,
+          clientEmail: updatedLead.clientEmail,
+          rmName: updatedLead.assignedTo.fullName,
+          rmEmail: updatedLead.assignedTo.email,
+          rmPhone: updatedLead.assignedTo.phone,
+          leadId: updatedLead.leadID,
+          serviceName: updatedLead.interestedService,
+        });
+      } catch (emailError) {
+        console.error("Failed to send RM assignment email:", emailError);
+        // Don't fail the request if email fails, just log it
+      }
     }
 
     res.status(200).json({

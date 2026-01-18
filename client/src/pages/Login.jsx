@@ -62,8 +62,8 @@ const Login = () => {
             <h2 className="text-2xl font-semibold text-(--root)">
               Sign in to your account
             </h2>
-            <p className="text-sm text-(--secondary)">
-              Welcome back — please enter your details.
+            <p className="text-md text-(--secondary)">
+              Welcome back — please enter your details
             </p>
           </div>
 

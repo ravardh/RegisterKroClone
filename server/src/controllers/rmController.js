@@ -1,4 +1,5 @@
 import Leads from "../models/leadsModel.js";
+import { sendLeadUpdateEmail, sendAdminUpdateNotification } from "../config/emailService.js";
 
 export const AssignedLeads = async (req, res, next) => {
   try {
@@ -66,6 +67,53 @@ export const UpdateLeadStage = async (req, res, next) => {
       const error = new Error("Lead not found");
       error.statusCode = 404;
       return next(error);
+    }
+
+    // Calculate progress percentage based on stage
+    const stageProgress = {
+      "new": 10,
+      "contacted": 20,
+      "proposal sent": 30,
+      "negotiation": 40,
+      "document collected": 60,
+      "Application done": 80,
+      "In Progress": 90,
+      "Completed": 100,
+    };
+
+    const progressPercentage = stageProgress[stageName] || 10;
+
+    // Send progress update email to client (only if stage is significant)
+    if (["contacted", "proposal sent", "negotiation", "In Progress"].includes(stageName)) {
+      try {
+        await sendLeadUpdateEmail({
+          clientName: updatedLead.clientName,
+          clientEmail: updatedLead.clientEmail,
+          leadId: updatedLead.leadID,
+          serviceName: updatedLead.interestedService,
+          updateTitle: `Service ${stageName}`,
+          updateDescription: `Your service request has been ${stageName}. Our team is working on it.`,
+          status: "in_progress",
+          progressPercentage: progressPercentage,
+        });
+      } catch (emailError) {
+        console.error("Failed to send lead update email:", emailError);
+        // Don't fail the request if email fails, just log it
+      }
+    }
+
+    // Send admin notification
+    try {
+      await sendAdminUpdateNotification({
+        clientName: updatedLead.clientName,
+        leadId: updatedLead.leadID,
+        serviceName: updatedLead.interestedService,
+        updateTitle: `Lead Stage Updated to ${stageName}`,
+        updateDescription: `Client ${updatedLead.clientName} (${updatedLead.clientEmail}) has been moved to stage: ${stageName}`,
+      });
+    } catch (emailError) {
+      console.error("Failed to send admin notification:", emailError);
+      // Don't fail the request if email fails, just log it
     }
 
     res.status(200).json({

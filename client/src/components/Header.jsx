@@ -1,43 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
-import { useAuth } from "../context/AuthContext.jsx";
-import axios from "../config/api";
-import toast from "react-hot-toast";
+import ServiceModal from "./ServiceModal.jsx";
 
 const Header = () => {
-  const {
-    user,
-    isLoggedIn,
-    isAdmin,
-    isRM,
-    setUser,
-    setIsLoggedIn,
-    setIsAdmin,
-    setIsRM,
-  } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [subCategoryServices, setSubCategoryServices] = useState([]);
+  const [mobileExpandedTab, setMobileExpandedTab] = useState(null);
+  const [mobileExpandedSubcategory, setMobileExpandedSubcategory] =
+    useState(null);
+  const [mobileSubCategories, setMobileSubCategories] = useState([]);
+  const [mobileServices, setMobileServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
-  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategoryName, setSelectedCategoryName] = useState(null);
+  const headerRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
-  // Fetch all categories on component mount
+  const MAIN_TABS = ["Registration", "Taxation", "Compliance"];
+
+  // Load categories from session storage
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("/public/categories");
-        setAllCategories(response.data.data || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+    try {
+      const categoriesData = sessionStorage.getItem("categories");
+      if (categoriesData) {
+        setAllCategories(JSON.parse(categoriesData));
+      }
+    } catch (error) {
+      console.error("Error loading data from session storage:", error);
+    }
+  }, []);
+
+  // Close dropdowns when clicking outside header
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setActiveTab(null);
+        setSubCategories([]);
       }
     };
-    fetchCategories();
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Handle search
@@ -48,29 +62,49 @@ const Header = () => {
     }
 
     const filtered = allCategories.filter((category) =>
-      category.name.toLowerCase().includes(searchQuery.toLowerCase())
+      category.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     setSearchResults(filtered);
   }, [searchQuery, allCategories]);
 
-  // Get dashboard link based on user role
   const getDashboardLink = () => {
     if (isAdmin) return "/adminDashboard";
     if (isRM) return "/rmDashboard";
     return "/dashboard";
   };
 
-  const getDashboardLabel = () => {
-    if (isAdmin) return "Admin Dashboard";
-    if (isRM) return "RM Dashboard";
-    return "Dashboard";
+  const handleTabHover = (tabName) => {
+    setActiveTab(tabName);
+    const category = allCategories.find(
+      (c) => c.name.toLowerCase() === tabName.toLowerCase(),
+    );
+    if (category) {
+      try {
+        const subCategoriesObj = JSON.parse(
+          sessionStorage.getItem("subCategories") || "{}",
+        );
+        setSubCategories(subCategoriesObj[category._id] || []);
+      } catch (error) {
+        console.error("Error loading subcategories:", error);
+        setSubCategories([]);
+      }
+    }
   };
 
-  const navLinks = [
-    { name: "Taxation", to: "/about" },
-    { name: "Compliences", to: "/trackStatus" },
-    { name: "Registration", to: "/trackStatus" },
-  ];
+  const handleSubcategoryClick = (subcategory) => {
+    setSelectedSubcategory(subcategory);
+    setIsSubMenuOpen(true);
+
+    try {
+      const servicesObj = JSON.parse(
+        sessionStorage.getItem("services") || "{}",
+      );
+      setSubCategoryServices(servicesObj[subcategory._id] || []);
+    } catch (error) {
+      console.error("Error loading services:", error);
+      setSubCategoryServices([]);
+    }
+  };
 
   const handleCategorySelect = (category) => {
     navigate("/services", { state: { selectedCategory: category } });
@@ -79,55 +113,67 @@ const Header = () => {
     setIsSearching(false);
   };
 
-  const handleServicesDropdownSelect = (category) => {
-    navigate("/services", { state: { selectedCategory: category } });
-    setIsServicesDropdownOpen(false);
+  const handleServiceClick = (serviceId) => {
+    navigate(`/service/${serviceId}`);
+    setIsSubMenuOpen(false);
+    setSelectedSubcategory(null);
+    setActiveTab(null);
+    setSubCategories([]);
   };
 
-  // Normalize header labels to canonical category names
-  const normalizeCategoryName = (name) => {
-    const n = (name || "").toLowerCase().trim();
-    if (["compliences", "compliances", "compliance"].includes(n)) return "Compliance";
-    if (["registeration", "registration"].includes(n)) return "Registration";
-    if (["taxation"].includes(n)) return "Taxation";
-    return name;
+  const handleMobileTabClick = (tabName) => {
+    setMobileExpandedTab(mobileExpandedTab === tabName ? null : tabName);
+    setMobileExpandedSubcategory(null);
+    setMobileServices([]);
+
+    if (mobileExpandedTab !== tabName) {
+      const category = allCategories.find(
+        (c) => c.name.toLowerCase() === tabName.toLowerCase(),
+      );
+      if (category) {
+        try {
+          const subCategoriesObj = JSON.parse(
+            sessionStorage.getItem("subCategories") || "{}",
+          );
+          setMobileSubCategories(subCategoriesObj[category._id] || []);
+        } catch (error) {
+          console.error("Error loading subcategories:", error);
+          setMobileSubCategories([]);
+        }
+      }
+    }
   };
 
-  // Navigate to Services with a specific category by name (handles spelling variants)
-  const handleNavigateToCategoryByName = (name, options = {}) => {
-    const canonical = normalizeCategoryName(name);
-    const category = allCategories.find(
-      (c) => c?.name?.toLowerCase() === canonical.toLowerCase()
+  const handleMobileSubcategoryClick = (subcategory) => {
+    setMobileExpandedSubcategory(
+      mobileExpandedSubcategory === subcategory._id ? null : subcategory._id,
     );
-    if (category) {
-      navigate("/services", { state: { selectedCategory: category } });
-    } else {
-      // Fallback: Services page resolves by name
-      navigate("/services", { state: { selectedCategoryName: canonical } });
+    try {
+      const servicesObj = JSON.parse(
+        sessionStorage.getItem("services") || "{}",
+      );
+      setMobileServices(servicesObj[subcategory._id] || []);
+    } catch (error) {
+      console.error("Error loading services:", error);
+      setMobileServices([]);
     }
-    if (options.closeMenu) setIsMenuOpen(false);
   };
 
-  const handleLogout = async () => {
-    try {
-      await axios.post("/auth/logout");
-      sessionStorage.removeItem("user");
-      setUser(null);
-      setIsLoggedIn(false);
-      setIsAdmin(false);
-      setIsRM(false);
-      toast.success("Logged out successfully!");
-      navigate("/");
-      setIsMenuOpen(false);
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Failed to logout");
-    }
+  const handleMobileServiceClick = (serviceId) => {
+    navigate(`/service/${serviceId}`);
+    setIsMenuOpen(false);
+    setMobileExpandedTab(null);
+    setMobileExpandedSubcategory(null);
   };
+
+  const filteredOtherServices = allCategories.filter(
+    (cat) => !MAIN_TABS.includes(cat.name),
+  );
 
   return (
     <>
       <header
+        ref={headerRef}
         className={`sticky z-50 ${
           isDashboard
             ? "bg-[url('/hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
@@ -142,60 +188,130 @@ const Header = () => {
           }`}
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
+            {/* Logo */}
             <div className="shrink-0">
               <Link
                 to="/"
-                className="text-lg sm:text-xl md:text-2xl font-bold text-(--primary)"
+                className="text-base sm:text-md md:text-lg lg:text-xl font-bold text-(--primary)"
               >
                 {CommonData.companyName}
               </Link>
             </div>
 
-            <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
-
-              {navLinks.map((link) => (
-                ["Taxation", "Compliences", "Compliance", "Registration", "Registeration"].includes(link.name) ? (
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-2 lg:space-x-3 items-center">
+              {/* Main Tabs */}
+              {MAIN_TABS.map((tabName) => (
+                <div
+                  key={tabName}
+                  className="relative"
+                  onMouseEnter={() => handleTabHover(tabName)}
+                  onMouseLeave={() => {
+                    setActiveTab(null);
+                    setSubCategories([]);
+                  }}
+                >
+                  {/* Tab Button */}
                   <button
-                    key={link.name}
-                    onClick={() => handleNavigateToCategoryByName(link.name)}
-                    className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
+                    className={`font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === tabName && "bg-(--primary)/10 rounded-xl"}`}
                   >
-                    {normalizeCategoryName(link.name)}
+                    {tabName}
                   </button>
-                ) : (
-                  <Link
-                    key={link.name}
-                    to={link.to}
-                    className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover)"
-                  >
-                    {link.name}
-                  </Link>
-                )
+
+                  {/* Subcategories Dropdown */}
+                  {activeTab === tabName && subCategories.length > 0 && (
+                    <div
+                      className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible"
+                      onMouseLeave={() => {
+                        setIsSubMenuOpen(false);
+                        setSelectedSubcategory(null);
+                      }}
+                    >
+                      <div className="p-3 overflow-y-auto">
+                        {subCategories.map((subCat) => (
+                          <div
+                            key={subCat._id}
+                            className="relative"
+                            onMouseEnter={() => handleSubcategoryClick(subCat)}
+                          >
+                            <button
+                              onClick={() => handleSubcategoryClick(subCat)}
+                              className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
+                            >
+                              <span className="flex items-center gap-3">
+                                <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
+                                {subCat.name}
+                              </span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Services Submenu - Outside overflow container */}
+                      {isSubMenuOpen &&
+                        selectedSubcategory &&
+                        subCategoryServices.length > 0 &&
+                        (() => {
+                          const selectedIndex = subCategories.findIndex(
+                            (cat) => cat._id === selectedSubcategory._id,
+                          );
+                          const topOffset = selectedIndex * 52; // Each item is ~52px
+                          return (
+                            <div
+                              style={{ top: `${topOffset}px` }}
+                              className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
+                            >
+                              <div className="p-4">
+                                <h3 className="font-semibold text-sm mb-3 text-(--primary)">
+                                  {selectedSubcategory.name}
+                                </h3>
+                                <div className="max-h-96 overflow-y-auto space-y-2">
+                                  {subCategoryServices.map((service) => (
+                                    <button
+                                      key={service._id}
+                                      onClick={() =>
+                                        handleServiceClick(service._id)
+                                      }
+                                      className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
+                                    >
+                                      <span className="flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
+                                        {service.serviceName}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                    </div>
+                  )}
+                </div>
               ))}
 
-              {/* Services Dropdown */}
-              <div
-                className="relative group"
-                onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                onMouseLeave={() => setIsServicesDropdownOpen(false)}
-              >
-                <button className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary-hover) w-full px-2" onClick = {() => navigate("/services")}>
+              {/* Other Services */}
+              <div className="relative group">
+                <button className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl ">
                   Other Services
                 </button>
 
-                {/* Categories Dropdown Menu */}
-                {isServicesDropdownOpen && allCategories.length > 0 && (
-                  <div className="absolute top-full -left-2 pt-1 bg-white border border-gray-300 rounded-xl shadow-xl z-50 min-w-64 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2">
-                      {allCategories.map((category, index) => (
+                {/* Other Services Dropdown */}
+                {filteredOtherServices.length > 0 && (
+                  <div className="absolute left-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 animate-in fade-in">
+                    <div className="p-3 max-h-96 overflow-y-auto">
+                      {filteredOtherServices.map((category) => (
                         <button
                           key={category._id}
-                          onClick={() => handleServicesDropdownSelect(category)}
-                          className="w-full text-left px-4 py-3 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer group relative overflow-hidden"
+                          onClick={() => {
+                            setSelectedCategoryName(category.name);
+                            setIsModalOpen(true);
+                          }}
+                          className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
                         >
                           <span className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-(--primary) transition-colors duration-200"></span>
-                            <span>{category.name}</span>
+                            <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
+                            {category.name}
                           </span>
                         </button>
                       ))}
@@ -205,71 +321,41 @@ const Header = () => {
               </div>
             </nav>
 
-            {/* Auth Actions */}
-            <div className="hidden md:flex items-center gap-4">
-              {isLoggedIn ? (
-                <>
-                  <div className="flex items-center gap-3">
-                    <Link
-                      to={getDashboardLink()}
-                      className="text-sm lg:text-base text-(--text) font-medium hover:text-(--primary-hover)"
-                    >
-                      {user?.fullName || user?.email}
-                    </Link>
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                <IoSearch className="text-gray-500 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearching(true)}
+                  onBlur={() => setTimeout(() => setIsSearching(false), 200)}
+                  className="bg-gray-100 outline-none text-sm md:w-30 lg:w-40 text-(--text)"
+                />
+              </div>
+
+              {/* Search Results */}
+              {isSearching && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                  {searchResults.map((category) => (
                     <button
-                      onClick={handleLogout}
-                      className="px-4 lg:px-6 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
+                      key={category._id}
+                      onClick={() => handleCategorySelect(category)}
+                      className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
                     >
-                      Logout
+                      {category.name}
                     </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Search Bar */}
-                  <div className="relative">
-                    <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-                      <IoSearch className="text-gray-500 mr-2" />
-                      <input
-                        type="text"
-                        placeholder="Search categories..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onFocus={() => setIsSearching(true)}
-                        onBlur={() => setTimeout(() => setIsSearching(false), 200)}
-                        className="bg-gray-100 outline-none text-sm w-40 text-(--text)"
-                      />
-                    </div>
-                    
-                    {/* Search Results Dropdown */}
-                    {isSearching && searchResults.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                        {searchResults.map((category) => (
-                          <button
-                            key={category._id}
-                            onClick={() => handleCategorySelect(category)}
-                            className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
-                          >
-                            {category.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <Link
-                    to="/contact"
-                    className="px-2 lg:px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm lg:text-base bg-(--primary) text-white hover:bg-(--primary-hover)"
-                  >
-                    Contact Us
-                  </Link>
-                </>
+                  ))}
+                </div>
               )}
             </div>
 
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 sm:p-2 rounded-md focus:outline-none text-gray-700 hover:text-(--primary) hover:bg-gray-100"
+              className="md:hidden p-1.5 sm:p-2 rounded-md text-gray-700 hover:text-(--primary) hover:bg-gray-100"
             >
               {isMenuOpen ? (
                 <IoClose className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -279,24 +365,23 @@ const Header = () => {
             </button>
           </div>
 
-          {/* Mobile Menu - Floating/Absolute */}
+          {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="absolute top-full left-0 right-0 mt-2 md:hidden bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
-              <div className="flex flex-col p-3 sm:p-4 space-y-1">
-                {/* Mobile Search Bar */}
+            <div className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+              <div className="flex flex-col p-4 space-y-2">
+                {/* Mobile Search */}
                 <div className="relative mb-2">
                   <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
                     <IoSearch className="text-gray-500 mr-2" />
                     <input
                       type="text"
-                      placeholder="Search categories..."
+                      placeholder="Search..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="bg-gray-100 outline-none text-sm flex-1 text-(--text)"
                     />
                   </div>
-                  
-                  {/* Mobile Search Results */}
+
                   {searchResults.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
                       {searchResults.map((category) => (
@@ -306,7 +391,7 @@ const Header = () => {
                             handleCategorySelect(category);
                             setIsMenuOpen(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
+                          className="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-sm text-(--text)"
                         >
                           {category.name}
                         </button>
@@ -315,71 +400,86 @@ const Header = () => {
                   )}
                 </div>
 
-                {navLinks.map((link) => (
-                  ["Taxation", "Compliences", "Compliance", "Registration", "Registeration"].includes(link.name) ? (
+                {/* Mobile Tabs */}
+                {MAIN_TABS.map((tabName) => (
+                  <div key={tabName} className="flex flex-col">
                     <button
-                      key={link.name}
-                      onClick={() => handleNavigateToCategoryByName(link.name, { closeMenu: true })}
-                      className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
+                      onClick={() => handleMobileTabClick(tabName)}
+                      className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm text-left flex justify-between items-center"
                     >
-                      {normalizeCategoryName(link.name)}
+                      {tabName}
+                      <span
+                        className={`transform transition-transform ${mobileExpandedTab === tabName ? "rotate-180" : ""}`}
+                      >
+                        ▼
+                      </span>
                     </button>
-                  ) : (
-                    <Link
-                      key={link.name}
-                      to={link.to}
-                      className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  )
+
+                    {/* Mobile Subcategories */}
+                    {mobileExpandedTab === tabName &&
+                      mobileSubCategories.length > 0 && (
+                        <div className="bg-gray-50 pl-4 py-2 space-y-1">
+                          {mobileSubCategories.map((subCat) => (
+                            <div key={subCat._id} className="flex flex-col">
+                              <button
+                                onClick={() =>
+                                  handleMobileSubcategoryClick(subCat)
+                                }
+                                className="text-gray-600 hover:text-(--primary) hover:bg-white font-medium px-3 py-2 rounded-md text-sm text-left flex justify-between items-center"
+                              >
+                                {subCat.name}
+                                <span
+                                  className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : ""}`}
+                                >
+                                  ▼
+                                </span>
+                              </button>
+
+                              {/* Mobile Services */}
+                              {mobileExpandedSubcategory === subCat._id &&
+                                mobileServices.length > 0 && (
+                                  <div className="bg-white pl-4 py-2 space-y-1">
+                                    {mobileServices.map((service) => (
+                                      <button
+                                        key={service._id}
+                                        onClick={() =>
+                                          handleMobileServiceClick(service._id)
+                                        }
+                                        className="text-gray-600 hover:text-(--primary) font-medium px-3 py-2 rounded-md text-sm text-left"
+                                      >
+                                        {service.serviceName}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                  </div>
                 ))}
 
-                {/* Mobile Services Link */}
+                {/* Mobile Other Services */}
                 <Link
                   to="/services"
-                  className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 transition-colors duration-200 font-medium px-3 py-2.5 rounded-md text-sm sm:text-base"
+                  className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Services
+                  Other Services
                 </Link>
-
-                {isLoggedIn ? (
-                  <>
-                    <div className="border-t border-gray-200 pt-2 mt-2 space-y-2">
-                      <Link
-                        to={getDashboardLink()}
-                        className="block px-3 py-2 text-sm text-gray-600 font-medium hover:text-(--primary) hover:bg-gray-50 rounded-md"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {user?.fullName || user?.email}
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <Link
-                    to="/contact"
-                    className="bg-(--primary) text-white px-4 py-2.5 rounded-lg hover:bg-(--primary-hover) transition-colors duration-200 font-medium text-center text-sm sm:text-base mt-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Contact Us
-                  </Link>
-                )}
               </div>
             </div>
           )}
         </div>
       </header>
+      <ServiceModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedCategoryName(null);
+        }}
+        categoryName={selectedCategoryName}
+      />
     </>
   );
 };

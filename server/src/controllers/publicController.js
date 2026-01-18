@@ -5,6 +5,7 @@ import Service from "../models/ServiceModel.js";
 import Feedback from "../models/feedbackModel.js";
 import Leads from "../models/leadsModel.js";
 import User from "../models/userModel.js";
+import { sendContactFormEmail, sendLeadCreationEmail } from "../config/emailService.js";
 
 export const ContactUs = async (req, res, next) => {
   try {
@@ -22,6 +23,20 @@ export const ContactUs = async (req, res, next) => {
       phone,
       message,
     });
+
+    // Send email to admin
+    try {
+      await sendContactFormEmail({
+        name: fullName,
+        email: email,
+        phone: phone,
+        subject: "Website Inquiry",
+        message: message,
+      });
+    } catch (emailError) {
+      console.error("Failed to send contact form email:", emailError);
+      // Don't fail the request if email fails, just log it
+    }
 
     res.status(201).json({
       message: "Contact form submitted successfully",
@@ -84,6 +99,20 @@ export const LeadCapture = async (req, res, next) => {
         }
       ],
     });
+
+    // Send lead creation confirmation email to client
+    try {
+      await sendLeadCreationEmail({
+        clientName: fullName,
+        clientEmail: email,
+        serviceName: interestedService,
+        leadId: leadID,
+        createdDate: new Date(),
+      });
+    } catch (emailError) {
+      console.error("Failed to send lead creation email:", emailError);
+      // Don't fail the request if email fails, just log it
+    }
 
     res.status(201).json({
       message: "Lead created successfully",
