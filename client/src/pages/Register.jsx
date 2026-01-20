@@ -6,8 +6,15 @@ import { Link } from "react-router-dom";
 import axios from "../config/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Register = () => {
+  const registerSchema = {
+    "@context": "https://schema.org",
+    "@type": "CreateAction",
+    "name": "Create Account",
+    "description": "Register for a new TaxProSolution account"
+  };
 
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -99,8 +106,16 @@ const Register = () => {
   };
 
   return (
-    <div>
-      <div className="min-h-screen flex bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 items-center justify-center py-12 px-4 bg-(--background) text-(--text)">
+    <>
+      <SEOHelmet
+        title="Register - Create Your TaxProSolution Account"
+        description="Sign up for TaxProSolution and get started with your business registration, GST filing, and compliance services."
+        keywords="register, signup, create account, new user"
+        canonicalUrl="https://taxprosolution.co.in/register"
+        structuredData={registerSchema}
+      />
+      <div>
+        <div className="min-h-screen flex bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 items-center justify-center py-12 px-4 bg-(--background) text-(--text)">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border mt-20 border-gray-200">
           <div className="space-y-3 mb-6 text-center">
             <h1 className="text-2xl font-semibold text-(--text)">
@@ -241,7 +256,8 @@ const Register = () => {
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

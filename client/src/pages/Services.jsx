@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../config/api";
 import ServiceModal from "../components/ServiceModal";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Services = () => {
+  const servicesSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Our Services",
+    "description": "Comprehensive business and tax services"
+  };
   const navigate = useNavigate();
   const location = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -98,6 +105,13 @@ const Services = () => {
 
   return (
     <>
+      <SEOHelmet
+        title="Our Services - Business Registration, GST & Compliance | TaxProSolution"
+        description="Explore our comprehensive business services including company registration, GST filing, compliance, and tax solutions. Expert guidance for your business growth."
+        keywords="business services, company registration, GST filing, tax compliance, business solutions"
+        canonicalUrl="https://taxprosolution.co.in/services"
+        structuredData={servicesSchema}
+      />
       <div className="bg-linear-to-r from-blue-50 to-sky-50 py-10 px-4 sm:px-8 md:px-12 lg:px-20 min-h-screen -mt-20">
         {/* Statistics Carousel Header */}
         <div className="bg-(--primary) mt-16 py-4 px-4 sm:px-8 rounded-2xl shadow-lg">

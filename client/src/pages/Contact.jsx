@@ -5,8 +5,15 @@ import { FiMail } from "react-icons/fi";
 import toast from "react-hot-toast";
 import CommonData from "../assets/common.json";
 import axios from "../config/api";
+import SEOHelmet from "../components/SEOHelmet";
 
 const ContactForm = () => {
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Us",
+    "description": "Get in touch with TaxProSolution for business consulting and support"
+  };
   const [contactData, setContactData] = useState({
     name: "",
     email: "",
@@ -88,6 +95,13 @@ const ContactForm = () => {
   
   return (
     <>
+      <SEOHelmet
+        title="Contact TaxProSolution - Expert Business Consultation"
+        description="Reach out to TaxProSolution for expert business consultation, tax advice, and registration services. Our team is ready to help your business grow."
+        keywords="contact, business consultation, tax advice, support, customer service"
+        canonicalUrl="https://taxprosolution.co.in/contact"
+        structuredData={contactSchema}
+      />
       <section className="contact-header bg-[url('/hero.jpg')] opacity-90 -mt-20 bg-cover bg-center py-10 md:py-5 mb-10">
         <div className="contact-header-wrapper flex flex-col justify-between lg:flex-row py-5 px-6 sm:px-12 md:px-20 lg:px-25 w-full gap-8 lg:gap-0">
           <div className="contact-header-left w-full lg:max-w-1/2 text-white grid px-2.5 h-fit my-10 md:my-20 text-center lg:text-left">

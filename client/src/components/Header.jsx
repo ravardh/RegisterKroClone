@@ -3,6 +3,7 @@ import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
+import axios from "../config/api";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,12 +23,58 @@ const Header = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
+  const [allServices, setAllServices] = useState([]);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const headerRef = useRef(null);
+  const searchDropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
   const MAIN_TABS = ["Registration", "Taxation", "Compliance"];
+
+  // Fetch all services for search
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get("/public/services");
+        setAllServices(response.data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+
+    if (isSearchDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchDropdownOpen]);
+
+  // Filter services based on search query
+  const filteredSearchServices = allServices.filter(
+    (service) =>
+      service.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.category?.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      service.subCategory?.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+  );
 
   // Load categories from session storage
   useEffect(() => {
@@ -53,25 +100,6 @@ const Header = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Handle search
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-
-    const filtered = allCategories.filter((category) =>
-      category.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-    setSearchResults(filtered);
-  }, [searchQuery, allCategories]);
-
-  const getDashboardLink = () => {
-    if (isAdmin) return "/adminDashboard";
-    if (isRM) return "/rmDashboard";
-    return "/dashboard";
-  };
 
   const handleTabHover = (tabName) => {
     setActiveTab(tabName);
@@ -292,7 +320,10 @@ const Header = () => {
 
               {/* Other Services */}
               <div className="relative group">
-                <button className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl ">
+                <button
+                  className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
+                  onClick={() => navigate("/services")}
+                >
                   Other Services
                 </button>
 
@@ -322,32 +353,53 @@ const Header = () => {
             </nav>
 
             {/* Search Bar */}
-            <div className="relative">
+            <div className="relative" ref={searchDropdownRef}>
               <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
                 <IoSearch className="text-gray-500 mr-2" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search services..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearching(true)}
-                  onBlur={() => setTimeout(() => setIsSearching(false), 200)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsSearchDropdownOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (searchQuery.trim()) {
+                      setIsSearchDropdownOpen(true);
+                    }
+                  }}
                   className="bg-gray-100 outline-none text-sm md:w-30 lg:w-40 text-(--text)"
                 />
               </div>
 
-              {/* Search Results */}
-              {isSearching && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                  {searchResults.map((category) => (
-                    <button
-                      key={category._id}
-                      onClick={() => handleCategorySelect(category)}
-                      className="w-full text-left px-4 py-2.5 hover:bg-gray-50 border-b last:border-b-0 text-sm text-(--text) hover:text-(--primary) transition-colors"
-                    >
-                      {category.name}
-                    </button>
-                  ))}
+              {/* Search Results Dropdown */}
+              {isSearchDropdownOpen && searchQuery.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                  {filteredSearchServices.length > 0 ? (
+                    filteredSearchServices.map((service) => (
+                      <button
+                        key={service._id}
+                        onClick={() => {
+                          navigate(`/service/${service._id}`);
+                          setSearchQuery("");
+                          setIsSearchDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text) transition-colors"
+                      >
+                        <div className="font-semibold text-(--primary)">
+                          {service.serviceName}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {service.category?.name} → {service.subCategory?.name}
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      No services found
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -375,25 +427,35 @@ const Header = () => {
                     <IoSearch className="text-gray-500 mr-2" />
                     <input
                       type="text"
-                      placeholder="Search..."
+                      placeholder="Search services..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsSearchDropdownOpen(true);
+                      }}
                       className="bg-gray-100 outline-none text-sm flex-1 text-(--text)"
                     />
                   </div>
 
-                  {searchResults.length > 0 && (
+                  {isSearchDropdownOpen && searchQuery.trim() && filteredSearchServices.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
-                      {searchResults.map((category) => (
+                      {filteredSearchServices.map((service) => (
                         <button
-                          key={category._id}
+                          key={service._id}
                           onClick={() => {
-                            handleCategorySelect(category);
+                            navigate(`/service/${service._id}`);
+                            setSearchQuery("");
+                            setIsSearchDropdownOpen(false);
                             setIsMenuOpen(false);
                           }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-sm text-(--text)"
+                          className="w-full text-left px-4 py-2.5 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text)"
                         >
-                          {category.name}
+                          <div className="font-semibold text-(--primary) text-xs">
+                            {service.serviceName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {service.category?.name} → {service.subCategory?.name}
+                          </div>
                         </button>
                       ))}
                     </div>

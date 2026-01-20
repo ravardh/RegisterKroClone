@@ -4,8 +4,15 @@ import { MdCheckCircle } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import axios from "../config/api";
 import toast from "react-hot-toast";
+import SEOHelmet from "../components/SEOHelmet";
 
 const TrackStatus = () => {
+  const trackStatusSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Track Application Status",
+    "description": "Track the status of your business application with TaxProSolution"
+  };
   const [leadId, setLeadId] = useState("");
   const [trackingData, setTrackingData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -84,7 +91,15 @@ const TrackStatus = () => {
   };
 
   return (
-    <div className="bg-[url('/hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
+    <>
+      <SEOHelmet
+        title="Track Your Application Status - TaxProSolution"
+        description="Track the real-time status of your business registration and service applications with TaxProSolution. Monitor progress at every step."
+        keywords="track status, application tracking, progress monitoring, application status"
+        canonicalUrl="https://taxprosolution.co.in/track-status"
+        structuredData={trackStatusSchema}
+      />
+      <div className="bg-[url('/hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
       <div className="w-full px-4 md:px-8 lg:px-10 flex flex-col py-18">
         <div className="w-full grow">
           <div className="max-w-5xl mx-auto">
@@ -404,7 +419,8 @@ const TrackStatus = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

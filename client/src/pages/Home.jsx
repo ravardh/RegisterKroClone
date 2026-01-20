@@ -10,8 +10,31 @@ import Step3 from "../assets/step3.png";
 import Step4 from "../assets/step4.png";
 import axiosInstance from "../config/api";
 import commondata from "../assets/common.json";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Home = () => {
+  const homeSchemaData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "TaxProSolution",
+    "description": "Professional tax and registration services for businesses",
+    "url": "https://taxprosolution.co.in",
+    "telephone": commondata.phones?.phone || "+91-XXXXXXXXXX",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Your Address",
+      "addressLocality": "Your City",
+      "addressRegion": "Your State",
+      "postalCode": "Your Code",
+      "addressCountry": "IN"
+    },
+    "priceRange": "₹",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "250"
+    }
+  };
   const [categories, setCategories] = useState([]);
 
   const [reviews, setReviews] = useState([]);
@@ -92,6 +115,13 @@ const Home = () => {
 
   return (
     <>
+      <SEOHelmet
+        title="TaxProSolution - Get Your Business Registered in 7 Days"
+        description="Fast, reliable business registration and setup services. Get your business registered in just 7 days with expert consultation. Trusted by 5000+ happy clients."
+        keywords="business registration, company registration, GST registration, startup registration, business setup"
+        canonicalUrl="https://taxprosolution.co.in/"
+        structuredData={homeSchemaData}
+      />
       <section className="hero-section flex flex-col items-center justify-center h-screen -mt-20 bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
         <div className="hero-content text-white px-6 sm:px-20 md:px-50 py-10 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">

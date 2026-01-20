@@ -1,0 +1,25 @@
+# Robots.txt for TaxProSolution
+# Allow all search engines to crawl and index
+
+User-agent: *
+Allow: /
+Disallow: /adminDashboard
+Disallow: /rmDashboard
+Disallow: /login
+Disallow: /register
+Disallow: /*.pdf$
+Disallow: /*.js$
+Disallow: /*.css$
+
+# Specific rules for Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://taxprosolution.co.in/sitemap.xml

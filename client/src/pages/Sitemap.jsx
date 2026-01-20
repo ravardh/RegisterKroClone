@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaHome, FaInfoCircle, FaServicestack, FaTasks, FaEnvelope, FaCommentDots, FaShieldAlt, FaFileContract } from "react-icons/fa";
 import axiosInstance from "../config/api";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Sitemap = () => {
+  const sitemapSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Sitemap",
+    "description": "Sitemap of all pages available on TaxProSolution"
+  };
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +44,15 @@ const Sitemap = () => {
   ];
 
   return (
-    <div className="bg-gray-50 -mt-20 pt-20 min-h-screen">
+    <>
+      <SEOHelmet
+        title="Sitemap - TaxProSolution Website Navigation"
+        description="Browse the complete sitemap of TaxProSolution. Find all pages, services, and navigation links to explore our website."
+        keywords="sitemap, navigation, site map, pages"
+        canonicalUrl="https://taxprosolution.co.in/sitemap"
+        structuredData={sitemapSchema}
+      />
+      <div className="bg-gray-50 -mt-20 pt-20 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
@@ -212,7 +227,8 @@ const Sitemap = () => {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -3,6 +3,7 @@ import { FaStar } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "../config/api";
 import CommonData from "../assets/common.json";
+import SEOHelmet from "../components/SEOHelmet";
 
 const ratingDescriptions = {
   1: "Very dissatisfied",
@@ -174,8 +175,22 @@ const Feedback = () => {
     },
   ];
 
+  const feedbackSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Customer Feedback",
+    "description": "Share your feedback about our business services"
+  };
+
   return (
     <>
+      <SEOHelmet
+        title="Share Your Feedback - TaxProSolution"
+        description="Help us improve! Share your feedback and rating about TaxProSolution's business services, registration, and support."
+        keywords="feedback, review, rating, customer feedback, testimonial"
+        canonicalUrl="https://taxprosolution.co.in/feedback"
+        structuredData={feedbackSchema}
+      />
       <div className="bg-[url('/hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
         <div className="w-full px-4 md:px-8 lg:px-10 flex items-center min-h-screen py-30">
           <div className="w-full">

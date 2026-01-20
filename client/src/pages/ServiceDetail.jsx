@@ -4,6 +4,7 @@ import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/api";
+import SEOHelmet from "../components/SEOHelmet";
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
@@ -234,7 +235,24 @@ const ServiceDetail = () => {
   }
 
   return (
-    <div className="bg-(--background) -mt-20">
+    <>
+      <SEOHelmet
+        title={serviceData ? `${serviceData.serviceName} - Professional Business Services` : "Service Details"}
+        description={serviceData ? serviceData.description || "Get expert assistance with our professional business services" : "Professional business services"}
+        keywords={serviceData ? `${serviceData.serviceName}, business services, professional help` : "business services"}
+        canonicalUrl={`https://taxprosolution.co.in/services/${serviceId}`}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": serviceData?.serviceName || "Business Service",
+          "description": serviceData?.description || "Professional business service",
+          "provider": {
+            "@type": "Organization",
+            "name": "TaxProSolution"
+          }
+        }}
+      />
+      <div className="bg-(--background) -mt-20">
 
       {/* Hero Section */}
       <div className="bg-linear-to-r from-amber-50 to-blue-100  text-(--text) pt-16">
@@ -537,7 +555,8 @@ const ServiceDetail = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

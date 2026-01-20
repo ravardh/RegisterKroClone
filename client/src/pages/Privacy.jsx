@@ -1,9 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Privacy = () => {
+  const privacySchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Privacy Policy",
+    "description": "TaxProSolution Privacy Policy - How we protect your personal information"
+  };
+
   return (
-    <div className="bg-gray-50 -mt-20 pt-20 min-h-screen">
+    <>
+      <SEOHelmet
+        title="Privacy Policy - TaxProSolution"
+        description="Read TaxProSolution's privacy policy to understand how we collect, use, and protect your personal information."
+        keywords="privacy policy, data protection, personal information, privacy"
+        canonicalUrl="https://taxprosolution.co.in/privacy"
+        structuredData={privacySchema}
+      />
+      <div className="bg-gray-50 -mt-20 pt-20 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
@@ -174,7 +190,8 @@ const Privacy = () => {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

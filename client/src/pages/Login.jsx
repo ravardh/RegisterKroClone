@@ -5,8 +5,15 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext.jsx";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import SEOHelmet from "../components/SEOHelmet";
 
 const Login = () => {
+  const loginSchema = {
+    "@context": "https://schema.org",
+    "@type": "LoginAction",
+    "name": "Login to TaxProSolution",
+    "description": "Secure login for registered users"
+  };
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState({});
@@ -55,8 +62,16 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <div className="min-h-screen bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 flex items-center justify-center bg-(--root) px-4">
+    <>
+      <SEOHelmet
+        title="Login - TaxProSolution Dashboard"
+        description="Login to your TaxProSolution account to manage applications, track status, and access personalized services."
+        keywords="login, signin, account, dashboard access"
+        canonicalUrl="https://taxprosolution.co.in/login"
+        structuredData={loginSchema}
+      />
+      <div>
+        <div className="min-h-screen bg-[url(/hero.jpg)] bg-center bg-cover -mt-20 flex items-center justify-center bg-(--root) px-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <div className="mb-6 text-center">
             <h2 className="text-2xl font-semibold text-(--root)">
@@ -151,7 +166,8 @@ const Login = () => {
           </div> */}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
