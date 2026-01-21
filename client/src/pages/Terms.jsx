@@ -384,7 +384,7 @@ const Terms = () => {
               </p>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700">
-                  <strong>Email:</strong> {commonData.emails}  
+                  <strong>Email:</strong> {commonData.emails.support}  
                 </p>
                 <p className="text-gray-700 mt-2">
                   <strong>Phone:</strong> {commonData.phones.primary}
