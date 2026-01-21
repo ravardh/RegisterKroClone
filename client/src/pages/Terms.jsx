@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import SEOHelmet from "../components/SEOHelmet";
+import commonData from "../assets/common.json";
 
 const Terms = () => {
   const termsSchema = {
@@ -383,10 +384,10 @@ const Terms = () => {
               </p>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700">
-                  <strong>Email:</strong> legal@company.com
+                  <strong>Email:</strong> {commonData.contact.email}  
                 </p>
                 <p className="text-gray-700 mt-2">
-                  <strong>Phone:</strong> +91 1234567890
+                  <strong>Phone:</strong> {commonData.contact.phone}
                 </p>
                 <p className="text-gray-700 mt-2">
                   Or visit our{" "}
