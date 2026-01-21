@@ -81,22 +81,22 @@ const Footer = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Services</h4>
+              <h4 className="font-semibold mb-3">Popular Services</h4>
               <ul className="text-sm text-gray-400 space-y-2">
                 <li>
                   <button
-                    onClick={() => handleServiceClick("Company Registration")}
+                    onClick={() => handleServiceClick("Registration")}
                     className="hover:text-white text-left cursor-pointer"
                   >
-                    Company Registration
+                    Registration
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => handleServiceClick("GST Registration")}
+                    onClick={() => handleServiceClick("Taxation")}
                     className="hover:text-white text-left cursor-pointer"
                   >
-                    GST Registration
+                    Taxation
                   </button>
                 </li>
                 <li>
