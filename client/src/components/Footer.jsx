@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import CommonData from "../assets/common.json";
 import { useAuth } from "../context/AuthContext.jsx";
+import ServiceModal from "./ServiceModal.jsx";
 
 const Footer = () => {
   const { isLoggedIn } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategoryName, setSelectedCategoryName] = useState(null);
+
+  const handleServiceClick = (categoryName) => {
+    setSelectedCategoryName(categoryName);
+    setIsModalOpen(true);
+  };
+
   return (
     <div>
       <footer className="bg-gray-900 text-gray-200 py-8 md:py-12">
@@ -64,13 +73,8 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/careers" className="hover:text-white">
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/pricing" className="hover:text-white">
-                    Pricing
+                  <Link to="/services" className="hover:text-white">
+                    Services
                   </Link>
                 </li>
               </ul>
@@ -80,25 +84,28 @@ const Footer = () => {
               <h4 className="font-semibold mb-3">Services</h4>
               <ul className="text-sm text-gray-400 space-y-2">
                 <li>
-                  <Link
-                    to="/services/company-registration"
-                    className="hover:text-white"
+                  <button
+                    onClick={() => handleServiceClick("Company Registration")}
+                    className="hover:text-white text-left cursor-pointer"
                   >
                     Company Registration
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link
-                    to="/services/gst-registration"
-                    className="hover:text-white"
+                  <button
+                    onClick={() => handleServiceClick("GST Registration")}
+                    className="hover:text-white text-left cursor-pointer"
                   >
                     GST Registration
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link to="/services/compliance" className="hover:text-white">
+                  <button
+                    onClick={() => handleServiceClick("Compliance")}
+                    className="hover:text-white text-left cursor-pointer"
+                  >
                     Compliance
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -106,11 +113,6 @@ const Footer = () => {
             <div>
               <h4 className="font-semibold mb-3">Support</h4>
               <ul className="text-sm text-gray-400 space-y-2">
-                <li>
-                  <Link to="/help" className="hover:text-white">
-                    Help Center
-                  </Link>
-                </li>
                 <li>
                   <Link to="/contact" className="hover:text-white">
                     Contact Us
@@ -122,17 +124,10 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/faq" className="hover:text-white">
-                    FAQ
+                  <Link to="/trackStatus" className="hover:text-white">
+                    Track Status
                   </Link>
                 </li>
-                {/* {!isLoggedIn && (
-                  <li>
-                    <Link to="/login" className="hover:text-white">
-                      Login
-                    </Link>
-                  </li>
-                )} */}
               </ul>
             </div>
           </div>
@@ -188,6 +183,11 @@ const Footer = () => {
           </div>
         </div>
       </footer>
+      <ServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        categoryName={selectedCategoryName}
+      />
     </div>
   );
 };
