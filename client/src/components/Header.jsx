@@ -38,8 +38,20 @@ const Header = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
+        // Check sessionStorage first
+        const cachedServices = sessionStorage.getItem("allServices");
+        if (cachedServices) {
+          setAllServices(JSON.parse(cachedServices));
+          return;
+        }
+
+        // If not cached, fetch from API
         const response = await axios.get("/public/services");
-        setAllServices(response.data.data || []);
+        const services = response.data.data || [];
+        setAllServices(services);
+        
+        // Cache for session
+        sessionStorage.setItem("allServices", JSON.stringify(services));
       } catch (error) {
         console.error("Failed to fetch services", error);
       }
@@ -77,15 +89,35 @@ const Header = () => {
         .includes(searchQuery.toLowerCase())
   );
 
-  // Load categories from session storage
+  // Load categories from session storage - wait for initialization
   useEffect(() => {
-    try {
-      const categoriesData = sessionStorage.getItem("categories");
-      if (categoriesData) {
-        setAllCategories(JSON.parse(categoriesData));
+    const loadCategories = () => {
+      try {
+        const categoriesData = sessionStorage.getItem("categories");
+        if (categoriesData) {
+          setAllCategories(JSON.parse(categoriesData));
+        }
+      } catch (error) {
+        console.error("Error loading data from session storage:", error);
       }
-    } catch (error) {
-      console.error("Error loading data from session storage:", error);
+    };
+
+    // Check if data is initialized
+    const isInitialized = sessionStorage.getItem("appDataInitialized");
+    
+    if (isInitialized) {
+      loadCategories();
+    } else {
+      // If not initialized, wait for it with a polling mechanism
+      const checkInterval = setInterval(() => {
+        if (sessionStorage.getItem("appDataInitialized")) {
+          loadCategories();
+          clearInterval(checkInterval);
+        }
+      }, 100);
+
+      // Cleanup interval
+      return () => clearInterval(checkInterval);
     }
   }, []);
 

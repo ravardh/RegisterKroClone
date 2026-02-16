@@ -328,6 +328,7 @@ export const getServiceById = async (req, res, next) => {
     next(error);
   }
 };
+
 export const getFeaturedServices = async (req, res, next) => {
   try {
     const services = await Service.find({ isActive: true, isFeatured: true })
@@ -339,6 +340,64 @@ export const getFeaturedServices = async (req, res, next) => {
     res.status(200).json({
       message: "Featured services fetched successfully",
       data: services,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllSubCategoriesGrouped = async (req, res, next) => {
+  try {
+    // Fetch all subcategories with their category info
+    const subCategories = await SubCategory.find({ isActive: true })
+      .populate("category", "_id name")
+      .select("_id name category")
+      .sort({ name: 1 });
+    
+    // Group by category ID
+    const groupedData = {};
+    subCategories.forEach((subCat) => {
+      const categoryId = subCat.category?._id.toString();
+      if (categoryId) {
+        if (!groupedData[categoryId]) {
+          groupedData[categoryId] = [];
+        }
+        groupedData[categoryId].push(subCat);
+      }
+    });
+
+    res.status(200).json({
+      message: "All subcategories fetched successfully",
+      data: groupedData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllServicesGrouped = async (req, res, next) => {
+  try {
+    // Fetch all active services with subcategory info
+    const services = await Service.find({ isActive: true })
+      .populate("subCategory", "_id")
+      .select("_id serviceName shortDescription subCategory")
+      .sort({ serviceName: 1 });
+    
+    // Group by subcategory ID
+    const groupedData = {};
+    services.forEach((service) => {
+      const subCatId = service.subCategory?._id.toString();
+      if (subCatId) {
+        if (!groupedData[subCatId]) {
+          groupedData[subCatId] = [];
+        }
+        groupedData[subCatId].push(service);
+      }
+    });
+
+    res.status(200).json({
+      message: "All services fetched successfully",
+      data: groupedData,
     });
   } catch (error) {
     next(error);

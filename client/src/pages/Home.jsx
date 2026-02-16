@@ -47,8 +47,21 @@ const Home = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
+        // Check sessionStorage first
+        const cachedReviews = sessionStorage.getItem("allReviews");
+        if (cachedReviews) {
+          setReviews(JSON.parse(cachedReviews));
+          setIsLoadingReviews(false);
+          return;
+        }
+
+        // If not cached, fetch from API
         const response = await axios.get("/public/feedback");
-        setReviews(response.data.data);
+        const reviewsData = response.data.data;
+        setReviews(reviewsData);
+        
+        // Cache for session
+        sessionStorage.setItem("allReviews", JSON.stringify(reviewsData));
       } catch (error) {
         console.error("Failed to fetch reviews", error);
         toast.error("Failed to load reviews");
@@ -60,8 +73,22 @@ const Home = () => {
     const fetchFeaturedServices = async () => {
       try {
         setIsLoadingFeatured(true);
+        
+        // Check sessionStorage first
+        const cachedFeatured = sessionStorage.getItem("featuredServices");
+        if (cachedFeatured) {
+          setFeaturedServices(JSON.parse(cachedFeatured));
+          setIsLoadingFeatured(false);
+          return;
+        }
+
+        // If not cached, fetch from API
         const response = await axios.get("/public/services/featured");
-        setFeaturedServices(response.data.data || []);
+        const featuredData = response.data.data || [];
+        setFeaturedServices(featuredData);
+        
+        // Cache for session
+        sessionStorage.setItem("featuredServices", JSON.stringify(featuredData));
       } catch (error) {
         console.error("Failed to fetch featured services", error);
         toast.error("Failed to load featured services");
@@ -87,11 +114,23 @@ const Home = () => {
   const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
 
   useEffect(() => {
-    // Fetch categories from the backend
+    // Fetch categories from the backend with caching
     const fetchCategories = async () => {
       try {
+        // Check sessionStorage first
+        const cachedCategories = sessionStorage.getItem("categories");
+        if (cachedCategories) {
+          setCategories(JSON.parse(cachedCategories));
+          return;
+        }
+
+        // If not cached, fetch from API
         const response = await axiosInstance.get("/public/categories");
-        setCategories(response.data.data || []);
+        const categoriesData = response.data.data || [];
+        setCategories(categoriesData);
+        
+        // Cache for session
+        sessionStorage.setItem("categories", JSON.stringify(categoriesData));
       } catch (error) {
         console.error("Error fetching categories:", error);
       }

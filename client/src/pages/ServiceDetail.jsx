@@ -118,8 +118,21 @@ const ServiceDetail = () => {
       
       try {
         setIsLoadingReviews(true);
-        const response = await axiosInstance.get("/public/feedback");
-        const allFeedback = response.data.data || [];
+        
+        // Check sessionStorage first for cached feedback
+        let allFeedback = [];
+        const cachedFeedback = sessionStorage.getItem("allReviews");
+        
+        if (cachedFeedback) {
+          allFeedback = JSON.parse(cachedFeedback);
+        } else {
+          // If not cached, fetch from API
+          const response = await axiosInstance.get("/public/feedback");
+          allFeedback = response.data.data || [];
+          
+          // Cache for session
+          sessionStorage.setItem("allReviews", JSON.stringify(allFeedback));
+        }
         
         // Filter feedback for this service
         const serviceReviews = allFeedback.filter(

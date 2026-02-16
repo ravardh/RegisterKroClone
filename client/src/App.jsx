@@ -113,38 +113,21 @@ const App = () => {
           return;
         }
 
-        // Fetch all categories
-        const categoriesResponse =
-          await axiosInstance.get("/public/categories");
+        // Fetch all data in parallel using bulk endpoints (much faster!)
+        const [categoriesResponse, subCategoriesResponse, servicesResponse] = 
+          await Promise.all([
+            axiosInstance.get("/public/categories"),
+            axiosInstance.get("/public/subcategories-grouped"),
+            axiosInstance.get("/public/services-grouped"),
+          ]);
+
         const categories = categoriesResponse.data.data || [];
-
-        // Fetch all subcategories and services
-        const allSubCategories = {};
-        const allServices = {};
-
-        for (const category of categories) {
-          const subCategoriesResponse = await axiosInstance.get(
-            `/public/categories/${category._id}/subcategories`,
-          );
-          const subCategories = subCategoriesResponse.data.data || [];
-
-          allSubCategories[category._id] = subCategories;
-
-          for (const subCategory of subCategories) {
-            const servicesResponse = await axiosInstance.get(
-              `/public/subcategories/${subCategory._id}/services`,
-            );
-            const services = servicesResponse.data.data || [];
-            allServices[subCategory._id] = services;
-          }
-        }
+        const allSubCategories = subCategoriesResponse.data.data || {};
+        const allServices = servicesResponse.data.data || {};
 
         // Store all data in session storage
         sessionStorage.setItem("categories", JSON.stringify(categories));
-        sessionStorage.setItem(
-          "subCategories",
-          JSON.stringify(allSubCategories),
-        );
+        sessionStorage.setItem("subCategories", JSON.stringify(allSubCategories));
         sessionStorage.setItem("services", JSON.stringify(allServices));
         sessionStorage.setItem("appDataInitialized", "true");
       } catch (error) {
