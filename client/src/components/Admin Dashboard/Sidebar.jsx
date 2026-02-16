@@ -61,7 +61,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
       <div className={`
         fixed lg:static inset-y-0 left-0 z-40
         w-64 lg:w-1/5 h-full shadow-2xl flex flex-col overflow-y-auto scrollbar-hide 
-        bg-[url('/hero.jpg')] bg-cover
+        bg-[url('/hero.webp')] bg-cover
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>

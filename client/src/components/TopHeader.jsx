@@ -120,7 +120,7 @@ const TopHeader = () => {
         </div>
       </div>
       <div
-        className={`p-1 ${location === "/service" ? "bg-sky-50" : "bg-[url('/hero.jpg')] bg-cover bg-top"}`}
+        className={`p-1 ${location === "/service" ? "bg-sky-50" : "bg-[url('/hero.webp')] bg-cover bg-top"}`}
       />
     </>
   );

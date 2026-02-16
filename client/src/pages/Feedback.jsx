@@ -191,7 +191,7 @@ const Feedback = () => {
         canonicalUrl="https://taxprosolution.co.in/feedback"
         structuredData={feedbackSchema}
       />
-      <div className="bg-[url('/hero.jpg')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
+      <div className="bg-[url('/hero.webp')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
         <div className="w-full px-4 md:px-8 lg:px-10 flex items-center min-h-screen py-30">
           <div className="w-full">
             <div className="max-w-7xl mx-auto">

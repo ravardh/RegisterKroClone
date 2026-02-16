@@ -195,7 +195,7 @@ const Home = () => {
         canonicalUrl="https://taxprosolution.co.in/"
         structuredData={homeSchemaData}
       />
-      <section className="hero-section flex flex-col items-center justify-center h-screen -mt-20 bg-[url('/hero.jpg')] opacity-90 bg-cover bg-center">
+      <section className="hero-section flex flex-col items-center justify-center h-screen -mt-20 bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
         <div className="hero-content text-white px-6 sm:px-20 md:px-50 py-10 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
             Get Your Business Registered in 7 Days
@@ -528,7 +528,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="cta-section mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.jpg')] rounded-2xl opacity-90 bg-cover bg-center">
+      <section className="cta-section mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
         <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-20 lg:px-25 gap-4 md:gap-2">
           <div className="flex-1 text-center md:text-left">
             <h2 className="text-white text-xl sm:text-2xl md:text-2xl font-bold mb-2 md:mb-3">

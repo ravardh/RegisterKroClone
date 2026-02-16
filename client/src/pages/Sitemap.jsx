@@ -200,7 +200,7 @@ const Sitemap = () => {
           </div>
 
           {/* Quick Contact */}
-          <div className="bg-[url('/hero.jpg')] bg-cover bg-center rounded-lg shadow-sm p-8 text-white text-center relative">
+          <div className="bg-[url('/hero.webp')] bg-cover bg-center rounded-lg shadow-sm p-8 text-white text-center relative">
             <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
             <div className="relative z-10">
               <h2 className="text-2xl font-semibold mb-3">Can't Find What You're Looking For?</h2>

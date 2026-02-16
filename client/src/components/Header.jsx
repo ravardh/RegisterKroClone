@@ -237,7 +237,7 @@ const Header = () => {
         ref={headerRef}
         className={`sticky z-50 ${
           isDashboard
-            ? "bg-[url('/hero.jpg')] bg-cover bg-left bg-fixed p-1 top-0"
+            ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-0"
             : "bg-white top-2 rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
         }`}
       >
