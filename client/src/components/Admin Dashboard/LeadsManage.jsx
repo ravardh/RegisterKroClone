@@ -191,6 +191,10 @@ const LeadsManage = () => {
                       <span className="text-xs text-gray-600">Service:</span>
                       <span className="text-xs">{lead.interestedService}</span>
                     </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <span className="text-xs text-gray-600">State:</span>
+                      <span className="text-xs font-semibold text-blue-600">{lead.state || "N/A"}</span>
+                    </div>
                   </div>
                   <div className="flex flex-col items-end flex-shrink-0">
                     <button

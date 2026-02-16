@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   
   return (
     <>
-      <div className="flex h-[90vh] overflow-hidden bg-(--background)">
+      <div className="flex h-[83.5vh] overflow-hidden bg-(--background)">
         <Sidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab}
@@ -22,7 +22,7 @@ const AdminDashboard = () => {
           setIsSidebarOpen={setIsSidebarOpen}
         />
 
-        <div className="w-full lg:w-4/5 h-[90vh] overflow-auto scrollbar-hide right-0 lg:ml-auto">
+        <div className="w-full lg:w-4/5 h-[83vh] overflow-auto scrollbar-hide right-0 lg:ml-auto">
           {activeTab === "overview" && <Overview />}
           {activeTab === "leads" && <Leads />}
           {activeTab === "category" && <Categories />}

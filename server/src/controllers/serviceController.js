@@ -42,6 +42,7 @@ export const createService = async (req, res, next) => {
       description,
       faqs,
       isActive,
+      isFeatured,
     } = req.body;
 
     if (
@@ -88,6 +89,7 @@ export const createService = async (req, res, next) => {
       description,
       faqs: sanitizedFaqs,
       isActive: typeof isActive === "boolean" ? isActive : true,
+      isFeatured: typeof isFeatured === "boolean" ? isFeatured : false,
       lastEditedBy: req.user._id,
     });
 
@@ -117,6 +119,7 @@ export const updateService = async (req, res, next) => {
       description,
       faqs,
       isActive,
+      isFeatured,
     } = req.body;
 
     if (!id) {
@@ -145,6 +148,7 @@ export const updateService = async (req, res, next) => {
     const sanitizedFaqs = sanitizeFaqs(faqs);
     const shouldUpdateFaqs = faqs !== undefined;
     const hasIsActive = typeof isActive === "boolean";
+    const hasIsFeatured = typeof isFeatured === "boolean";
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
@@ -157,6 +161,7 @@ export const updateService = async (req, res, next) => {
         description: description || existingService.description,
         faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
         isActive: hasIsActive ? isActive : existingService.isActive,
+        isFeatured: hasIsFeatured ? isFeatured : existingService.isFeatured,
         lastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }

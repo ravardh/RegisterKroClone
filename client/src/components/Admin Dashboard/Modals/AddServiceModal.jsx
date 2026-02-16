@@ -21,6 +21,7 @@ const AddServiceModal = ({
     topPointers: [""],
     description: "",
     faqs: [{ question: "", answer: "" }],
+    isFeatured: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -57,6 +58,7 @@ const AddServiceModal = ({
           faqs: editingService.faqs?.length
             ? editingService.faqs
             : [{ question: "", answer: "" }],
+          isFeatured: editingService.isFeatured || false,
         });
         fetchSubCategories(
           editingService.category?._id || editingService.category
@@ -268,6 +270,7 @@ const AddServiceModal = ({
       topPointers: [""],
       description: "",
       faqs: [{ question: "", answer: "" }],
+      isFeatured: false,
     });
 
     if (quillInstanceRef.current) {
@@ -383,6 +386,27 @@ const AddServiceModal = ({
                 required
                 disabled={!formData.subCategory}
               />
+            </div>
+
+            {/* Is Featured */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="isFeatured"
+                name="isFeatured"
+                checked={formData.isFeatured}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isFeatured: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                disabled={!formData.subCategory}
+              />
+              <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 cursor-pointer">
+                Mark as Featured Service
+              </label>
             </div>
 
             {/* Top Pointers */}

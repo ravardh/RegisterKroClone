@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
+import { IoChevronDownCircleOutline } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
@@ -31,7 +32,7 @@ const Header = () => {
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
-  const MAIN_TABS = ["Registration", "Taxation", "Compliance"];
+  const MAIN_TABS = ["Business Formation", "Licenses & Registrations","Taxation","Trademark & IPRs","Accounting", "Compliance"];
 
   // Fetch all services for search
   useEffect(() => {
@@ -220,7 +221,7 @@ const Header = () => {
             <div className="shrink-0">
               <Link
                 to="/"
-                className="text-base sm:text-md md:text-lg lg:text-xl font-bold text-(--primary)"
+                className="text-sm sm:text-md md:text-lg lg:text-xl font-bold text-(--primary)"
               >
                 {CommonData.companyName}
               </Link>
@@ -241,7 +242,7 @@ const Header = () => {
                 >
                   {/* Tab Button */}
                   <button
-                    className={`font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === tabName && "bg-(--primary)/10 rounded-xl"}`}
+                    className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === tabName && "bg-(--primary)/10 rounded-xl"}`}
                   >
                     {tabName}
                   </button>
@@ -321,7 +322,7 @@ const Header = () => {
               {/* Other Services */}
               <div className="relative group">
                 <button
-                  className="font-medium text-sm lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
+                  className="font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
                   onClick={() => navigate("/services")}
                 >
                   Other Services
@@ -369,7 +370,7 @@ const Header = () => {
                       setIsSearchDropdownOpen(true);
                     }
                   }}
-                  className="bg-gray-100 outline-none text-sm md:w-30 lg:w-40 text-(--text)"
+                  className="bg-gray-100 outline-none text-sm w-27 md:w-30 lg:w-40 text-(--text)"
                 />
               </div>
 
@@ -471,9 +472,9 @@ const Header = () => {
                     >
                       {tabName}
                       <span
-                        className={`transform transition-transform ${mobileExpandedTab === tabName ? "rotate-180" : ""}`}
+                        className={`transform transition-transform ${mobileExpandedTab === tabName ? "rotate-180" : "text-(--accent)"}`}
                       >
-                        ▼
+                        <IoChevronDownCircleOutline/>
                       </span>
                     </button>
 
@@ -491,9 +492,9 @@ const Header = () => {
                               >
                                 {subCat.name}
                                 <span
-                                  className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : ""}`}
+                                  className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : "text-(--accent)"}`}
                                 >
-                                  ▼
+                                 <IoChevronDownCircleOutline/>
                                 </span>
                               </button>
 

@@ -69,6 +69,15 @@ const ViewLeadModal = ({ showModal, setShowModal, selectedLead }) => {
             </div>
           </div>
 
+          <div>
+            <label className="text-sm font-semibold text-gray-600">
+              State
+            </label>
+            <div className="text-lg font-semibold text-blue-600">
+              {selectedLead.state || "N/A"}
+            </div>
+          </div>
+
                     <div>
             <label className="text-sm font-semibold text-gray-600">
               Email

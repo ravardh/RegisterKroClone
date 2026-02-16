@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -20,10 +20,52 @@ const ServiceDetail = () => {
     fullName: "",
     email: "",
     phoneNumber: "",
+    state: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [descriptionTabs, setDescriptionTabs] = useState([]);
-  
+  const [reviews, setReviews] = useState([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const faqSectionRef = useRef(null);
+
+  const indianStates = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Lakshadweep",
+    "Puducherry",
+    "Delhi",
+    "Ladakh",
+    "Jammu and Kashmir",
+  ];
+
   const tabNames = ["Overview", "Process", "Requirements", "Advantages", "Services"];
 
   useEffect(() => {
@@ -36,45 +78,8 @@ const ServiceDetail = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const reviews = [
-    {
-      name: "Rajesh Kumar",
-      company: "Tech Solutions Pvt Ltd",
-      rating: 5,
-      text: "Exceptional service! They handled our company registration seamlessly. The team was professional, responsive, and made the entire process stress-free. Highly recommended!",
-      image: ""
-    },
-    {
-      name: "Priya Sharma",
-      company: "Creative Designs Studio",
-      rating: 5,
-      text: "Amazing experience with their tax filing services. The experts were knowledgeable and guided us through every step. Our business is now fully compliant thanks to them!",
-      image: ""
-    },
-    {
-      name: "Amit Patel",
-      company: "Global Traders Inc",
-      rating: 5,
-      text: "Outstanding support for GST registration and compliance. The relationship manager assigned to us was incredibly helpful and always available to answer our questions.",
-      image: ""
-    },
-    {
-      name: "Sneha Reddy",
-      company: "Fashion Boutique",
-      rating: 5,
-      text: "I was worried about the trademark registration process, but they made it so simple. Great communication, timely updates, and professional service throughout.",
-      image: ""
-    },
-    {
-      name: "Vikram Singh",
-      company: "Manufacturing Hub",
-      rating: 5,
-      text: "Best decision we made was choosing them for our business setup. From documentation to final approval, everything was handled efficiently. Five-star service!",
-      image: ""
-    }
-  ];
-
-  const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
+  // Calculate maxReviewIndex based on actual reviews from backend
+  const maxReviewIndex = reviews.length > 0 ? Math.ceil(reviews.length / reviewsPerPage) - 1 : 0;
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
@@ -105,6 +110,58 @@ const ServiceDetail = () => {
       fetchServiceDetails();
     }
   }, [serviceId]);
+
+  // Fetch reviews/feedback for this service
+  useEffect(() => {
+    const fetchServiceReviews = async () => {
+      if (!serviceData?.serviceName) return;
+      
+      try {
+        setIsLoadingReviews(true);
+        const response = await axiosInstance.get("/public/feedback");
+        const allFeedback = response.data.data || [];
+        
+        // Filter feedback for this service
+        const serviceReviews = allFeedback.filter(
+          (feedback) => feedback.serviceAvailed?.serviceName === serviceData.serviceName
+        );
+        
+        setReviews(serviceReviews);
+      } catch (error) {
+        console.error("Error fetching service reviews:", error);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    if (serviceData?.serviceName) {
+      fetchServiceReviews();
+    }
+  }, [serviceData?.serviceName]);
+
+  // Intersection Observer for FAQ section - auto show modal
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsModalOpen(true);
+          }
+        });
+      },
+      { threshold: 0.1 } // Trigger when 10% of the FAQ section is visible
+    );
+
+    if (faqSectionRef.current) {
+      observer.observe(faqSectionRef.current);
+    }
+
+    return () => {
+      if (faqSectionRef.current) {
+        observer.unobserve(faqSectionRef.current);
+      }
+    };
+  }, [serviceData]);
 
   const handleGetStarted = () => {
     setIsModalOpen(true);
@@ -155,34 +212,61 @@ const ServiceDetail = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     
+    // Full Name validation
     if (!formData.fullName.trim()) {
-      toast.error("Please enter your full name");
+      toast.error("Full name is required");
+      return;
+    } else if (formData.fullName.trim().length < 2) {
+      toast.error("Full name must be at least 2 characters");
       return;
     }
 
+    // Email validation - only accept major providers
+    const allowedDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'protonmail.com'];
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      toast.error("Please enter your email");
+      toast.error("Email is required");
+      return;
+    } else if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    } else {
+      const emailDomain = formData.email.toLowerCase().split('@')[1];
+      if (!allowedDomains.includes(emailDomain)) {
+        toast.error("Invalid email domain");
+        return;
+      }
+    }
+
+    // Phone number validation - only 10 digits
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!formData.phoneNumber.trim()) {
+      toast.error("Phone number is required");
+      return;
+    } else if (!phoneRegex.test(formData.phoneNumber.replace(/\s/g, ''))) {
+      toast.error("Invalid phone number. Please enter exactly 10 digits");
       return;
     }
 
-    if (!formData.phoneNumber.trim()) {
-      toast.error("Please enter your phone number");
+    // State validation
+    if (!formData.state) {
+      toast.error("Please select your state");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // For now, leads will be created without assignment (admin will assign)
-      // If you want to auto-assign, modify the backend to handle null assignedTo
       const response = await axiosInstance.post("/public/lead", {
         fullName: formData.fullName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
         interestedService: serviceData.serviceName,
+        state: formData.state,
         assignedTo: null, // Will be assigned by admin
       });
       toast.success("Application submitted successfully! We'll contact you soon.");
-      setFormData({ fullName: "", email: "", phoneNumber: "" });
+      setFormData({ fullName: "", email: "", phoneNumber: "", state: "" });
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error(error.response?.data?.message || "Failed to submit application");
@@ -292,7 +376,6 @@ const ServiceDetail = () => {
               <h3 className="text-base sm:text-lg md:text-xl text-center font-bold mb-3 sm:mb-4 px-2 sm:px-4 text-(--primary)">Enter your details to receive a full quote and consultation</h3>
               <form onSubmit={handleFormSubmit} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Full Name *</label>
                   <input
                     type="text"
                     name="fullName"
@@ -304,7 +387,6 @@ const ServiceDetail = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Email Address *</label>
                   <input
                     type="email"
                     name="email"
@@ -316,19 +398,38 @@ const ServiceDetail = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Phone Number *</label>
                   <input
                     type="tel"
                     name="phoneNumber"
                     value={formData.phoneNumber}
-                    onChange={handleFormChange}
-                    placeholder="9876543210"
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setFormData((prev) => ({ ...prev, phoneNumber: value }));
+                    }}
+                    placeholder="10 digit phone number"
+                    maxLength="10"
+                    inputMode="numeric"
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-(--text) mb-1">Selected Service</label>
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleFormChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    required
+                  >
+                    <option value="">Select your state</option>
+                    {indianStates.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <div className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl bg-gray-50 text-gray-700">
                     {serviceData.category?.name} → {serviceData.subCategory?.name} → {serviceData.serviceName}
                   </div>
@@ -417,7 +518,7 @@ const ServiceDetail = () => {
 
       {/* FAQs Section - Outside Tabs */}
       {serviceData.faqs && serviceData.faqs.length > 0 && (
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
+        <div ref={faqSectionRef} className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
           <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
             <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-900">Frequently Asked Questions</h2>
             <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
@@ -434,84 +535,84 @@ const ServiceDetail = () => {
         </div>
       )}
 
-      {/* Reviews Section */}
-      <section className="reviews-section py-10 md:py-20 bg-(--background)">
-        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
-            What Our Clients Say
-          </h2>
-          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
-            Trusted by thousands of businesses across the country. Here's what they have to say about our services.
-          </p>
+      {/* Reviews Section - Only show if there are actual reviews */}
+      {reviews.length > 0 && (
+        <section className="reviews-section py-10 md:py-20 bg-(--background)">
+          <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
+            <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
+              What Our Clients Say
+            </h2>
+            <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
+              Trusted by thousands of businesses across the country. Here's what they have to say about our services.
+            </p>
 
-          <div className="relative mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 transition-all duration-500 ease-in-out">
-              {visibleReviews.map((review, index) => (
-                <div key={index} className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
-                  <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                      {review.image ? (
-                        <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
-                      ) : (
+            <div className="relative mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 transition-all duration-500 ease-in-out">
+                {visibleReviews.map((review, index) => (
+                  <div key={index} className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
                         <div className="w-full h-full flex items-center justify-center bg-(--primary) text-white text-xl sm:text-2xl font-semibold">
-                          {review.name.charAt(0)}
+                          {review.fullName.charAt(0)}
                         </div>
-                      )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-semibold text-(--text)">{review.fullName}</h3>
+                        <p className="text-(--secondary) text-xs sm:text-sm">{review.serviceAvailed?.serviceName || "Service"}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-semibold text-(--text)">{review.name}</h3>
-                      <p className="text-(--secondary) text-xs sm:text-sm">{review.company}</p>
+                    <div className="flex gap-1 mb-2 sm:mb-3">
+                      {Array.from({ length: review.starRating }).map((_, i) => (
+                        <span key={i} className="text-yellow-400 text-base sm:text-lg">★</span>
+                      ))}
                     </div>
+                    <p className="text-(--secondary) text-sm sm:text-base leading-relaxed">
+                      "{review.message}"
+                    </p>
                   </div>
-                  <div className="flex gap-1 mb-2 sm:mb-3">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-base sm:text-lg">★</span>
-                    ))}
-                  </div>
-                  <p className="text-(--secondary) text-sm sm:text-base leading-relaxed">
-                    "{review.text}"
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center items-center gap-4 mt-8">
-              <button
-                onClick={handleReviewPrev}
-                className="text-(--primary) hover:text-(--primary-hover) transition"
-                aria-label="Previous reviews"
-              >
-                <FaChevronLeft size={24} />
-              </button>
-
-              <div className="flex gap-3">
-                {Array.from({ length: maxReviewIndex + 1 }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setReviewIndex(index)}
-                    className={`w-3 h-3 rounded-full transition ${
-                      reviewIndex === index ? 'bg-(--primary)' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to page ${index + 1}`}
-                  />
                 ))}
               </div>
 
-              <button
-                onClick={handleReviewNext}
-                className="text-(--primary) hover:text-(--primary-hover) transition"
-                aria-label="Next reviews"
-              >
-                <FaChevronRight size={24} />
-              </button>
+              {reviews.length > reviewsPerPage && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                  <button
+                    onClick={handleReviewPrev}
+                    className="text-(--primary) hover:text-(--primary-hover) transition"
+                    aria-label="Previous reviews"
+                  >
+                    <FaChevronLeft size={24} />
+                  </button>
+
+                  <div className="flex gap-3">
+                    {Array.from({ length: maxReviewIndex + 1 }).map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setReviewIndex(idx)}
+                        className={`w-3 h-3 rounded-full transition ${
+                          reviewIndex === idx ? 'bg-(--primary)' : 'bg-gray-300'
+                        }`}
+                        aria-label={`Go to page ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleReviewNext}
+                    className="text-(--primary) hover:text-(--primary-hover) transition"
+                    aria-label="Next reviews"
+                  >
+                    <FaChevronRight size={24} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-8 relative">
             <button
               onClick={handleCloseModal}
@@ -523,33 +624,68 @@ const ServiceDetail = () => {
             <h3 className="text-2xl font-bold mb-4 text-gray-900">Get Started</h3>
             <p className="text-gray-600 mb-6">Fill in your details and our expert will contact you shortly.</p>
             
-            <form className="space-y-4">
-              <input
-                type="text"
-                placeholder="Full Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <textarea
-                placeholder="Any specific requirements? (Optional)"
-                rows="3"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              ></textarea>
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleFormChange}
+                  placeholder="Full Name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleFormChange}
+                  placeholder="Email Address"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setFormData((prev) => ({ ...prev, phoneNumber: value }));
+                  }}
+                  placeholder="10 digit phone number"
+                  maxLength="10"
+                  inputMode="numeric"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <select
+                  name="state"
+                  value={formData.state}
+                  onChange={handleFormChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                  required
+                >
+                  <option value="">Select your state</option>
+                  {indianStates.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-70"
               >
-                Submit Request
+                {isSubmitting ? "Submitting..." : "Submit Request"}
               </button>
             </form>
           </div>

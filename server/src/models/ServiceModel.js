@@ -46,6 +46,10 @@ const serviceSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
     lastEditedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

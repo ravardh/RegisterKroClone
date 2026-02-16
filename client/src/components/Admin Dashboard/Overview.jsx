@@ -201,6 +201,9 @@ const Overview = () => {
                         <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded break-words">
                           {lead.interestedService}
                         </span>
+                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-semibold break-words">
+                          {lead.state || "N/A"}
+                        </span>
                         <span
                           className={`text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap ${
                             stageColors[currentStage] || 'bg-gray-100 text-gray-700'

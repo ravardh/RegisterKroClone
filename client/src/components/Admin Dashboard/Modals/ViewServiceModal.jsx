@@ -71,6 +71,20 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
             <p className="text-gray-900">{service.shortDescription}</p>
           </div>
 
+          {/* Is Featured */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-2">
+              Featured Status
+            </label>
+            <p className="text-gray-900">
+              {service.isFeatured ? (
+                <span className="text-yellow-600 font-semibold">✓ Featured</span>
+              ) : (
+                <span className="text-gray-500">Not Featured</span>
+              )}
+            </p>
+          </div>
+
           {/* Long Description */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">

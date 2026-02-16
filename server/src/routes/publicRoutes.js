@@ -11,6 +11,7 @@ import {
   getPublicSubCategories,
   getPublicServicesBySubCategory,
   getServiceById,
+  getFeaturedServices,
 } from "../controllers/publicController.js";
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.get("/categories", getPublicCategories);
 router.get("/categories/:categoryId/subcategories", getPublicSubCategories);
 router.get("/subcategories/:subCategoryId/services", getPublicServicesBySubCategory);
 router.get("/services", getPublicServices);
+router.get("/services/featured", getFeaturedServices);
 router.get("/service/:serviceId", getServiceById);
 
 export default router;

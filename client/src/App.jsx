@@ -30,7 +30,7 @@ const Layout = () => {
   const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(
     location.pathname,
   );
-  console.log("App Started");
+  //console.log("App Started");
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });

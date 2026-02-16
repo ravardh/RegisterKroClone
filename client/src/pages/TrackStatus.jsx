@@ -195,6 +195,12 @@ const TrackStatus = () => {
                           {trackingData.interestedService}
                         </p>
                       </div>
+                      <div>
+                        <p className="text-sm text-gray-600">State</p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {trackingData.state}
+                        </p>
+                      </div>
                     </div>
                   </div>
 

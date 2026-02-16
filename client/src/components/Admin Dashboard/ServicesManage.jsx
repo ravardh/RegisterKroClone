@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MdAdd, MdEdit, MdDelete, MdSearch, MdVisibility } from "react-icons/md";
+import { MdAdd, MdEdit, MdDelete, MdSearch, MdVisibility, MdStar } from "react-icons/md";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../../utils/confirmDialog";
@@ -120,6 +120,7 @@ const Services = () => {
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Sub-Category</th>
+              <th className="px-4 py-3">Featured</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
@@ -145,6 +146,15 @@ const Services = () => {
                   </td>
                   <td className="px-4 py-3 align-top">
                     {getDisplayName(svc.subCategory)}
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    {svc.isFeatured ? (
+                      <span className="flex items-center gap-1 text-yellow-600 font-semibold">
+                        <MdStar className="w-4 h-4" /> Yes
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">No</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 align-top">
                     <button

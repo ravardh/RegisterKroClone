@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { IoMdStar } from "react-icons/io";
 import { Link } from "react-router-dom";
 import axios from "../config/api";
 import toast from "react-hot-toast";
@@ -36,10 +37,12 @@ const Home = () => {
     }
   };
   const [categories, setCategories] = useState([]);
+  const [featuredServices, setFeaturedServices] = useState([]);
+  const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
 
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
-  console.log("Home Page");
+  //console.log("Home Page");
   
   useEffect(() => {
     const fetchReviews = async () => {
@@ -54,12 +57,30 @@ const Home = () => {
       }
     };
 
+    const fetchFeaturedServices = async () => {
+      try {
+        setIsLoadingFeatured(true);
+        const response = await axios.get("/public/services/featured");
+        setFeaturedServices(response.data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch featured services", error);
+        toast.error("Failed to load featured services");
+      } finally {
+        setIsLoadingFeatured(false);
+      }
+    };
+
     fetchReviews();
+    fetchFeaturedServices();
   }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const servicesPerPage = 3;
   const maxIndex = Math.ceil(categories.length / servicesPerPage) - 1;
+
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const featuredPerPage = 3;
+  const maxFeaturedIndex = Math.ceil(featuredServices.length / featuredPerPage) - 1;
 
   const [reviewIndex, setReviewIndex] = useState(0);
   const reviewsPerPage = 3;
@@ -108,9 +129,22 @@ const Home = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
   };
 
+  const handleFeaturedNext = () => {
+    setFeaturedIndex((prev) => (prev < maxFeaturedIndex ? prev + 1 : 0));
+  };
+
+  const handleFeaturedPrev = () => {
+    setFeaturedIndex((prev) => (prev > 0 ? prev - 1 : maxFeaturedIndex));
+  };
+
   const visibleCategories = categories.slice(
     currentIndex * servicesPerPage,
     (currentIndex + 1) * servicesPerPage
+  );
+
+  const visibleFeaturedServices = featuredServices.slice(
+    featuredIndex * featuredPerPage,
+    (featuredIndex + 1) * featuredPerPage
   );
 
   return (
@@ -204,6 +238,106 @@ const Home = () => {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="featured-services py-10 md:py-20 bg-white">
+        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
+          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2">
+            Featured Services
+          </h2>
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-1/2 mx-auto px-4">
+            Explore our most popular and trusted services chosen by thousands of
+            businesses.
+          </p>
+
+          {isLoadingFeatured ? (
+            <div className="text-center py-12">
+              <p className="text-(--secondary) text-lg">
+                Loading featured services...
+              </p>
+            </div>
+          ) : featuredServices.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-(--secondary) text-lg">
+                No featured services available.
+              </p>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="featured-services-grid grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
+                {visibleFeaturedServices.map((service) => (
+                  <div
+                    key={service._id}
+                    className="featured-service-card bg-linear-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg border-2 border-indigo-100 hover:shadow-xl hover:border-indigo-300 transition h-80 flex flex-col"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-(--primary) text-xl sm:text-2xl font-bold flex-1">
+                        {service.serviceName}
+                      </h3>
+                      <span className="text-(--accent) text-2xl ml-2"><IoMdStar/></span>
+                    </div>
+                    <p className="text-(--secondary) flex-1 overflow-hidden line-clamp-4 mb-4">
+                      {service.shortDescription ||
+                        "Comprehensive service for your business needs."}
+                    </p>
+                    <div className="flex gap-2 items-center text-xs md:text-sm text-(--secondary) mb-4">
+                      <span className="bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full font-medium">
+                        {service.category?.name || "Category"}
+                      </span>
+                      <span className="bg-blue-200 text-blue-800 px-3 py-1 rounded-full font-medium">
+                        {service.subCategory?.name || "Sub-category"}
+                      </span>
+                    </div>
+                    <Link
+                      to={`/service/${service._id}`}
+                      className="mt-auto flex text-(--primary) hover:text-(--primary-hover) font-semibold justify-center items-center gap-2 py-2 px-4 border-2 border-(--primary) rounded-lg hover:bg-(--primary) hover:text-white transition"
+                    >
+                      View Details <FaArrowRightLong className="w-4 h-4" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {/* Navigation Buttons */}
+              {maxFeaturedIndex >= 0 && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                  <button
+                    onClick={handleFeaturedPrev}
+                    className="text-(--primary) hover:text-(--primary-hover) transition"
+                    aria-label="Previous featured services"
+                  >
+                    <FaChevronLeft size={24} />
+                  </button>
+
+                  <div className="flex gap-2">
+                    {Array.from({ length: maxFeaturedIndex + 1 }).map(
+                      (_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setFeaturedIndex(index)}
+                          className={`w-3 h-3 rounded-full transition ${
+                            featuredIndex === index
+                              ? "bg-(--primary)"
+                              : "bg-gray-300"
+                          }`}
+                          aria-label={`Go to page ${index + 1}`}
+                        />
+                      )
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleFeaturedNext}
+                    className="text-(--primary) hover:text-(--primary-hover) transition"
+                    aria-label="Next featured services"
+                  >
+                    <FaChevronRight size={24} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

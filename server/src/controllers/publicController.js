@@ -60,9 +60,9 @@ export const getPublicCategories = async (req, res, next) => {
 };
 export const LeadCapture = async (req, res, next) => {
   try {
-    const { fullName, email, phoneNumber, interestedService } = req.body;
+    const { fullName, email, phoneNumber, interestedService, state } = req.body;
 
-    if (!fullName || !email || !phoneNumber || !interestedService) {
+    if (!fullName || !email || !phoneNumber || !interestedService || !state) {
       const error = new Error("All fields are required");
       error.statusCode = 400;
       return next(error);
@@ -89,6 +89,7 @@ export const LeadCapture = async (req, res, next) => {
       clientEmail: email,
       clientPhone: phoneNumber,
       interestedService,
+      state,
       assignedTo: admin._id,
       closeRemarks: "",
       leadStages: [
@@ -133,7 +134,7 @@ export const TrackService = async (req, res, next) => {
     }
 
     const lead = await Leads.findOne({ leadID: leadId })
-      .select("leadID clientName clientEmail clientPhone interestedService leadStages")
+      .select("leadID clientName clientEmail clientPhone interestedService state leadStages")
       .populate("leadStages.updatedby", "fullName role");
 
     if (!lead) {
@@ -157,6 +158,7 @@ export const TrackService = async (req, res, next) => {
         clientEmail: lead.clientEmail,
         clientPhone: lead.clientPhone,
         interestedService: lead.interestedService,
+        state: lead.state,
         stages: stages,
         currentStage: stages.length > 0 ? stages[stages.length - 1].stageName : "new",
       },
@@ -321,6 +323,22 @@ export const getServiceById = async (req, res, next) => {
     res.status(200).json({
       message: "Service details fetched successfully",
       data: service,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getFeaturedServices = async (req, res, next) => {
+  try {
+    const services = await Service.find({ isActive: true, isFeatured: true })
+      .populate("category", "name")
+      .populate("subCategory", "name")
+      .select("serviceName shortDescription category subCategory")
+      .sort({ serviceName: 1 });
+    
+    res.status(200).json({
+      message: "Featured services fetched successfully",
+      data: services,
     });
   } catch (error) {
     next(error);

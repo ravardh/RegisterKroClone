@@ -179,6 +179,9 @@ const LeadStatus = () => {
                       <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded break-words">
                         {lead.interestedService}
                       </span>
+                      <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded font-semibold break-words">
+                        {lead.state || "N/A"}
+                      </span>
                       <span className="text-xs text-gray-400">
                         {formatDate(lead.createdAt)}
                       </span>
