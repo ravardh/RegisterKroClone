@@ -17,6 +17,14 @@ const serviceSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    OneLinner:{
+      type: String,
+      required: true,
+    },
+    priceTag:{
+      type: String,
+      required: true,
+    },
     shortDescription: {
       type: String,
       required: true,
@@ -46,10 +54,39 @@ const serviceSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    isFeatured: {
-      type: Boolean,
-      default: false,
+    Featured: {
+      isFeatured: {
+        type: Boolean,
+        default: false,
+      },
+      featureOrder:{
+        type: String,
+        required: function() {
+          return this.Featured.isFeatured;
+        },
+      }
     },
+    packages: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: String,
+          required: true,
+        },
+        description: {
+          type: String,
+          required: false,
+        },
+        includedFeatures: [
+          {
+            type: String,
+          },
+        ],
+      },
+    ],
     lastEditedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

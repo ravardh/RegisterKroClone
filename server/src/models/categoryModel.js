@@ -13,6 +13,10 @@ const categorySchema = mongoose.Schema(
             required: false,
             trim: true,
         },
+        headerOrder:{
+            type:String,
+            required:true,
+        },
         isActive: {
             type: Boolean,
             default: true,

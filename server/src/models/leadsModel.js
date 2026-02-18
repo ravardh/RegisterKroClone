@@ -23,6 +23,10 @@ const leadsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    selectedPackage: {
+      type: String,
+      required: true,
+    },
     state: {
       type: String,
       required: true,

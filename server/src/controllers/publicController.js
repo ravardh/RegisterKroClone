@@ -60,9 +60,9 @@ export const getPublicCategories = async (req, res, next) => {
 };
 export const LeadCapture = async (req, res, next) => {
   try {
-    const { fullName, email, phoneNumber, interestedService, state } = req.body;
+    const { fullName, email, phoneNumber, interestedService, selectedPackage, state } = req.body;
 
-    if (!fullName || !email || !phoneNumber || !interestedService || !state) {
+    if (!fullName || !email || !phoneNumber || !interestedService || !selectedPackage || !state) {
       const error = new Error("All fields are required");
       error.statusCode = 400;
       return next(error);
@@ -89,6 +89,7 @@ export const LeadCapture = async (req, res, next) => {
       clientEmail: email,
       clientPhone: phoneNumber,
       interestedService,
+      selectedPackage,
       state,
       assignedTo: admin._id,
       closeRemarks: "",

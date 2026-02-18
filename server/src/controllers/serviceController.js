@@ -37,22 +37,34 @@ export const createService = async (req, res, next) => {
       category,
       subCategory,
       serviceName,
+      OneLinner,
+      priceTag,
       shortDescription,
       topPointers,
       description,
       faqs,
+      packages,
       isActive,
-      isFeatured,
+      Featured,
     } = req.body;
 
     if (
       !category ||
       !subCategory ||
       !serviceName ||
+      !OneLinner ||
+      !priceTag ||
       !shortDescription ||
       !description
     ) {
       const error = new Error("All required fields must be provided");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Validate Featured structure if isFeatured is true
+    if (Featured?.isFeatured && !Featured?.featureOrder) {
+      const error = new Error("featureOrder is required when service is featured");
       error.statusCode = 400;
       return next(error);
     }
@@ -84,12 +96,15 @@ export const createService = async (req, res, next) => {
       category: categoryDoc._id,
       subCategory: subCategoryDoc._id,
       serviceName,
+      OneLinner,
+      priceTag,
       shortDescription,
       topPointers: topPointers || [],
       description,
       faqs: sanitizedFaqs,
+      packages: packages || [],
       isActive: typeof isActive === "boolean" ? isActive : true,
-      isFeatured: typeof isFeatured === "boolean" ? isFeatured : false,
+      Featured: Featured || { isFeatured: false },
       lastEditedBy: req.user._id,
     });
 
@@ -114,12 +129,15 @@ export const updateService = async (req, res, next) => {
       category,
       subCategory,
       serviceName,
+      OneLinner,
+      priceTag,
       shortDescription,
       topPointers,
       description,
       faqs,
+      packages,
       isActive,
-      isFeatured,
+      Featured,
     } = req.body;
 
     if (!id) {
@@ -145,10 +163,16 @@ export const updateService = async (req, res, next) => {
       }
     }
 
+    // Validate Featured structure if isFeatured is true
+    if (Featured?.isFeatured && !Featured?.featureOrder) {
+      const error = new Error("featureOrder is required when service is featured");
+      error.statusCode = 400;
+      return next(error);
+    }
+
     const sanitizedFaqs = sanitizeFaqs(faqs);
     const shouldUpdateFaqs = faqs !== undefined;
     const hasIsActive = typeof isActive === "boolean";
-    const hasIsFeatured = typeof isFeatured === "boolean";
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
@@ -156,12 +180,15 @@ export const updateService = async (req, res, next) => {
         category: category || existingService.category,
         subCategory: subCategory || existingService.subCategory,
         serviceName: serviceName || existingService.serviceName,
+        OneLinner: OneLinner || existingService.OneLinner,
+        priceTag: priceTag || existingService.priceTag,
         shortDescription: shortDescription || existingService.shortDescription,
         topPointers: topPointers || existingService.topPointers,
         description: description || existingService.description,
         faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
+        packages: packages !== undefined ? packages : existingService.packages,
         isActive: hasIsActive ? isActive : existingService.isActive,
-        isFeatured: hasIsFeatured ? isFeatured : existingService.isFeatured,
+        Featured: Featured || existingService.Featured,
         lastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }
@@ -221,7 +248,7 @@ export const getAllCategories = async (req, res, next) => {
 
 export const createCategory = async (req, res, next) => {
   try {
-    const { name, shortDescription } = req.body;
+    const { name, shortDescription, headerOrder } = req.body;
 
     if (!name) {
       const error = new Error("Category name is required");
@@ -239,6 +266,7 @@ export const createCategory = async (req, res, next) => {
     const newCategory = await Category.create({
       name,
       shortDescription: shortDescription || "",
+      headerOrder: headerOrder || '100',
       isActive: true,
     });
 
@@ -254,7 +282,7 @@ export const createCategory = async (req, res, next) => {
 export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, shortDescription, isActive } = req.body;
+    const { name, shortDescription, isActive, headerOrder } = req.body;
 
     if (!id) {
       const error = new Error("Category ID is required");
@@ -287,6 +315,7 @@ export const updateCategory = async (req, res, next) => {
           shortDescription !== undefined
             ? shortDescription
             : existingCategory.shortDescription,
+        headerOrder: headerOrder !== undefined ? headerOrder : existingCategory.headerOrder,
         isActive: isActive !== undefined ? isActive : existingCategory.isActive,
       },
       { new: true, runValidators: true }
