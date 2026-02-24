@@ -4,31 +4,27 @@ import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import CommonData from "../assets/common.json";
 import { useAuth } from "../context/AuthContext.jsx";
 import ServiceModal from "./ServiceModal.jsx";
+import { useAppData } from "../context/DataContext";
 
 const Footer = () => {
   const { isLoggedIn } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [popularCategories, setPopularCategories] = useState([]);
+  const { categories: allCategories } = useAppData();
 
-  // Load categories and filter by headerOrder 1-5
+  // Filter categories by headerOrder 1-5
   useEffect(() => {
-    try {
-      const categoriesData = sessionStorage.getItem("categories");
-      if (categoriesData) {
-        const allCategories = JSON.parse(categoriesData);
-        const mainCategories = allCategories
-          .filter(cat => {
-            const order = parseInt(cat.headerOrder);
-            return !isNaN(order) && order >= 1 && order <= 5;
-          })
-          .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
-        setPopularCategories(mainCategories);
-      }
-    } catch (error) {
-      console.error("Error loading categories:", error);
+    if (allCategories.length > 0) {
+      const mainCategories = allCategories
+        .filter(cat => {
+          const order = parseInt(cat.headerOrder);
+          return !isNaN(order) && order >= 1 && order <= 5;
+        })
+        .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
+      setPopularCategories(mainCategories);
     }
-  }, []);
+  }, [allCategories]);
 
   const handleServiceClick = (categoryName) => {
     setSelectedCategoryName(categoryName);

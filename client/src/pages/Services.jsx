@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../config/api";
 import ServiceModal from "../components/ServiceModal";
 import SEOHelmet from "../components/SEOHelmet";
+import { useAppData } from "../context/DataContext";
 
 const Services = () => {
   const servicesSchema = {
@@ -17,6 +18,7 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [categories, setCategories] = useState([]);
+  const { categories: allCategoriesData } = useAppData();
 
   const stats = [
     {
@@ -35,12 +37,11 @@ const Services = () => {
   ];
 
   useEffect(() => {
-    // Load categories from session storage if available
-    const storedCategories = sessionStorage.getItem("categories");
-    if (storedCategories) {
-      setCategories(JSON.parse(storedCategories));
+    // Load categories from DataContext
+    if (allCategoriesData.length > 0) {
+      setCategories(allCategoriesData);
     } else {
-      // Fallback to API call if session storage is empty
+      // Fallback to API call if context is empty
       const fetchCategories = async () => {
         try {
           const response = await axiosInstance.get("/public/categories");
@@ -51,7 +52,7 @@ const Services = () => {
       };
       fetchCategories();
     }
-  }, []);
+  }, [allCategoriesData]);
 
   // Handle category selection from Header search
   useEffect(() => {

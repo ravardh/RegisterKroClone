@@ -279,6 +279,10 @@ const AddServiceModal = ({
   };
 
   const addPackage = () => {
+    if (formData.packages.length >= 3) {
+      toast.error("Maximum 3 packages allowed per service");
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       packages: [...prev.packages, { ...EMPTY_PACKAGE, includedFeatures: [""] }],
@@ -803,14 +807,16 @@ const AddServiceModal = ({
                   </div>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={addPackage}
-                disabled={!formData.subCategory}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
-              >
-                <MdAdd /> Add Package
-              </button>
+              {formData.packages.length < 3 && (
+                <button
+                  type="button"
+                  onClick={addPackage}
+                  disabled={!formData.subCategory}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
+                >
+                  <MdAdd /> Add Package ({formData.packages.length}/3)
+                </button>
+              )}
             </div>
 
             {/* Description */}

@@ -3,15 +3,14 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoMdStar } from "react-icons/io";
 import { Link } from "react-router-dom";
-import axios from "../config/api";
 import toast from "react-hot-toast";
 import Step1 from "../assets/step1.png";
 import Step2 from "../assets/step2.png";
 import Step3 from "../assets/step3.png";
 import Step4 from "../assets/step4.png";
-import axiosInstance from "../config/api";
 import commondata from "../assets/common.json";
 import SEOHelmet from "../components/SEOHelmet";
+import { useAppData } from "../context/DataContext";
 
 const Home = () => {
   const homeSchemaData = {
@@ -42,64 +41,29 @@ const Home = () => {
 
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
-  //console.log("Home Page");
-  
+
+  const { categories: allCategoriesData, featuredServices: featuredData, reviews: reviewsData, isDataLoaded } = useAppData();
+
+  // Sync from DataContext
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        // Check sessionStorage first
-        const cachedReviews = sessionStorage.getItem("allReviews");
-        if (cachedReviews) {
-          setReviews(JSON.parse(cachedReviews));
-          setIsLoadingReviews(false);
-          return;
-        }
+    if (allCategoriesData.length > 0) {
+      setCategories(allCategoriesData);
+    }
+  }, [allCategoriesData]);
 
-        // If not cached, fetch from API
-        const response = await axios.get("/public/feedback");
-        const reviewsData = response.data.data;
-        setReviews(reviewsData);
-        
-        // Cache for session
-        sessionStorage.setItem("allReviews", JSON.stringify(reviewsData));
-      } catch (error) {
-        console.error("Failed to fetch reviews", error);
-        toast.error("Failed to load reviews");
-      } finally {
-        setIsLoadingReviews(false);
-      }
-    };
+  useEffect(() => {
+    if (isDataLoaded) {
+      setFeaturedServices(featuredData);
+      setIsLoadingFeatured(false);
+    }
+  }, [featuredData, isDataLoaded]);
 
-    const fetchFeaturedServices = async () => {
-      try {
-        setIsLoadingFeatured(true);
-        
-        // Check sessionStorage first
-        const cachedFeatured = sessionStorage.getItem("featuredServices");
-        if (cachedFeatured) {
-          setFeaturedServices(JSON.parse(cachedFeatured));
-          setIsLoadingFeatured(false);
-          return;
-        }
-
-        // If not cached, fetch from API
-        const response = await axios.get("/public/services/featured");
-        const featuredData = response.data.data || [];
-        setFeaturedServices(featuredData);
-        
-        // Cache for session
-        sessionStorage.setItem("featuredServices", JSON.stringify(featuredData));
-      } catch (error) {
-        console.error("Failed to fetch featured services", error);
-        toast.error("Failed to load featured services");
-      } finally {
-        setIsLoadingFeatured(false);
-      }
-    };
-
-    fetchReviews();
-    fetchFeaturedServices();
-  }, []);
+  useEffect(() => {
+    if (isDataLoaded) {
+      setReviews(reviewsData);
+      setIsLoadingReviews(false);
+    }
+  }, [reviewsData, isDataLoaded]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const servicesPerPage = 3;
@@ -112,32 +76,6 @@ const Home = () => {
   const [reviewIndex, setReviewIndex] = useState(0);
   const reviewsPerPage = 3;
   const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
-
-  useEffect(() => {
-    // Fetch categories from the backend with caching
-    const fetchCategories = async () => {
-      try {
-        // Check sessionStorage first
-        const cachedCategories = sessionStorage.getItem("categories");
-        if (cachedCategories) {
-          setCategories(JSON.parse(cachedCategories));
-          return;
-        }
-
-        // If not cached, fetch from API
-        const response = await axiosInstance.get("/public/categories");
-        const categoriesData = response.data.data || [];
-        setCategories(categoriesData);
-        
-        // Cache for session
-        sessionStorage.setItem("categories", JSON.stringify(categoriesData));
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

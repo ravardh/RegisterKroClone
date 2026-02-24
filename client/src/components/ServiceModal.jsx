@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppData } from "../context/DataContext";
 
 const ServiceModal = ({ isOpen, onClose, categoryName }) => {
   const navigate = useNavigate();
@@ -8,17 +9,15 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
   const [subCategories, setSubCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [category, setCategory] = useState(null);
+  const { categories: allCategories, subCategories: subCategoriesData, services: servicesData } = useAppData();
 
-  // Load data from sessionStorage when modal opens
+  // Load data from DataContext when modal opens
   useEffect(() => {
     if (!isOpen || !categoryName) return;
 
     setLoading(true);
     try {
-      // Find the category
-      const categoriesData = sessionStorage.getItem("categories");
-      const categories = categoriesData ? JSON.parse(categoriesData) : [];
-      const foundCategory = categories.find(
+      const foundCategory = allCategories.find(
         (c) => c.name.toLowerCase() === categoryName.toLowerCase()
       );
 
@@ -26,20 +25,13 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
         setCategory(foundCategory);
 
         // Get subcategories for this category
-        const subCategoriesObj = JSON.parse(
-          sessionStorage.getItem("subCategories") || "{}"
-        );
-        const categorySubCategories = subCategoriesObj[foundCategory._id] || [];
+        const categorySubCategories = subCategoriesData[foundCategory._id] || [];
         setSubCategories(categorySubCategories);
 
         // Auto-select first subcategory
         if (categorySubCategories.length > 0) {
           setSelectedSubCategory(categorySubCategories[0]);
-          // Get services for first subcategory
-          const servicesObj = JSON.parse(
-            sessionStorage.getItem("services") || "{}"
-          );
-          setServices(servicesObj[categorySubCategories[0]._id] || []);
+          setServices(servicesData[categorySubCategories[0]._id] || []);
         }
       }
     } catch (error) {
@@ -47,20 +39,11 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
     } finally {
       setLoading(false);
     }
-  }, [isOpen, categoryName]);
+  }, [isOpen, categoryName, allCategories, subCategoriesData, servicesData]);
 
   const handleSubCategoryClick = (subCategory) => {
     setSelectedSubCategory(subCategory);
-
-    try {
-      const servicesObj = JSON.parse(
-        sessionStorage.getItem("services") || "{}"
-      );
-      setServices(servicesObj[subCategory._id] || []);
-    } catch (error) {
-      console.error("Error loading services:", error);
-      setServices([]);
-    }
+    setServices(servicesData[subCategory._id] || []);
   };
 
   const handleServiceClick = (serviceId) => {

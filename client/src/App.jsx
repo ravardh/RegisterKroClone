@@ -20,10 +20,9 @@ import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
-import axiosInstance from "./config/api";
 import CommonData from './assets/common.json'
-import { FaWhatsappSquare } from "react-icons/fa";
 import WhatsAppIcon from './assets/whatsapp.png'
+import { DataProvider } from "./context/DataContext";
 
 const Layout = () => {
   const location = useLocation();
@@ -105,51 +104,20 @@ const Layout = () => {
 };
 
 const App = () => {
-  useEffect(() => {
-    const initializeAppData = async () => {
-      try {
-        // Check if data already exists in session storage
-        if (sessionStorage.getItem("appDataInitialized")) {
-          return;
-        }
-
-        // Fetch all data in parallel using bulk endpoints (much faster!)
-        const [categoriesResponse, subCategoriesResponse, servicesResponse] = 
-          await Promise.all([
-            axiosInstance.get("/public/categories"),
-            axiosInstance.get("/public/subcategories-grouped"),
-            axiosInstance.get("/public/services-grouped"),
-          ]);
-
-        const categories = categoriesResponse.data.data || [];
-        const allSubCategories = subCategoriesResponse.data.data || {};
-        const allServices = servicesResponse.data.data || {};
-
-        // Store all data in session storage
-        sessionStorage.setItem("categories", JSON.stringify(categories));
-        sessionStorage.setItem("subCategories", JSON.stringify(allSubCategories));
-        sessionStorage.setItem("services", JSON.stringify(allServices));
-        sessionStorage.setItem("appDataInitialized", "true");
-      } catch (error) {
-        console.error("Error initializing app data:", error);
-      }
-    };
-
-    initializeAppData();
-  }, []);
-
   return (
-    <BrowserRouter>
-      <Layout />
+    <DataProvider>
+      <BrowserRouter>
+        <Layout />
 
-      <a
-        href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
-        target="_blank"
-        className="fixed bottom-5 left-5"
-      >
-        <img src={WhatsAppIcon} alt="" className="h-12 w-12 hover:scale-110 duration-300" />
-      </a>
-    </BrowserRouter>
+        <a
+          href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
+          target="_blank"
+          className="fixed bottom-5 left-5"
+        >
+          <img src={WhatsAppIcon} alt="" className="h-12 w-12 hover:scale-110 duration-300" />
+        </a>
+      </BrowserRouter>
+    </DataProvider>
   );
 };
 

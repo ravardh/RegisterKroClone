@@ -163,6 +163,13 @@ export const updateService = async (req, res, next) => {
       }
     }
 
+    // Validate packages limit
+    if (packages && packages.length > 3) {
+      const error = new Error("Maximum 3 packages allowed per service");
+      error.statusCode = 400;
+      return next(error);
+    }
+
     // Validate Featured structure if isFeatured is true
     if (Featured?.isFeatured && !Featured?.featureOrder) {
       const error = new Error("featureOrder is required when service is featured");

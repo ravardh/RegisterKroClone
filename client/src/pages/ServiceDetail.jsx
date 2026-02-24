@@ -5,6 +5,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
+import { useAppData } from "../context/DataContext";
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
@@ -21,11 +22,15 @@ const ServiceDetail = () => {
     email: "",
     phoneNumber: "",
     state: "",
+    selectedPackage: "",
   });
+  const [hasModalTriggered, setHasModalTriggered] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
   const [descriptionTabs, setDescriptionTabs] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
 
   const indianStates = [
@@ -111,58 +116,37 @@ const ServiceDetail = () => {
     }
   }, [serviceId]);
 
-  // Fetch reviews/feedback for this service
+  // Filter reviews for this service from DataContext
   useEffect(() => {
-    const fetchServiceReviews = async () => {
-      if (!serviceData?.serviceName) return;
-      
-      try {
-        setIsLoadingReviews(true);
-        
-        // Check sessionStorage first for cached feedback
-        let allFeedback = [];
-        const cachedFeedback = sessionStorage.getItem("allReviews");
-        
-        if (cachedFeedback) {
-          allFeedback = JSON.parse(cachedFeedback);
-        } else {
-          // If not cached, fetch from API
-          const response = await axiosInstance.get("/public/feedback");
-          allFeedback = response.data.data || [];
-          
-          // Cache for session
-          sessionStorage.setItem("allReviews", JSON.stringify(allFeedback));
-        }
-        
-        // Filter feedback for this service
-        const serviceReviews = allFeedback.filter(
-          (feedback) => feedback.serviceAvailed?.serviceName === serviceData.serviceName
-        );
-        
-        setReviews(serviceReviews);
-      } catch (error) {
-        console.error("Error fetching service reviews:", error);
-      } finally {
-        setIsLoadingReviews(false);
-      }
-    };
-
-    if (serviceData?.serviceName) {
-      fetchServiceReviews();
+    if (!serviceData?.serviceName) return;
+    
+    setIsLoadingReviews(true);
+    try {
+      const serviceReviews = allReviews.filter(
+        (feedback) => feedback.serviceAvailed?.serviceName === serviceData.serviceName
+      );
+      setReviews(serviceReviews);
+    } catch (error) {
+      console.error("Error filtering service reviews:", error);
+    } finally {
+      setIsLoadingReviews(false);
     }
-  }, [serviceData?.serviceName]);
+  }, [serviceData?.serviceName, allReviews]);
 
-  // Intersection Observer for FAQ section - auto show modal
+  // Intersection Observer for FAQ section - auto show modal (only once)
   useEffect(() => {
+    if (hasModalTriggered) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && !hasModalTriggered) {
             setIsModalOpen(true);
+            setHasModalTriggered(true);
           }
         });
       },
-      { threshold: 0.1 } // Trigger when 10% of the FAQ section is visible
+      { threshold: 0.1 }
     );
 
     if (faqSectionRef.current) {
@@ -174,11 +158,7 @@ const ServiceDetail = () => {
         observer.unobserve(faqSectionRef.current);
       }
     };
-  }, [serviceData]);
-
-  const handleGetStarted = () => {
-    setIsModalOpen(true);
-  };
+  }, [serviceData, hasModalTriggered]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -267,6 +247,12 @@ const ServiceDetail = () => {
       return;
     }
 
+    // Package validation
+    if (serviceData.packages?.length > 0 && !formData.selectedPackage) {
+      toast.error("Please select a package");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await axiosInstance.post("/public/lead", {
@@ -274,11 +260,12 @@ const ServiceDetail = () => {
         email: formData.email,
         phoneNumber: formData.phoneNumber,
         interestedService: serviceData.serviceName,
+        selectedPackage: formData.selectedPackage || "N/A",
         state: formData.state,
         assignedTo: null, // Will be assigned by admin
       });
       toast.success("Application submitted successfully! We'll contact you soon.");
-      setFormData({ fullName: "", email: "", phoneNumber: "", state: "" });
+      setFormData({ fullName: "", email: "", phoneNumber: "", state: "", selectedPackage: "" });
       setIsModalOpen(false);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -351,42 +338,76 @@ const ServiceDetail = () => {
       />
       <div className="bg-(--background) -mt-20">
 
-      {/* Hero Section */}
-      <div className="bg-linear-to-r from-amber-50 to-blue-100  text-(--text) pt-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 items-start">
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl text-(--primary) font-bold mb-3 sm:mb-4">{serviceData.serviceName}</h1>
-              <p className="text-base sm:text-lg font-medium mb-4 sm:mb-6 text-(--text)">{serviceData.shortDescription}</p>
-              
-              {/* Highlights */}
+      {/* Hero Section - Service Name, One Liner, PriceTag */}
+      <div className="bg-linear-to-r from-amber-50 to-blue-100 text-(--text) pt-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 text-center">
+          {/* Category & Subcategory badges */}
+          <div className="flex flex-wrap gap-2 mb-2 sm:mb-3 justify-center">
+            <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
+              {serviceData.category?.name}
+            </span>
+            <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
+              {serviceData.subCategory?.name}
+            </span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl md:text-4xl text-(--primary) font-bold mb-2 sm:mb-3">
+            {serviceData.serviceName}
+          </h1>
+
+          {serviceData.OneLinner && (
+            <p className="text-sm sm:text-base md:text-lg text-(--text) font-medium mb-3 sm:mb-4 max-w-3xl mx-auto">
+              {serviceData.OneLinner}
+            </p>
+          )}
+
+          {serviceData.priceTag && (
+            <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 sm:px-5 py-1.5 sm:py-2 shadow-md">
+              <span className="text-xs sm:text-sm text-gray-500 mr-2">Starting at</span>
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-(--primary)">{serviceData.priceTag}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content Card - Short Description + Pointers (Left) | Lead Form (Right) */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 -mt-4 sm:-mt-6 relative z-10 pb-6 sm:pb-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            {/* Left - Short Description & Top Pointers */}
+            <div className="p-5 sm:p-6 md:p-8 lg:border-r border-gray-100">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+                About This Service
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-5 sm:mb-6">
+                {serviceData.shortDescription}
+              </p>
+
               {serviceData.topPointers && serviceData.topPointers.length > 0 && (
-                <div className="mb-4 sm:mb-6 flex justify-center md:justify-start">
-                  <div className="space-y-2 sm:space-y-3 flex flex-col items-start">
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3">
+                    Key Highlights
+                  </h3>
+                  <div className="space-y-2.5 sm:space-y-3">
                     {serviceData.topPointers.map((pointer, index) => (
-                      <div key={index} className="flex items-center">
-                        <span className="text-green-700 mr-2 sm:mr-3 text-lg sm:text-xl"><SiTicktick /></span>
-                        <span className="text-(--text) font-medium text-sm sm:text-base">{pointer}</span>
+                      <div key={index} className="flex items-start gap-2.5 sm:gap-3">
+                        <span className="text-green-600 mt-0.5 shrink-0 text-base sm:text-lg"><SiTicktick /></span>
+                        <span className="text-gray-700 text-sm sm:text-base">{pointer}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-
-              {/* Category and Subcategory */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                  {serviceData.category?.name}
-                </span>
-                <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
-                  {serviceData.subCategory?.name}
-                </span>
-              </div>
             </div>
 
-            {/* Application Form */}
-            <div className="bg-white text-gray-900 rounded-xl p-4 sm:p-6 shadow-2xl">
-              <h3 className="text-base sm:text-lg md:text-xl text-center font-bold mb-3 sm:mb-4 px-2 sm:px-4 text-(--primary)">Enter your details to receive a full quote and consultation</h3>
+            {/* Right - Lead Generation Form */}
+            <div ref={formRef} className="p-5 sm:p-6 md:p-8 bg-gray-50">
+              <h3 className="text-base sm:text-lg md:text-xl text-center font-bold mb-3 sm:mb-4 text-(--primary)">
+                Get a Free Consultation
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 text-center mb-4">
+                Enter your details to receive a full quote and expert advice
+              </p>
               <form onSubmit={handleFormSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                   <input
@@ -395,7 +416,7 @@ const ServiceDetail = () => {
                     value={formData.fullName}
                     onChange={handleFormChange}
                     placeholder="Enter your full name"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -406,7 +427,7 @@ const ServiceDetail = () => {
                     value={formData.email}
                     onChange={handleFormChange}
                     placeholder="your.email@example.com"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -422,7 +443,7 @@ const ServiceDetail = () => {
                     placeholder="10 digit phone number"
                     maxLength="10"
                     inputMode="numeric"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -431,7 +452,7 @@ const ServiceDetail = () => {
                     name="state"
                     value={formData.state}
                     onChange={handleFormChange}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     required
                   >
                     <option value="">Select your state</option>
@@ -442,20 +463,38 @@ const ServiceDetail = () => {
                     ))}
                   </select>
                 </div>
+                {serviceData.packages && serviceData.packages.length > 0 && (
+                  <div>
+                    <select
+                      name="selectedPackage"
+                      value={formData.selectedPackage}
+                      onChange={handleFormChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      required
+                    >
+                      <option value="">Select a package</option>
+                      {serviceData.packages.map((pkg, idx) => (
+                        <option key={idx} value={pkg.name}>
+                          {pkg.name} - {pkg.price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
-                  <div className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-3xl bg-gray-50 text-gray-700">
+                  <div className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-xl bg-white text-gray-600">
                     {serviceData.category?.name} → {serviceData.subCategory?.name} → {serviceData.serviceName}
                   </div>
                 </div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-(--primary) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70"
+                  className="w-full bg-(--primary) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70"
                 >
                   {isSubmitting ? "Submitting..." : "Submit Application"}
                 </button>
               </form>
-              <p className="text-xs text-gray-500 mt-3 sm:mt-4 text-center">
+              <p className="text-xs text-gray-400 mt-3 text-center">
                 Our expert will contact you within 24 hours
               </p>
             </div>
@@ -463,52 +502,141 @@ const ServiceDetail = () => {
         </div>
       </div>
 
-      {/* Tabs Section */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-lg shadow-sm">
-          {/* Tab Navigation */}
-          <div className="border-b sticky top-16 bg-white z-10">
-            <div className="flex overflow-x-auto scrollbar-hide">
-              {descriptionTabs.map((_, index) => (
-                <button
+      {/* Packages Section */}
+      {serviceData.packages && serviceData.packages.length > 0 && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2">
+            Choose Your Plan
+          </h2>
+          <p className="text-sm sm:text-base text-gray-500 text-center mb-8 sm:mb-10">
+            Select the package that best suits your needs
+          </p>
+
+          <div className={`grid grid-cols-1 ${serviceData.packages.length === 2 ? 'md:grid-cols-2 max-w-3xl' : serviceData.packages.length === 1 ? 'md:grid-cols-1 max-w-md' : 'md:grid-cols-3'} gap-5 sm:gap-6 mx-auto`}>
+            {serviceData.packages.map((pkg, index) => {
+              const isPopular = serviceData.packages.length === 1
+                ? index === 0
+                : index === 1;
+
+              return (
+                <div
                   key={index}
-                  onClick={() => scrollToSection(index)}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
-                    activeTab === index
-                      ? "border-b-2 border-blue-600 text-blue-600"
-                      : "text-gray-600 hover:text-blue-600"
+                  className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${
+                    isPopular
+                      ? 'border-2 border-(--primary) md:scale-105'
+                      : 'border border-gray-200'
                   }`}
                 >
-                  {tabNames[index] || `Tab ${index + 1}`}
-                </button>
+                  {/* Popular badge */}
+                  {isPopular && (
+                    <div className="bg-(--primary) text-white text-xs font-bold text-center py-1.5 uppercase tracking-wide">
+                      Most Popular
+                    </div>
+                  )}
+
+                  <div className="p-5 sm:p-6 flex flex-col flex-1">
+                    {/* Package Name */}
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                      {pkg.name}
+                    </h3>
+
+                    {/* Price */}
+                    <div className="mb-3 sm:mb-4">
+                      <span className="text-2xl sm:text-3xl font-bold text-(--primary)">{pkg.price}</span>
+                    </div>
+
+                    {/* Description */}
+                    {pkg.description && (
+                      <p className="text-xs sm:text-sm text-gray-500 mb-4 leading-relaxed">
+                        {pkg.description}
+                      </p>
+                    )}
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-100 my-3 sm:my-4"></div>
+
+                    {/* Features */}
+                    {pkg.includedFeatures && pkg.includedFeatures.length > 0 && (
+                      <div className="space-y-2.5 flex-1">
+                        {pkg.includedFeatures.filter(f => f.trim()).map((feature, fIndex) => (
+                          <div key={fIndex} className="flex items-start gap-2.5">
+                            <SiTicktick className="text-green-500 shrink-0 mt-0.5 text-sm" />
+                            <span className="text-sm text-gray-600">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* CTA Button - scrolls to inline form */}
+                    <button
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, selectedPackage: pkg.name }));
+                        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }}
+                      className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${
+                        isPopular
+                          ? 'bg-(--primary) text-white hover:bg-(--primary-hover)'
+                          : 'bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white'
+                      }`}
+                    >
+                      Get Started
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Description Tabs Section */}
+      {descriptionTabs.length > 0 && (
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="bg-white rounded-lg shadow-sm">
+            {/* Tab Navigation */}
+            <div className="border-b sticky top-16 bg-white z-10 rounded-t-lg">
+              <div className="flex overflow-x-auto scrollbar-hide">
+                {descriptionTabs.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => scrollToSection(index)}
+                    className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
+                      activeTab === index
+                        ? "border-b-2 border-blue-600 text-blue-600"
+                        : "text-gray-600 hover:text-blue-600"
+                    }`}
+                  >
+                    {tabNames[index] || `Tab ${index + 1}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tab Content - All sections displayed */}
+            <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
+              {descriptionTabs.map((content, index) => (
+                <div key={index} id={`tab-${index}`} className="scroll-mt-32">
+                  <div 
+                    className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
+                      prose-headings:text-gray-900 
+                      prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
+                      prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+                      prose-p:text-gray-700 prose-p:mb-3
+                      prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+                      prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+                      prose-li:text-gray-700 prose-li:mb-1
+                      prose-table:w-full prose-table:border-collapse prose-table:my-4
+                      prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                      prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
+                      prose-strong:font-semibold prose-strong:text-gray-900"
+                    dangerouslySetInnerHTML={{ __html: content }}
+                  />
+                </div>
               ))}
             </div>
           </div>
-
-          {/* Tab Content - All sections displayed */}
-          <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
-            {descriptionTabs.map((content, index) => (
-              <div key={index} id={`tab-${index}`} className="scroll-mt-32">
-                <div 
-                  className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
-                    prose-headings:text-gray-900 
-                    prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
-                    prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
-                    prose-p:text-gray-700 prose-p:mb-3
-                    prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
-                    prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
-                    prose-li:text-gray-700 prose-li:mb-1
-                    prose-table:w-full prose-table:border-collapse prose-table:my-4
-                    prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                    prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                    prose-strong:font-semibold prose-strong:text-gray-900"
-                  dangerouslySetInnerHTML={{ __html: content }}
-                />
-              </div>
-            ))}
-          </div>
         </div>
-      </div>
+      )}
 
       {/* Contact Us Banner */}
       <section className="cta-section max-w-7xl mx-auto my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
@@ -623,10 +751,10 @@ const ServiceDetail = () => {
         </section>
       )}
 
-      {/* Modal */}
+      {/* Modal - triggers only when FAQ section is scrolled into view */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-8 relative">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 sm:p-8 relative">
             <button
               onClick={handleCloseModal}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
@@ -634,10 +762,10 @@ const ServiceDetail = () => {
               ×
             </button>
             
-            <h3 className="text-2xl font-bold mb-4 text-gray-900">Get Started</h3>
-            <p className="text-gray-600 mb-6">Fill in your details and our expert will contact you shortly.</p>
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900">Get Started</h3>
+            <p className="text-gray-600 mb-5 text-sm">Fill in your details and our expert will contact you shortly.</p>
             
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-3">
               <div>
                 <input
                   type="text"
@@ -645,7 +773,7 @@ const ServiceDetail = () => {
                   value={formData.fullName}
                   onChange={handleFormChange}
                   placeholder="Full Name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   required
                 />
               </div>
@@ -656,7 +784,7 @@ const ServiceDetail = () => {
                   value={formData.email}
                   onChange={handleFormChange}
                   placeholder="Email Address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   required
                 />
               </div>
@@ -672,7 +800,7 @@ const ServiceDetail = () => {
                   placeholder="10 digit phone number"
                   maxLength="10"
                   inputMode="numeric"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   required
                 />
               </div>
@@ -681,7 +809,7 @@ const ServiceDetail = () => {
                   name="state"
                   value={formData.state}
                   onChange={handleFormChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
                   required
                 >
                   <option value="">Select your state</option>
@@ -692,11 +820,29 @@ const ServiceDetail = () => {
                   ))}
                 </select>
               </div>
+              {serviceData.packages && serviceData.packages.length > 0 && (
+                <div>
+                  <select
+                    name="selectedPackage"
+                    value={formData.selectedPackage}
+                    onChange={handleFormChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                    required
+                  >
+                    <option value="">Select a package</option>
+                    {serviceData.packages.map((pkg, idx) => (
+                      <option key={idx} value={pkg.name}>
+                        {pkg.name} - {pkg.price}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-70"
+                className="w-full bg-(--primary) text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70 text-sm"
               >
                 {isSubmitting ? "Submitting..." : "Submit Request"}
               </button>

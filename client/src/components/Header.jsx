@@ -4,7 +4,7 @@ import { IoChevronDownCircleOutline } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
-import axios from "../config/api";
+import { useAppData } from "../context/DataContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,7 +32,7 @@ const Header = () => {
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
-  const MAIN_TABS = ["Business Formation", "Licenses & Registrations","Taxation","Trademark & IPRs","Accounting", "Compliance"];
+  const { categories: allCategoriesData, subCategories: subCategoriesData, services: servicesData, allServices: allServicesData } = useAppData();
 
   // Get main categories (header order 1-5)
   const mainCategories = allCategories
@@ -50,31 +50,12 @@ const Header = () => {
     })
     .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
 
-  // Fetch all services for search
+  // Sync all services from DataContext
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        // Check sessionStorage first
-        const cachedServices = sessionStorage.getItem("allServices");
-        if (cachedServices) {
-          setAllServices(JSON.parse(cachedServices));
-          return;
-        }
-
-        // If not cached, fetch from API
-        const response = await axios.get("/public/services");
-        const services = response.data.data || [];
-        setAllServices(services);
-        
-        // Cache for session
-        sessionStorage.setItem("allServices", JSON.stringify(services));
-      } catch (error) {
-        console.error("Failed to fetch services", error);
-      }
-    };
-
-    fetchServices();
-  }, []);
+    if (allServicesData.length > 0) {
+      setAllServices(allServicesData);
+    }
+  }, [allServicesData]);
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -105,37 +86,12 @@ const Header = () => {
         .includes(searchQuery.toLowerCase())
   );
 
-  // Load categories from session storage - wait for initialization
+  // Sync categories from DataContext
   useEffect(() => {
-    const loadCategories = () => {
-      try {
-        const categoriesData = sessionStorage.getItem("categories");
-        if (categoriesData) {
-          setAllCategories(JSON.parse(categoriesData));
-        }
-      } catch (error) {
-        console.error("Error loading data from session storage:", error);
-      }
-    };
-
-    // Check if data is initialized
-    const isInitialized = sessionStorage.getItem("appDataInitialized");
-    
-    if (isInitialized) {
-      loadCategories();
-    } else {
-      // If not initialized, wait for it with a polling mechanism
-      const checkInterval = setInterval(() => {
-        if (sessionStorage.getItem("appDataInitialized")) {
-          loadCategories();
-          clearInterval(checkInterval);
-        }
-      }, 100);
-
-      // Cleanup interval
-      return () => clearInterval(checkInterval);
+    if (allCategoriesData.length > 0) {
+      setAllCategories(allCategoriesData);
     }
-  }, []);
+  }, [allCategoriesData]);
 
   // Close dropdowns when clicking outside header
   useEffect(() => {
@@ -156,31 +112,14 @@ const Header = () => {
       (c) => c.name.toLowerCase() === tabName.toLowerCase(),
     );
     if (category) {
-      try {
-        const subCategoriesObj = JSON.parse(
-          sessionStorage.getItem("subCategories") || "{}",
-        );
-        setSubCategories(subCategoriesObj[category._id] || []);
-      } catch (error) {
-        console.error("Error loading subcategories:", error);
-        setSubCategories([]);
-      }
+      setSubCategories(subCategoriesData[category._id] || []);
     }
   };
 
   const handleSubcategoryClick = (subcategory) => {
     setSelectedSubcategory(subcategory);
     setIsSubMenuOpen(true);
-
-    try {
-      const servicesObj = JSON.parse(
-        sessionStorage.getItem("services") || "{}",
-      );
-      setSubCategoryServices(servicesObj[subcategory._id] || []);
-    } catch (error) {
-      console.error("Error loading services:", error);
-      setSubCategoryServices([]);
-    }
+    setSubCategoryServices(servicesData[subcategory._id] || []);
   };
 
   const handleCategorySelect = (category) => {
@@ -208,15 +147,7 @@ const Header = () => {
         (c) => c.name.toLowerCase() === tabName.toLowerCase(),
       );
       if (category) {
-        try {
-          const subCategoriesObj = JSON.parse(
-            sessionStorage.getItem("subCategories") || "{}",
-          );
-          setMobileSubCategories(subCategoriesObj[category._id] || []);
-        } catch (error) {
-          console.error("Error loading subcategories:", error);
-          setMobileSubCategories([]);
-        }
+        setMobileSubCategories(subCategoriesData[category._id] || []);
       }
     }
   };
@@ -225,15 +156,7 @@ const Header = () => {
     setMobileExpandedSubcategory(
       mobileExpandedSubcategory === subcategory._id ? null : subcategory._id,
     );
-    try {
-      const servicesObj = JSON.parse(
-        sessionStorage.getItem("services") || "{}",
-      );
-      setMobileServices(servicesObj[subcategory._id] || []);
-    } catch (error) {
-      console.error("Error loading services:", error);
-      setMobileServices([]);
-    }
+    setMobileServices(servicesData[subcategory._id] || []);
   };
 
   const handleMobileServiceClick = (serviceId) => {
@@ -369,17 +292,17 @@ const Header = () => {
                 </>
               ) : null}
 
-              {/* Other Services */}
-              <div className="relative group">
-                <button
-                  className="font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
-                  onClick={() => navigate("/services")}
-                >
-                  Other Services
-                </button>
+              {/* Other Services - Only show if there are categories with headerOrder > 5 */}
+              {filteredOtherServices.length > 0 && (
+                <div className="relative group">
+                  <button
+                    className="font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
+                    onClick={() => navigate("/services")}
+                  >
+                    Other Services
+                  </button>
 
-                {/* Other Services Dropdown */}
-                {filteredOtherServices.length > 0 && (
+                  {/* Other Services Dropdown */}
                   <div className="absolute left-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 animate-in fade-in">
                     <div className="p-3 max-h-96 overflow-y-auto">
                       {filteredOtherServices.map((category) => (
@@ -399,8 +322,8 @@ const Header = () => {
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </nav>
 
             {/* Search Bar */}
@@ -420,7 +343,7 @@ const Header = () => {
                       setIsSearchDropdownOpen(true);
                     }
                   }}
-                  className="bg-gray-100 outline-none text-sm w-27 md:w-30 lg:w-40 text-(--text)"
+                  className="bg-gray-100 outline-none text-xs w-20 md:w-25 lg:w-30 text-(--text)"
                 />
               </div>
 
@@ -514,22 +437,22 @@ const Header = () => {
                 </div>
 
                 {/* Mobile Tabs */}
-                {MAIN_TABS.map((tabName) => (
-                  <div key={tabName} className="flex flex-col">
+                {mainCategories.map((category) => (
+                  <div key={category._id} className="flex flex-col">
                     <button
-                      onClick={() => handleMobileTabClick(tabName)}
+                      onClick={() => handleMobileTabClick(category.name)}
                       className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm text-left flex justify-between items-center"
                     >
-                      {tabName}
+                      {category.name}
                       <span
-                        className={`transform transition-transform ${mobileExpandedTab === tabName ? "rotate-180" : "text-(--accent)"}`}
+                        className={`transform transition-transform ${mobileExpandedTab === category.name ? "rotate-180" : "text-(--accent)"}`}
                       >
                         <IoChevronDownCircleOutline/>
                       </span>
                     </button>
 
                     {/* Mobile Subcategories */}
-                    {mobileExpandedTab === tabName &&
+                    {mobileExpandedTab === category.name &&
                       mobileSubCategories.length > 0 && (
                         <div className="bg-gray-50 pl-4 py-2 space-y-1">
                           {mobileSubCategories.map((subCat) => (
@@ -572,14 +495,16 @@ const Header = () => {
                   </div>
                 ))}
 
-                {/* Mobile Other Services */}
-                <Link
-                  to="/services"
-                  className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Other Services
-                </Link>
+                {/* Mobile Other Services - Only show if there are categories with headerOrder > 5 */}
+                {filteredOtherServices.length > 0 && (
+                  <Link
+                    to="/services"
+                    className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Other Services
+                  </Link>
+                )}
               </div>
             </div>
           )}

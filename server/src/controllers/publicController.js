@@ -49,7 +49,7 @@ export const ContactUs = async (req, res, next) => {
 
 export const getPublicCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ name: 1 });
+    const categories = await Category.find({ isActive: true }).sort({ headerOrder: 1, name: 1 });
     res.status(200).json({
       message: "Categories fetched successfully",
       data: categories,
@@ -332,11 +332,11 @@ export const getServiceById = async (req, res, next) => {
 
 export const getFeaturedServices = async (req, res, next) => {
   try {
-    const services = await Service.find({ isActive: true, isFeatured: true })
+    const services = await Service.find({ isActive: true, "Featured.isFeatured": true })
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName shortDescription category subCategory")
-      .sort({ serviceName: 1 });
+      .select("serviceName shortDescription category subCategory Featured")
+      .sort({ "Featured.featureOrder": 1, serviceName: 1 });
     
     res.status(200).json({
       message: "Featured services fetched successfully",
