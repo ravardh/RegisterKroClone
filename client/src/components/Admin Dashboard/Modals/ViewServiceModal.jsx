@@ -71,19 +71,75 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
             <p className="text-gray-900">{service.shortDescription}</p>
           </div>
 
+          {/* One Liner & Price Tag */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                One Liner Tagline
+              </label>
+              <p className="text-gray-900">{service.OneLinner || "—"}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Price Tag
+              </label>
+              <p className="text-gray-900">{service.priceTag || "—"}</p>
+            </div>
+          </div>
+
           {/* Is Featured */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">
               Featured Status
             </label>
             <p className="text-gray-900">
-              {service.isFeatured ? (
-                <span className="text-yellow-600 font-semibold">✓ Featured</span>
+              {service.Featured?.isFeatured ? (
+                <span className="text-yellow-600 font-semibold">
+                  ✓ Featured (Order: {service.Featured.featureOrder || "—"})
+                </span>
               ) : (
                 <span className="text-gray-500">Not Featured</span>
               )}
             </p>
           </div>
+
+          {/* Packages */}
+          {service.packages && service.packages.length > 0 && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Packages
+              </label>
+              <div className="space-y-3">
+                {service.packages.map((pkg, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-gray-800">
+                        {pkg.name}
+                      </span>
+                      <span className="text-blue-600 font-bold">
+                        {pkg.price}
+                      </span>
+                    </div>
+                    {pkg.description && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        {pkg.description}
+                      </p>
+                    )}
+                    {pkg.includedFeatures && pkg.includedFeatures.length > 0 && (
+                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        {pkg.includedFeatures.map((feat, i) => (
+                          <li key={i}>{feat}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Long Description */}
           <div>

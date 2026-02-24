@@ -5,6 +5,8 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import toast from "react-hot-toast";
 
+const EMPTY_PACKAGE = { name: "", price: "", description: "", includedFeatures: [""] };
+
 const AddServiceModal = ({
   isOpen,
   onClose,
@@ -17,11 +19,14 @@ const AddServiceModal = ({
     category: "",
     subCategory: "",
     serviceName: "",
+    OneLinner: "",
+    priceTag: "",
     shortDescription: "",
     topPointers: [""],
     description: "",
     faqs: [{ question: "", answer: "" }],
-    isFeatured: false,
+    packages: [{ ...EMPTY_PACKAGE }],
+    Featured: { isFeatured: false, featureOrder: "" },
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +56,8 @@ const AddServiceModal = ({
           subCategory:
             editingService.subCategory?._id || editingService.subCategory,
           serviceName: editingService.serviceName,
+          OneLinner: editingService.OneLinner || "",
+          priceTag: editingService.priceTag || "",
           shortDescription: editingService.shortDescription,
           topPointers: editingService.topPointers?.length
             ? editingService.topPointers
@@ -58,7 +65,20 @@ const AddServiceModal = ({
           faqs: editingService.faqs?.length
             ? editingService.faqs
             : [{ question: "", answer: "" }],
-          isFeatured: editingService.isFeatured || false,
+          packages: editingService.packages?.length
+            ? editingService.packages.map((pkg) => ({
+                name: pkg.name || "",
+                price: pkg.price || "",
+                description: pkg.description || "",
+                includedFeatures: pkg.includedFeatures?.length
+                  ? pkg.includedFeatures
+                  : [""],
+              }))
+            : [{ ...EMPTY_PACKAGE }],
+          Featured: {
+            isFeatured: editingService.Featured?.isFeatured || false,
+            featureOrder: editingService.Featured?.featureOrder || "",
+          },
         });
         fetchSubCategories(
           editingService.category?._id || editingService.category
@@ -214,6 +234,67 @@ const AddServiceModal = ({
     }));
   };
 
+  // Package handlers
+  const handlePackageChange = (pkgIndex, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.packages];
+      updated[pkgIndex] = { ...updated[pkgIndex], [field]: value };
+      return { ...prev, packages: updated };
+    });
+  };
+
+  const handlePackageFeatureChange = (pkgIndex, featIndex, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.packages];
+      const features = [...updated[pkgIndex].includedFeatures];
+      features[featIndex] = value;
+      updated[pkgIndex] = { ...updated[pkgIndex], includedFeatures: features };
+      return { ...prev, packages: updated };
+    });
+  };
+
+  const addPackageFeature = (pkgIndex) => {
+    setFormData((prev) => {
+      const updated = [...prev.packages];
+      updated[pkgIndex] = {
+        ...updated[pkgIndex],
+        includedFeatures: [...updated[pkgIndex].includedFeatures, ""],
+      };
+      return { ...prev, packages: updated };
+    });
+  };
+
+  const removePackageFeature = (pkgIndex, featIndex) => {
+    setFormData((prev) => {
+      const updated = [...prev.packages];
+      const features = updated[pkgIndex].includedFeatures.filter(
+        (_, i) => i !== featIndex
+      );
+      updated[pkgIndex] = {
+        ...updated[pkgIndex],
+        includedFeatures: features.length > 0 ? features : [""],
+      };
+      return { ...prev, packages: updated };
+    });
+  };
+
+  const addPackage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      packages: [...prev.packages, { ...EMPTY_PACKAGE, includedFeatures: [""] }],
+    }));
+  };
+
+  const removePackage = (index) => {
+    setFormData((prev) => {
+      const updated = prev.packages.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        packages: updated.length > 0 ? updated : [{ ...EMPTY_PACKAGE, includedFeatures: [""] }],
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -226,12 +307,42 @@ const AddServiceModal = ({
         return;
       }
 
+      if (!formData.OneLinner?.trim()) {
+        setError("One Liner tagline is required");
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.priceTag?.trim()) {
+        setError("Price Tag is required");
+        setLoading(false);
+        return;
+      }
+
       const submitData = {
-        ...formData,
+        category: formData.category,
+        subCategory: formData.subCategory,
+        serviceName: formData.serviceName,
+        OneLinner: formData.OneLinner,
+        priceTag: formData.priceTag,
+        shortDescription: formData.shortDescription,
+        description: formData.description,
         topPointers: formData.topPointers.filter((p) => p.trim()),
         faqs: formData.faqs.filter(
           (faq) => faq.question?.trim() && faq.answer?.trim()
         ),
+        packages: formData.packages
+          .filter((pkg) => pkg.name?.trim() && pkg.price?.trim())
+          .map((pkg) => ({
+            ...pkg,
+            includedFeatures: pkg.includedFeatures.filter((f) => f.trim()),
+          })),
+        Featured: {
+          isFeatured: formData.Featured.isFeatured,
+          featureOrder: formData.Featured.isFeatured
+            ? formData.Featured.featureOrder
+            : undefined,
+        },
       };
 
       const plainText = quillInstanceRef.current?.getText().trim();
@@ -266,11 +377,14 @@ const AddServiceModal = ({
       category: "",
       subCategory: "",
       serviceName: "",
+      OneLinner: "",
+      priceTag: "",
       shortDescription: "",
       topPointers: [""],
       description: "",
       faqs: [{ question: "", answer: "" }],
-      isFeatured: false,
+      packages: [{ ...EMPTY_PACKAGE, includedFeatures: [""] }],
+      Featured: { isFeatured: false, featureOrder: "" },
     });
 
     if (quillInstanceRef.current) {
@@ -371,6 +485,40 @@ const AddServiceModal = ({
               />
             </div>
 
+            {/* One Liner & Price Tag */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  One Liner Tagline <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="OneLinner"
+                  value={formData.OneLinner}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. Start your business in 7 days"
+                  required
+                  disabled={!formData.subCategory}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price Tag <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="priceTag"
+                  value={formData.priceTag}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. ₹2,999 or Starting at ₹999"
+                  required
+                  disabled={!formData.subCategory}
+                />
+              </div>
+            </div>
+
             {/* Short Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -388,25 +536,59 @@ const AddServiceModal = ({
               />
             </div>
 
-            {/* Is Featured */}
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="isFeatured"
-                name="isFeatured"
-                checked={formData.isFeatured}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    isFeatured: e.target.checked,
-                  }))
-                }
-                className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                disabled={!formData.subCategory}
-              />
-              <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 cursor-pointer">
-                Mark as Featured Service
-              </label>
+            {/* Featured */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isFeatured"
+                  checked={formData.Featured.isFeatured}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      Featured: {
+                        ...prev.Featured,
+                        isFeatured: e.target.checked,
+                        featureOrder: e.target.checked
+                          ? prev.Featured.featureOrder
+                          : "",
+                      },
+                    }))
+                  }
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={!formData.subCategory}
+                />
+                <label
+                  htmlFor="isFeatured"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  Mark as Featured Service
+                </label>
+              </div>
+              {formData.Featured.isFeatured && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Order:
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.Featured.featureOrder}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        Featured: {
+                          ...prev.Featured,
+                          featureOrder: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-20 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    placeholder="#"
+                    required
+                  />
+                </div>
+              )}
             </div>
 
             {/* Top Pointers */}
@@ -505,6 +687,129 @@ const AddServiceModal = ({
                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
               >
                 <MdAdd /> Add FAQ
+              </button>
+            </div>
+
+            {/* Packages */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Packages
+              </label>
+              <div className="space-y-4">
+                {formData.packages.map((pkg, pkgIndex) => (
+                  <div
+                    key={pkgIndex}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-700">
+                        Package {pkgIndex + 1}
+                      </span>
+                      {formData.packages.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePackage(pkgIndex)}
+                          className="text-red-500 hover:text-red-600"
+                          disabled={!formData.subCategory}
+                        >
+                          <MdDelete />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        value={pkg.name}
+                        onChange={(e) =>
+                          handlePackageChange(pkgIndex, "name", e.target.value)
+                        }
+                        placeholder="Package name (e.g. Basic, Premium)"
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        disabled={!formData.subCategory}
+                      />
+                      <input
+                        type="text"
+                        value={pkg.price}
+                        onChange={(e) =>
+                          handlePackageChange(pkgIndex, "price", e.target.value)
+                        }
+                        placeholder="Price (e.g. ₹4,999)"
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        disabled={!formData.subCategory}
+                      />
+                    </div>
+
+                    <textarea
+                      rows="2"
+                      value={pkg.description}
+                      onChange={(e) =>
+                        handlePackageChange(
+                          pkgIndex,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Package description (optional)"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      disabled={!formData.subCategory}
+                    />
+
+                    {/* Included Features */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Included Features
+                      </label>
+                      <div className="space-y-2">
+                        {pkg.includedFeatures.map((feat, featIndex) => (
+                          <div key={featIndex} className="flex gap-2">
+                            <input
+                              type="text"
+                              value={feat}
+                              onChange={(e) =>
+                                handlePackageFeatureChange(
+                                  pkgIndex,
+                                  featIndex,
+                                  e.target.value
+                                )
+                              }
+                              placeholder={`Feature ${featIndex + 1}`}
+                              className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                              disabled={!formData.subCategory}
+                            />
+                            {pkg.includedFeatures.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removePackageFeature(pkgIndex, featIndex)
+                                }
+                                className="px-2 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-xs"
+                              >
+                                <MdDelete />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => addPackageFeature(pkgIndex)}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-xs"
+                          disabled={!formData.subCategory}
+                        >
+                          <MdAdd /> Add Feature
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addPackage}
+                disabled={!formData.subCategory}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
+              >
+                <MdAdd /> Add Package
               </button>
             </div>
 

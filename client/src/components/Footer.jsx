@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import CommonData from "../assets/common.json";
@@ -9,6 +9,26 @@ const Footer = () => {
   const { isLoggedIn } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
+  const [popularCategories, setPopularCategories] = useState([]);
+
+  // Load categories and filter by headerOrder 1-5
+  useEffect(() => {
+    try {
+      const categoriesData = sessionStorage.getItem("categories");
+      if (categoriesData) {
+        const allCategories = JSON.parse(categoriesData);
+        const mainCategories = allCategories
+          .filter(cat => {
+            const order = parseInt(cat.headerOrder);
+            return !isNaN(order) && order >= 1 && order <= 5;
+          })
+          .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
+        setPopularCategories(mainCategories);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  }, []);
 
   const handleServiceClick = (categoryName) => {
     setSelectedCategoryName(categoryName);
@@ -82,25 +102,20 @@ const Footer = () => {
 
             <div className="min-w-0">
               <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">Popular Services</h4>
-              <ul className="text-xs sm:text-sm text-gray-400 space-y-1 sm:space-y-2">
-                {[
-                  "Business Formation",
-                  "Licenses & Registrations",
-                  "Taxation",
-                  "Trademark & IPRs",
-                  "Accounting",
-                  "Compliance",
-                ].map((service) => (
-                  <li key={service}>
-                    <button
-                      onClick={() => handleServiceClick(service)}
-                      className="hover:text-white text-left cursor-pointer break-words"
-                    >
-                      {service}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              {popularCategories.length > 0 ? (
+                <ul className="text-xs sm:text-sm text-gray-400 space-y-1 sm:space-y-2">
+                  {popularCategories.map((category) => (
+                    <li key={category._id}>
+                      <button
+                        onClick={() => handleServiceClick(category.name)}
+                        className="hover:text-white text-left cursor-pointer break-words"
+                      >
+                        {category.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
 
             <div className="min-w-0">

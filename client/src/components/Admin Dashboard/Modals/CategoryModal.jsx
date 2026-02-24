@@ -6,7 +6,8 @@ import toast from 'react-hot-toast'
 const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
   const [formData, setFormData] = useState({
     name: '',
-    shortDescription: ''
+    shortDescription: '',
+    headerOrder: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -15,10 +16,11 @@ const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
     if (isOpen && editingCategory) {
       setFormData({
         name: editingCategory.name,
-        shortDescription: editingCategory.shortDescription || ''
+        shortDescription: editingCategory.shortDescription || '',
+        headerOrder: editingCategory.headerOrder || ''
       })
     } else if (!isOpen) {
-      setFormData({ name: '', shortDescription: '' })
+      setFormData({ name: '', shortDescription: '', headerOrder: '' })
       setError('')
     }
   }, [isOpen, editingCategory])
@@ -112,6 +114,27 @@ const CategoryModal = ({ isOpen, onClose, onSave, editingCategory = null }) => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
                 placeholder="Brief description (optional)"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Header Order <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  name="headerOrder"
+                  value={formData.headerOrder}
+                  onChange={handleInputChange}
+                  min="1"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  placeholder="Enter header order (1-5 for main, 6+ for Other Services)"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Orders 1-5 display in header, 6+ go under "Other Services"
+              </p>
             </div>
           </div>
 

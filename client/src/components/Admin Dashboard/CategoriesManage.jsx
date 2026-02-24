@@ -199,6 +199,9 @@ const Categories = () => {
                       Description
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Header Order
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -220,6 +223,19 @@ const Categories = () => {
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-600">
                           {cat.shortDescription || "-"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {cat.headerOrder <= 5 ? (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                              {cat.headerOrder} (Main)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+                              {cat.headerOrder} (Other)
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

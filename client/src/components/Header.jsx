@@ -34,6 +34,22 @@ const Header = () => {
 
   const MAIN_TABS = ["Business Formation", "Licenses & Registrations","Taxation","Trademark & IPRs","Accounting", "Compliance"];
 
+  // Get main categories (header order 1-5)
+  const mainCategories = allCategories
+    .filter(cat => {
+      const order = parseInt(cat.headerOrder);
+      return !isNaN(order) && order >= 1 && order <= 5;
+    })
+    .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
+
+  // Get other categories (header order > 5)
+  const otherCategories = allCategories
+    .filter(cat => {
+      const order = parseInt(cat.headerOrder);
+      return !isNaN(order) && order > 5;
+    })
+    .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
+
   // Fetch all services for search
   useEffect(() => {
     const fetchServices = async () => {
@@ -227,9 +243,7 @@ const Header = () => {
     setMobileExpandedSubcategory(null);
   };
 
-  const filteredOtherServices = allCategories.filter(
-    (cat) => !MAIN_TABS.includes(cat.name),
-  );
+  const filteredOtherServices = otherCategories;
 
   return (
     <>
@@ -262,94 +276,98 @@ const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-2 lg:space-x-3 items-center">
               {/* Main Tabs */}
-              {MAIN_TABS.map((tabName) => (
-                <div
-                  key={tabName}
-                  className="relative"
-                  onMouseEnter={() => handleTabHover(tabName)}
-                  onMouseLeave={() => {
-                    setActiveTab(null);
-                    setSubCategories([]);
-                  }}
-                >
-                  {/* Tab Button */}
-                  <button
-                    className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === tabName && "bg-(--primary)/10 rounded-xl"}`}
-                  >
-                    {tabName}
-                  </button>
-
-                  {/* Subcategories Dropdown */}
-                  {activeTab === tabName && subCategories.length > 0 && (
+              {mainCategories.length > 0 ? (
+                <>
+                  {mainCategories.map((category) => (
                     <div
-                      className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible"
+                      key={category._id}
+                      className="relative"
+                      onMouseEnter={() => handleTabHover(category.name)}
                       onMouseLeave={() => {
-                        setIsSubMenuOpen(false);
-                        setSelectedSubcategory(null);
+                        setActiveTab(null);
+                        setSubCategories([]);
                       }}
                     >
-                      <div className="p-3 overflow-y-auto">
-                        {subCategories.map((subCat) => (
-                          <div
-                            key={subCat._id}
-                            className="relative"
-                            onMouseEnter={() => handleSubcategoryClick(subCat)}
-                          >
-                            <button
-                              onClick={() => handleSubcategoryClick(subCat)}
-                              className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
-                            >
-                              <span className="flex items-center gap-3">
-                                <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                                {subCat.name}
-                              </span>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                      {/* Tab Button */}
+                      <button
+                        className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
+                      >
+                        {category.name}
+                      </button>
 
-                      {/* Services Submenu - Outside overflow container */}
-                      {isSubMenuOpen &&
-                        selectedSubcategory &&
-                        subCategoryServices.length > 0 &&
-                        (() => {
-                          const selectedIndex = subCategories.findIndex(
-                            (cat) => cat._id === selectedSubcategory._id,
-                          );
-                          const topOffset = selectedIndex * 52; // Each item is ~52px
-                          return (
-                            <div
-                              style={{ top: `${topOffset}px` }}
-                              className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
-                            >
-                              <div className="p-4">
-                                <h3 className="font-semibold text-sm mb-3 text-(--primary)">
-                                  {selectedSubcategory.name}
-                                </h3>
-                                <div className="max-h-96 overflow-y-auto space-y-2">
-                                  {subCategoryServices.map((service) => (
-                                    <button
-                                      key={service._id}
-                                      onClick={() =>
-                                        handleServiceClick(service._id)
-                                      }
-                                      className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
-                                    >
-                                      <span className="flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
-                                        {service.serviceName}
-                                      </span>
-                                    </button>
-                                  ))}
-                                </div>
+                      {/* Subcategories Dropdown */}
+                      {activeTab === category.name && subCategories.length > 0 && (
+                        <div
+                          className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible"
+                          onMouseLeave={() => {
+                            setIsSubMenuOpen(false);
+                            setSelectedSubcategory(null);
+                          }}
+                        >
+                          <div className="p-3 overflow-y-auto">
+                            {subCategories.map((subCat) => (
+                              <div
+                                key={subCat._id}
+                                className="relative"
+                                onMouseEnter={() => handleSubcategoryClick(subCat)}
+                              >
+                                <button
+                                  onClick={() => handleSubcategoryClick(subCat)}
+                                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
+                                >
+                                  <span className="flex items-center gap-3">
+                                    <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
+                                    {subCat.name}
+                                  </span>
+                                </button>
                               </div>
-                            </div>
-                          );
-                        })()}
+                            ))}
+                          </div>
+
+                          {/* Services Submenu - Outside overflow container */}
+                          {isSubMenuOpen &&
+                            selectedSubcategory &&
+                            subCategoryServices.length > 0 &&
+                            (() => {
+                              const selectedIndex = subCategories.findIndex(
+                                (cat) => cat._id === selectedSubcategory._id,
+                              );
+                              const topOffset = selectedIndex * 52; // Each item is ~52px
+                              return (
+                                <div
+                                  style={{ top: `${topOffset}px` }}
+                                  className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
+                                >
+                                  <div className="p-4">
+                                    <h3 className="font-semibold text-sm mb-3 text-(--primary)">
+                                      {selectedSubcategory.name}
+                                    </h3>
+                                    <div className="max-h-96 overflow-y-auto space-y-2">
+                                      {subCategoryServices.map((service) => (
+                                        <button
+                                          key={service._id}
+                                          onClick={() =>
+                                            handleServiceClick(service._id)
+                                          }
+                                          className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
+                                        >
+                                          <span className="flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
+                                            {service.serviceName}
+                                          </span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                  ))}
+                </>
+              ) : null}
 
               {/* Other Services */}
               <div className="relative group">

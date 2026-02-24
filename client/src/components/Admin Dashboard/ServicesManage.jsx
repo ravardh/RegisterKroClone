@@ -148,7 +148,7 @@ const Services = () => {
                     {getDisplayName(svc.subCategory)}
                   </td>
                   <td className="px-4 py-3 align-top">
-                    {svc.isFeatured ? (
+                    {svc.Featured?.isFeatured ? (
                       <span className="flex items-center gap-1 text-yellow-600 font-semibold">
                         <MdStar className="w-4 h-4" /> Yes
                       </span>
