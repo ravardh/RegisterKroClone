@@ -71,7 +71,7 @@ const ServiceDetail = () => {
     "Jammu and Kashmir",
   ];
 
-  const tabNames = ["Overview", "Process", "Requirements", "Advantages", "Services"];
+  const tabNames = ["Overview", "Process", "Requirements", "Advantages"];
 
   useEffect(() => {
     const handleResize = () => {

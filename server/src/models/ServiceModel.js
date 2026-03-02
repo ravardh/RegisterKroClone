@@ -61,9 +61,7 @@ const serviceSchema = mongoose.Schema(
       },
       featureOrder:{
         type: String,
-        required: function() {
-          return this.Featured.isFeatured;
-        },
+        default: null,
       }
     },
     packages: [
