@@ -307,7 +307,8 @@ export const getServiceById = async (req, res, next) => {
 
     const service = await Service.findById(serviceId)
       .populate("category", "name")
-      .populate("subCategory", "name");
+      .populate("subCategory", "name")
+      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive Featured packages offer category subCategory createdAt updatedAt");
     
     if (!service) {
       const error = new Error("Service not found");
