@@ -5,7 +5,8 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import toast from "react-hot-toast";
 
-const EMPTY_PACKAGE = { name: "", price: "", description: "", includedFeatures: [""] };
+const EMPTY_PACKAGE = { name: "", price: "", description: "", includedFeatures: [""], isMostPopular: false };
+const EMPTY_DESCRIPTION_TAB = { tabs: "", content: "" };
 
 const AddServiceModal = ({
   isOpen,
@@ -23,16 +24,18 @@ const AddServiceModal = ({
     priceTag: "",
     shortDescription: "",
     topPointers: [""],
-    description: "",
+    description: [{ ...EMPTY_DESCRIPTION_TAB }],
     faqs: [{ question: "", answer: "" }],
     packages: [{ ...EMPTY_PACKAGE }],
     Featured: { isFeatured: false, featureOrder: "" },
+    offer: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeDescTab, setActiveDescTab] = useState(0);
 
-  const quillRef = useRef(null);
-  const quillInstanceRef = useRef(null);
+  const quillRefs = useRef([]);
+  const quillInstances = useRef([]);
 
   useEffect(() => {
     const style = document.createElement("style");
@@ -62,6 +65,12 @@ const AddServiceModal = ({
           topPointers: editingService.topPointers?.length
             ? editingService.topPointers
             : [""],
+          description: editingService.description?.length
+            ? editingService.description.map((d) => ({
+                tabs: d.tabs || "",
+                content: d.content || "",
+              }))
+            : [{ ...EMPTY_DESCRIPTION_TAB }],
           faqs: editingService.faqs?.length
             ? editingService.faqs
             : [{ question: "", answer: "" }],
@@ -73,13 +82,16 @@ const AddServiceModal = ({
                 includedFeatures: pkg.includedFeatures?.length
                   ? pkg.includedFeatures
                   : [""],
+                isMostPopular: pkg.isMostPopular || false,
               }))
             : [{ ...EMPTY_PACKAGE }],
           Featured: {
             isFeatured: editingService.Featured?.isFeatured || false,
             featureOrder: editingService.Featured?.featureOrder || "",
           },
+          offer: editingService.offer || "",
         });
+        setActiveDescTab(0);
         fetchSubCategories(
           editingService.category?._id || editingService.category
         );
@@ -87,58 +99,60 @@ const AddServiceModal = ({
     }
   }, [isOpen, editingService]);
 
+  // Initialize / cleanup Quill instances for each description tab
   useEffect(() => {
-    // When modal closes, clean up Quill
     if (!isOpen) {
-      if (quillInstanceRef.current) {
-        quillInstanceRef.current.off("text-change");
-        quillInstanceRef.current = null;
-      }
+      // Cleanup all Quill instances when modal closes
+      quillInstances.current.forEach((q) => {
+        if (q) q.off("text-change");
+      });
+      quillInstances.current = [];
       return;
     }
 
-    // When modal opens and no Quill instance exists, initialize it
-    if (!quillRef.current || quillInstanceRef.current) return;
+    // Initialize Quill for each description tab that doesn't have one yet
+    formData.description.forEach((desc, index) => {
+      const ref = quillRefs.current[index];
+      if (!ref || quillInstances.current[index]) return;
 
-    // Clear any residual Quill HTML from previous sessions
-    quillRef.current.innerHTML = "";
+      ref.innerHTML = "";
 
-    quillInstanceRef.current = new Quill(quillRef.current, {
-      theme: "snow",
-      placeholder: "Enter detailed description of the service...",
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["link"],
-        ],
-      },
+      const q = new Quill(ref, {
+        theme: "snow",
+        placeholder: "Enter content for this tab...",
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+          ],
+        },
+      });
+
+      q.on("text-change", () => {
+        setFormData((prev) => {
+          const updated = [...prev.description];
+          updated[index] = { ...updated[index], content: q.root.innerHTML };
+          return { ...prev, description: updated };
+        });
+      });
+
+      // Set initial content
+      if (desc.content) {
+        q.root.innerHTML = desc.content;
+      }
+
+      q.enable(!!formData.subCategory);
+      quillInstances.current[index] = q;
     });
+  }, [isOpen, formData.description.length]);
 
-    quillInstanceRef.current.on("text-change", () => {
-      setFormData((prev) => ({
-        ...prev,
-        description: quillInstanceRef.current.root.innerHTML,
-      }));
+  // Enable/disable Quill editors based on subCategory selection
+  useEffect(() => {
+    quillInstances.current.forEach((q) => {
+      if (q) q.enable(!!formData.subCategory);
     });
-  }, [isOpen]);
-
-  // Separate effect for updating content when editing service changes
-  useEffect(() => {
-    if (!quillInstanceRef.current) return;
-
-    if (editingService?.description) {
-      quillInstanceRef.current.root.innerHTML = editingService.description;
-    } else if (isOpen && !editingService) {
-      quillInstanceRef.current.root.innerHTML = "";
-    }
-  }, [editingService, isOpen]);
-
-  // Effect to enable/disable Quill editor based on form state
-  useEffect(() => {
-    if (!quillInstanceRef.current) return;
-    quillInstanceRef.current.enable(!!formData.subCategory);
   }, [formData.subCategory]);
 
   const fetchCategories = async () => {
@@ -330,7 +344,9 @@ const AddServiceModal = ({
         OneLinner: formData.OneLinner,
         priceTag: formData.priceTag,
         shortDescription: formData.shortDescription,
-        description: formData.description,
+        description: formData.description
+          .filter((d) => d.tabs?.trim() && d.content?.trim())
+          .map((d) => ({ tabs: d.tabs.trim(), content: d.content })),
         topPointers: formData.topPointers.filter((p) => p.trim()),
         faqs: formData.faqs.filter(
           (faq) => faq.question?.trim() && faq.answer?.trim()
@@ -347,12 +363,12 @@ const AddServiceModal = ({
             ? formData.Featured.featureOrder
             : undefined,
         },
+        offer: formData.offer?.trim() || null,
       };
 
-      const plainText = quillInstanceRef.current?.getText().trim();
-
-      if (!plainText) {
-        setError("Detailed description is required");
+      // Validate at least one description tab has content
+      if (submitData.description.length === 0) {
+        setError("At least one description tab with content is required");
         setLoading(false);
         return;
       }
@@ -385,15 +401,22 @@ const AddServiceModal = ({
       priceTag: "",
       shortDescription: "",
       topPointers: [""],
-      description: "",
+      description: [{ ...EMPTY_DESCRIPTION_TAB }],
       faqs: [{ question: "", answer: "" }],
       packages: [{ ...EMPTY_PACKAGE, includedFeatures: [""] }],
       Featured: { isFeatured: false, featureOrder: "" },
+      offer: "",
     });
 
-    if (quillInstanceRef.current) {
-      quillInstanceRef.current.root.innerHTML = "";
-    }
+    // Cleanup all Quill instances
+    quillInstances.current.forEach((q) => {
+      if (q) {
+        q.off("text-change");
+        q.root.innerHTML = "";
+      }
+    });
+    quillInstances.current = [];
+    setActiveDescTab(0);
 
     setError("");
   };
@@ -709,16 +732,30 @@ const AddServiceModal = ({
                       <span className="text-sm font-semibold text-gray-700">
                         Package {pkgIndex + 1}
                       </span>
-                      {formData.packages.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removePackage(pkgIndex)}
-                          className="text-red-500 hover:text-red-600"
-                          disabled={!formData.subCategory}
-                        >
-                          <MdDelete />
-                        </button>
-                      )}
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={pkg.isMostPopular || false}
+                            onChange={(e) =>
+                              handlePackageChange(pkgIndex, "isMostPopular", e.target.checked)
+                            }
+                            className="w-3.5 h-3.5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                            disabled={!formData.subCategory}
+                          />
+                          Most Popular
+                        </label>
+                        {formData.packages.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removePackage(pkgIndex)}
+                            className="text-red-500 hover:text-red-600"
+                            disabled={!formData.subCategory}
+                          >
+                            <MdDelete />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -819,18 +856,115 @@ const AddServiceModal = ({
               )}
             </div>
 
-            {/* Description */}
-
+            {/* Offer */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Detailed Description <span className="text-red-500">*</span>
+                Offer
+              </label>
+              <input
+                type="text"
+                name="offer"
+                value={formData.offer}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="e.g. 20% off for first-time customers (optional)"
+                disabled={!formData.subCategory}
+              />
+            </div>
+
+            {/* Description Tabs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description Tabs <span className="text-red-500">*</span>
               </label>
 
-              <div
-                ref={quillRef}
-                className="bg-white rounded border border-gray-300"
-                style={{ minHeight: "200px", maxHeight: "400px", overflow: "auto" }}
-              />
+              {/* Tab navigation */}
+              <div className="flex flex-wrap gap-1 mb-3 border-b border-gray-200">
+                {formData.description.map((desc, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setActiveDescTab(index)}
+                    className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                      activeDescTab === index
+                        ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
+                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {desc.tabs?.trim() || `Tab ${index + 1}`}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: [...prev.description, { ...EMPTY_DESCRIPTION_TAB }],
+                    }));
+                    setActiveDescTab(formData.description.length);
+                  }}
+                  className="px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-t-lg flex items-center gap-1"
+                  disabled={!formData.subCategory}
+                >
+                  <MdAdd /> Add Tab
+                </button>
+              </div>
+
+              {/* Active tab content */}
+              {formData.description.map((desc, index) => (
+                <div
+                  key={index}
+                  className={`space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50 ${
+                    activeDescTab === index ? "" : "hidden"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={desc.tabs}
+                        onChange={(e) => {
+                          setFormData((prev) => {
+                            const updated = [...prev.description];
+                            updated[index] = { ...updated[index], tabs: e.target.value };
+                            return { ...prev, description: updated };
+                          });
+                        }}
+                        placeholder="Tab name (e.g. Overview, Process, Requirements)"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        disabled={!formData.subCategory}
+                      />
+                    </div>
+                    {formData.description.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => {
+                            const updated = prev.description.filter((_, i) => i !== index);
+                            return { ...prev, description: updated };
+                          });
+                          // Cleanup Quill instance
+                          if (quillInstances.current[index]) {
+                            quillInstances.current[index].off("text-change");
+                            quillInstances.current.splice(index, 1);
+                          }
+                          setActiveDescTab((prev) => Math.min(prev, formData.description.length - 2));
+                        }}
+                        className="ml-3 px-2 py-2 text-red-500 hover:text-red-600"
+                        disabled={!formData.subCategory}
+                      >
+                        <MdDelete />
+                      </button>
+                    )}
+                  </div>
+
+                  <div
+                    ref={(el) => (quillRefs.current[index] = el)}
+                    className="bg-white rounded border border-gray-300"
+                    style={{ minHeight: "200px", maxHeight: "400px", overflow: "auto" }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 

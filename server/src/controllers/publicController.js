@@ -335,7 +335,7 @@ export const getFeaturedServices = async (req, res, next) => {
     const services = await Service.find({ isActive: true, "Featured.isFeatured": true })
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName shortDescription category subCategory Featured")
+      .select("serviceName shortDescription category subCategory Featured offer")
       .sort({ "Featured.featureOrder": 1, serviceName: 1 });
     
     res.status(200).json({

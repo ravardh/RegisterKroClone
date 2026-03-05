@@ -17,11 +17,11 @@ const serviceSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
-    OneLinner:{
+    OneLinner: {
       type: String,
       required: true,
     },
-    priceTag:{
+    priceTag: {
       type: String,
       required: true,
     },
@@ -34,10 +34,12 @@ const serviceSchema = mongoose.Schema(
         type: String,
       },
     ],
-    description: {
-      type: String,
-      required: true,
-    },
+    description: [
+      {
+        tabs: { type: String },
+        content: { type: String },
+      },
+    ],
     faqs: [
       {
         question: {
@@ -59,10 +61,10 @@ const serviceSchema = mongoose.Schema(
         type: Boolean,
         default: false,
       },
-      featureOrder:{
+      featureOrder: {
         type: String,
         default: null,
-      }
+      },
     },
     packages: [
       {
@@ -83,8 +85,16 @@ const serviceSchema = mongoose.Schema(
             type: String,
           },
         ],
+        isMostPopular: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
+    offer: {
+      type: String,
+      default: null,
+    },
     lastEditedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -93,7 +103,7 @@ const serviceSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 const Service = mongoose.model("Service", serviceSchema);
 export default Service;

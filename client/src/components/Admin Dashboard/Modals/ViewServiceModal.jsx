@@ -113,12 +113,19 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
                 {service.packages.map((pkg, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    className={`bg-gray-50 rounded-lg p-4 border ${pkg.isMostPopular ? 'border-yellow-400' : 'border-gray-200'}`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold text-gray-800">
-                        {pkg.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-800">
+                          {pkg.name}
+                        </span>
+                        {pkg.isMostPopular && (
+                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">
+                            Most Popular
+                          </span>
+                        )}
+                      </div>
                       <span className="text-blue-600 font-bold">
                         {pkg.price}
                       </span>
@@ -141,17 +148,47 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* Long Description */}
+          {/* Offer */}
+          {service.offer && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Offer
+              </label>
+              <p className="text-gray-900 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+                {service.offer}
+              </p>
+            </div>
+          )}
+
+          {/* Description Tabs */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">
               Description
             </label>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-48 overflow-y-auto">
-              <div
-                className="text-gray-900 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: service.description || "" }}
-              />
-            </div>
+            {Array.isArray(service.description) && service.description.length > 0 ? (
+              <div className="space-y-3">
+                {service.description.map((desc, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h4 className="text-sm font-semibold text-blue-600 mb-2">
+                      {desc.tabs || `Tab ${index + 1}`}
+                    </h4>
+                    <div className="max-h-48 overflow-y-auto">
+                      <div
+                        className="text-gray-900 leading-relaxed text-sm"
+                        dangerouslySetInnerHTML={{ __html: desc.content || "" }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-48 overflow-y-auto">
+                <div
+                  className="text-gray-900 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: service.description || "" }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Image */}

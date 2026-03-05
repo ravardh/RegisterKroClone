@@ -46,6 +46,7 @@ export const createService = async (req, res, next) => {
       packages,
       isActive,
       Featured,
+      offer,
     } = req.body;
 
     if (
@@ -55,7 +56,9 @@ export const createService = async (req, res, next) => {
       !OneLinner ||
       !priceTag ||
       !shortDescription ||
-      !description
+      !description ||
+      !Array.isArray(description) ||
+      description.length === 0
     ) {
       const error = new Error("All required fields must be provided");
       error.statusCode = 400;
@@ -105,6 +108,7 @@ export const createService = async (req, res, next) => {
       packages: packages || [],
       isActive: typeof isActive === "boolean" ? isActive : true,
       Featured: Featured || { isFeatured: false },
+      offer: offer || null,
       lastEditedBy: req.user._id,
     });
 
@@ -138,6 +142,7 @@ export const updateService = async (req, res, next) => {
       packages,
       isActive,
       Featured,
+      offer,
     } = req.body;
 
     if (!id) {
@@ -191,11 +196,12 @@ export const updateService = async (req, res, next) => {
         priceTag: priceTag || existingService.priceTag,
         shortDescription: shortDescription || existingService.shortDescription,
         topPointers: topPointers || existingService.topPointers,
-        description: description || existingService.description,
+        description: description !== undefined ? description : existingService.description,
         faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
         packages: packages !== undefined ? packages : existingService.packages,
         isActive: hasIsActive ? isActive : existingService.isActive,
         Featured: Featured || existingService.Featured,
+        offer: offer !== undefined ? offer : existingService.offer,
         lastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }
