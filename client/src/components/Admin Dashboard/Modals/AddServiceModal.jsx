@@ -107,13 +107,23 @@ const AddServiceModal = ({
         if (q) q.off("text-change");
       });
       quillInstances.current = [];
+      quillRefs.current = [];
       return;
     }
 
     // Initialize Quill for each description tab that doesn't have one yet
     formData.description.forEach((desc, index) => {
       const ref = quillRefs.current[index];
-      if (!ref || quillInstances.current[index]) return;
+      if (!ref) return;
+
+      // Skip if already initialized and properly set
+      if (quillInstances.current[index]) {
+        // Update content if it changed (for edit mode)
+        if (quillInstances.current[index].root.innerHTML !== desc.content) {
+          quillInstances.current[index].root.innerHTML = desc.content || "";
+        }
+        return;
+      }
 
       ref.innerHTML = "";
 
@@ -138,15 +148,17 @@ const AddServiceModal = ({
         });
       });
 
-      // Set initial content
-      if (desc.content) {
-        q.root.innerHTML = desc.content;
-      }
+      // Set initial content - use setTimeout to ensure Quill is fully ready
+      setTimeout(() => {
+        if (desc.content) {
+          q.root.innerHTML = desc.content;
+        }
+      }, 0);
 
       q.enable(!!formData.subCategory);
       quillInstances.current[index] = q;
     });
-  }, [isOpen, formData.description.length]);
+  }, [isOpen, editingService?._id, formData.description.length]);
 
   // Enable/disable Quill editors based on subCategory selection
   useEffect(() => {
