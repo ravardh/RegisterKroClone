@@ -25,6 +25,7 @@ const resetForm = () => ({
   fullName: "",
   email: "",
   serviceAvailed: "",
+  serviceAvailedId: "",
   message: "",
   starRating: 5,
 });
@@ -83,7 +84,7 @@ const Feedback = () => {
 
   const handleServiceSelect = (service) => {
     const displayName = `${service.category?.name} → ${service.subCategory?.name} → ${service.serviceName}`;
-    setFormData((prev) => ({ ...prev, serviceAvailed: displayName }));
+    setFormData((prev) => ({ ...prev, serviceAvailed: displayName, serviceAvailedId: service._id }));
     setIsDropdownOpen(false);
     setSearchInput("");
   };
@@ -144,7 +145,7 @@ const Feedback = () => {
       await axios.post("/public/feedback", {
         fullName: formData.fullName,
         email: formData.email,
-        serviceAvailed: formData.serviceAvailed,
+        serviceAvailedId: formData.serviceAvailedId,
         message: formData.message,
         starRating: formData.starRating,
       });

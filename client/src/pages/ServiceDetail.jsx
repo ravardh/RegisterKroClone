@@ -286,28 +286,13 @@ const ServiceDetail = () => {
     }
 
     // Email validation - only accept major providers
-    const allowedDomains = [
-      "gmail.com",
-      "yahoo.com",
-      "hotmail.com",
-      "outlook.com",
-      "live.com",
-      "icloud.com",
-      "protonmail.com",
-    ];
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+$/;
     if (!formData.email.trim()) {
       toast.error("Email is required");
       return;
     } else if (!emailRegex.test(formData.email)) {
       toast.error("Please enter a valid email address");
       return;
-    } else {
-      const emailDomain = formData.email.toLowerCase().split("@")[1];
-      if (!allowedDomains.includes(emailDomain)) {
-        toast.error("Invalid email domain");
-        return;
-      }
     }
 
     // Phone number validation - only 10 digits
@@ -463,7 +448,7 @@ const ServiceDetail = () => {
               </p>
             )}
 
-            {serviceData.priceTag && (
+            {serviceData.priceTag && serviceData.priceTag !== "0" && (
               <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 sm:px-5 py-1.5 sm:py-2 shadow-md">
                 <span className="text-xs sm:text-sm text-gray-500 mr-2">
                   Starting at

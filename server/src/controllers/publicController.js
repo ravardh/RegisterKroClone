@@ -171,15 +171,16 @@ export const TrackService = async (req, res, next) => {
 
 export const PostFeedback = async (req, res, next) => {
   try {
-    const { fullName, email, serviceAvailed, message, starRating } = req.body;
+    const { fullName, email, serviceAvailedId, message, starRating } = req.body;
 
-    if (!fullName || !email || !serviceAvailed || !message || !starRating) {
+    if (!fullName || !email || !serviceAvailedId || !message || !starRating) {
       const error = new Error("All fields are required");
       error.statusCode = 400;
       return next(error);
     }
 
-    const service = await Service.findOne({ serviceName: serviceAvailed });
+    // Verify that the service exists
+    const service = await Service.findById(serviceAvailedId);
     
     if (!service) {
       const error = new Error("Invalid service selected");
@@ -190,7 +191,7 @@ export const PostFeedback = async (req, res, next) => {
     const newFeedback = await Feedback.create({
       fullName,
       email,
-      serviceAvailed: service._id,
+      serviceAvailed: serviceAvailedId,
       message,
       starRating,
       status: "pending",

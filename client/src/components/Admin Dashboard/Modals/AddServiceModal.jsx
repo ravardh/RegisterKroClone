@@ -21,14 +21,14 @@ const AddServiceModal = ({
     subCategory: "",
     serviceName: "",
     OneLinner: "",
-    priceTag: "",
+    priceTag: "0",
     shortDescription: "",
     topPointers: [""],
     description: [{ ...EMPTY_DESCRIPTION_TAB }],
-    faqs: [{ question: "", answer: "" }],
     packages: [{ ...EMPTY_PACKAGE }],
     Featured: { isFeatured: false, featureOrder: "" },
     offer: "",
+    faqs: [{ question: "", answer: "" }],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,7 +61,7 @@ const AddServiceModal = ({
             editingService.subCategory?._id || editingService.subCategory,
           serviceName: editingService.serviceName,
           OneLinner: editingService.OneLinner || "",
-          priceTag: editingService.priceTag || "",
+          priceTag: editingService.priceTag || "0",
           shortDescription: editingService.shortDescription,
           topPointers: editingService.topPointers?.length
             ? editingService.topPointers
@@ -393,8 +393,6 @@ const AddServiceModal = ({
       if (res.data.data) {
         toast.success(`Service ${editingService ? 'updated' : 'added'} successfully!`);
         onAddService(res.data.data);
-        resetForm();
-        onClose();
       }
     } catch (error) {
       const message = error.response?.data?.message || "Failed to save service";
@@ -411,14 +409,14 @@ const AddServiceModal = ({
       subCategory: "",
       serviceName: "",
       OneLinner: "",
-      priceTag: "",
+      priceTag: "0",
       shortDescription: "",
       topPointers: [""],
       description: [{ ...EMPTY_DESCRIPTION_TAB }],
-      faqs: [{ question: "", answer: "" }],
       packages: [{ ...EMPTY_PACKAGE, includedFeatures: [""] }],
       Featured: { isFeatured: false, featureOrder: "" },
       offer: "",
+      faqs: [{ question: "", answer: "" }],
     });
 
     // Cleanup all Quill instances
@@ -671,65 +669,6 @@ const AddServiceModal = ({
               </div>
             </div>
 
-            {/* FAQs */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                FAQs
-              </label>
-              <div className="space-y-3">
-                {formData.faqs.map((faq, index) => (
-                  <div
-                    key={index}
-                    className="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        FAQ {index + 1}
-                      </span>
-                      {formData.faqs.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeFaq(index)}
-                          disabled={!formData.subCategory}
-                          className="text-red-500 hover:text-red-600 disabled:opacity-60"
-                        >
-                          <MdDelete />
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={faq.question}
-                      onChange={(e) =>
-                        handleFaqChange(index, "question", e.target.value)
-                      }
-                      placeholder="Question"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      disabled={!formData.subCategory}
-                    />
-                    <textarea
-                      rows="3"
-                      value={faq.answer}
-                      onChange={(e) =>
-                        handleFaqChange(index, "answer", e.target.value)
-                      }
-                      placeholder="Answer"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                      disabled={!formData.subCategory}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={addFaq}
-                disabled={!formData.subCategory}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
-              >
-                <MdAdd /> Add FAQ
-              </button>
-            </div>
-
             {/* Packages */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -978,6 +917,65 @@ const AddServiceModal = ({
                   />
                 </div>
               ))}
+            </div>
+
+            {/* FAQs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                FAQs
+              </label>
+              <div className="space-y-3">
+                {formData.faqs.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-700">
+                        FAQ {index + 1}
+                      </span>
+                      {formData.faqs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeFaq(index)}
+                          disabled={!formData.subCategory}
+                          className="text-red-500 hover:text-red-600 disabled:opacity-60"
+                        >
+                          <MdDelete />
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={faq.question}
+                      onChange={(e) =>
+                        handleFaqChange(index, "question", e.target.value)
+                      }
+                      placeholder="Question"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      disabled={!formData.subCategory}
+                    />
+                    <textarea
+                      rows="3"
+                      value={faq.answer}
+                      onChange={(e) =>
+                        handleFaqChange(index, "answer", e.target.value)
+                      }
+                      placeholder="Answer"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      disabled={!formData.subCategory}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addFaq}
+                disabled={!formData.subCategory}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
+              >
+                <MdAdd /> Add FAQ
+              </button>
             </div>
           </div>
 

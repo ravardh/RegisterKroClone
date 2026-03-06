@@ -83,7 +83,7 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
               <label className="block text-sm font-semibold text-gray-600 mb-2">
                 Price Tag
               </label>
-              <p className="text-gray-900">{service.priceTag || "—"}</p>
+              <p className="text-gray-900">{service.priceTag && service.priceTag !== "0" ? service.priceTag : "—"}</p>
             </div>
           </div>
 
