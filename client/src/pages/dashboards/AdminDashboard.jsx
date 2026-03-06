@@ -7,6 +7,7 @@ import Leads from "../../components/Admin Dashboard/LeadsManage";
 import Categories from "../../components/Admin Dashboard/CategoriesManage";
 import Contact from "../../components/Admin Dashboard/ContactManage";
 import Feedbacks from "../../components/Admin Dashboard/FeedbackManage";
+import SEOHelmet from "../../components/SEOHelmet";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -14,6 +15,12 @@ const AdminDashboard = () => {
   
   return (
     <>
+      <SEOHelmet
+        title="Admin Dashboard - TaxProSolution"
+        description="Manage services, leads, categories, relationship managers, and customer feedback from your admin dashboard."
+        keywords="admin dashboard, service management, lead management, business admin"
+        canonicalUrl="https://taxprosolution.co.in/adminDashboard"
+      />
       <div className="flex h-[83.5vh] overflow-hidden bg-(--background)">
         <Sidebar 
           activeTab={activeTab} 

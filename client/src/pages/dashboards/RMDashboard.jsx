@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../../components/RM Dashboard/Sidebar";
 import Dashboard from "../../components/RM Dashboard/Dashboard";
 import LeadStatus from "../../components/RM Dashboard/LeadStatus";
+import SEOHelmet from "../../components/SEOHelmet";
 
 const RMDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -9,6 +10,12 @@ const RMDashboard = () => {
   
   return (
     <>
+      <SEOHelmet
+        title="RM Dashboard - TaxProSolution"
+        description="Manage your assigned leads, track lead status, and monitor your sales activities from your personal dashboard."
+        keywords="rm dashboard, lead management, sales dashboard, relationship manager"
+        canonicalUrl="https://taxprosolution.co.in/rmDashboard"
+      />
       <div className="flex h-[83.5vh] overflow-hidden bg-[--background)]">
         <Sidebar 
           activeTab={activeTab} 

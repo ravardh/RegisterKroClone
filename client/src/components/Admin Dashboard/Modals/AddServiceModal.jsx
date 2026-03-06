@@ -50,6 +50,7 @@ const AddServiceModal = ({
     return () => document.head.removeChild(style);
   }, []);
 
+
   useEffect(() => {
     if (isOpen) {
       fetchCategories();

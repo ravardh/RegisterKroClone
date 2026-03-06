@@ -59,6 +59,8 @@ const ServiceDetail = () => {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
+  const tabContentRefs = useRef([]);
+  const pageContainerRef = useRef(null);
 
   const indianStates = [
     "Andhra Pradesh",
@@ -107,6 +109,44 @@ const ServiceDetail = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Auto-activate tabs on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const triggerPoint = window.innerHeight * 0.2; // 20% from top of viewport
+
+      let closestTabIndex = 0;
+      let closestDistance = Infinity;
+
+      tabContentRefs.current.forEach((ref, index) => {
+        if (!ref) return;
+
+        const rect = ref.getBoundingClientRect();
+        const tabTop = rect.top;
+
+        // Distance from the trigger point (20% from top)
+        const distance = Math.abs(tabTop - triggerPoint);
+
+        // Check if this tab's content is in view and closest to trigger point
+        if (tabTop < window.innerHeight && tabTop > -rect.height && distance < closestDistance) {
+          closestDistance = distance;
+          closestTabIndex = index;
+        }
+      });
+
+      setActiveTab(closestTabIndex);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [descriptionTabs.length]);
+
+  // Clean up refs array when description tabs change
+  useEffect(() => {
+    tabContentRefs.current = tabContentRefs.current.slice(0, descriptionTabs.length);
+  }, [descriptionTabs.length]);
 
   // Calculate maxReviewIndex based on actual reviews from backend
   const maxReviewIndex =
@@ -754,7 +794,12 @@ const ServiceDetail = () => {
               {/* Tab Content - All sections displayed */}
               <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
                 {descriptionTabs.map((tab, index) => (
-                  <div key={index} id={`tab-${index}`} className="scroll-mt-32">
+                  <div
+                    ref={(el) => (tabContentRefs.current[index] = el)}
+                    key={index}
+                    id={`tab-${index}`}
+                    className="scroll-mt-32"
+                  >
                     <div
                       className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
                       prose-headings:text-gray-900 
