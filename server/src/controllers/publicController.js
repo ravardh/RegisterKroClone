@@ -19,8 +19,8 @@ const sanitizePhoneForId = (phoneNumber) => String(phoneNumber || "").replace(/\
 const getNextDailySequence = async (datePart) => {
   const todaysIds = await Leads.find({
     $or: [
-      { serviceID: { $regex: `^${datePart}\\+` } },
-      { leadID: { $regex: `^${datePart}\\+` } },
+      { serviceID: { $regex: `^SERVICE_${datePart}_` } },
+      { leadID: { $regex: `^SERVICE_${datePart}_` } },
     ],
   })
     .select("serviceID leadID -_id")
@@ -53,7 +53,7 @@ const generateServiceId = async (phoneNumber) => {
   const datePart = formatDatePart();
   const phonePart = sanitizePhoneForId(phoneNumber);
   const nextSequence = await getNextDailySequence(datePart);
-  return `${datePart}+${phonePart}+${nextSequence}`;
+  return `SERVICE_${datePart}_${phonePart}_${nextSequence}`;
 };
 
 export const ContactUs = async (req, res, next) => {
