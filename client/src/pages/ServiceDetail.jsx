@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { MdDownload } from "react-icons/md";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
@@ -32,6 +33,14 @@ const formatIndianPrice = (price) => {
   }
 
   return `${result}.${decimalPart}`;
+};
+
+const getDocumentUrl = (url) => {
+  if (!url) return "#";
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+  const path = url.startsWith("/") ? url : `/${url}`;
+  return `${base}${path}`;
 };
 
 const ServiceDetail = () => {
@@ -128,7 +137,11 @@ const ServiceDetail = () => {
         const distance = Math.abs(tabTop - triggerPoint);
 
         // Check if this tab's content is in view and closest to trigger point
-        if (tabTop < window.innerHeight && tabTop > -rect.height && distance < closestDistance) {
+        if (
+          tabTop < window.innerHeight &&
+          tabTop > -rect.height &&
+          distance < closestDistance
+        ) {
           closestDistance = distance;
           closestTabIndex = index;
         }
@@ -145,7 +158,10 @@ const ServiceDetail = () => {
 
   // Clean up refs array when description tabs change
   useEffect(() => {
-    tabContentRefs.current = tabContentRefs.current.slice(0, descriptionTabs.length);
+    tabContentRefs.current = tabContentRefs.current.slice(
+      0,
+      descriptionTabs.length,
+    );
   }, [descriptionTabs.length]);
 
   // Calculate maxReviewIndex based on actual reviews from backend
@@ -506,9 +522,9 @@ const ServiceDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               {/* Left - Short Description & Top Pointers */}
               <div className="p-5 sm:p-6 md:p-8 lg:border-r border-gray-100">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+                {/* <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
                   About This Service
-                </h2>
+                </h2> */}
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-5 sm:mb-6">
                   {serviceData.shortDescription}
                 </p>
@@ -749,6 +765,39 @@ const ServiceDetail = () => {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Documents Section */}
+        {serviceData.documents && serviceData.documents.length > 0 && (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8">
+            <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6 md:p-8 border border-gray-100">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Documents
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Download required forms and reference files for this service.
+              </p>
+              <div className="space-y-3">
+                {serviceData.documents.map((doc, index) => (
+                  <div
+                    key={`${doc.url}-${index}`}
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200"
+                  >
+                    <p className="text-sm text-gray-700 truncate">{doc.displayName || doc.name}</p>
+                    <a
+                      href={getDocumentUrl(doc.url)}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                    >
+                      <MdDownload className="w-4 h-4" /> Download
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

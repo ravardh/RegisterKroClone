@@ -7,6 +7,55 @@ import Leads from "../models/leadsModel.js";
 import User from "../models/userModel.js";
 import { sendContactFormEmail, sendLeadCreationEmail } from "../config/emailService.js";
 
+const formatDatePart = (date = new Date()) => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}${month}${year}`;
+};
+
+const sanitizePhoneForId = (phoneNumber) => String(phoneNumber || "").replace(/\D/g, "");
+
+const getNextDailySequence = async (datePart) => {
+  const todaysIds = await Leads.find({
+    $or: [
+      { serviceID: { $regex: `^${datePart}\\+` } },
+      { leadID: { $regex: `^${datePart}\\+` } },
+    ],
+  })
+    .select("serviceID leadID -_id")
+    .lean();
+
+  let maxSequence = 10000;
+
+  for (const lead of todaysIds) {
+    const idValue = lead.serviceID || lead.leadID;
+    const matched = idValue?.match(/(\d{5})$/);
+    if (matched) {
+      const sequence = Number(matched[1]);
+      if (sequence > maxSequence) {
+        maxSequence = sequence;
+      }
+    }
+  }
+
+  const nextSequence = maxSequence + 1;
+  if (nextSequence > 99999) {
+    const error = new Error("Daily service ID limit reached. Please try again tomorrow.");
+    error.statusCode = 429;
+    throw error;
+  }
+
+  return String(nextSequence);
+};
+
+const generateServiceId = async (phoneNumber) => {
+  const datePart = formatDatePart();
+  const phonePart = sanitizePhoneForId(phoneNumber);
+  const nextSequence = await getNextDailySequence(datePart);
+  return `${datePart}+${phonePart}+${nextSequence}`;
+};
+
 export const ContactUs = async (req, res, next) => {
   try {
     const { fullName, email, phone, message } = req.body;
@@ -79,28 +128,45 @@ export const LeadCapture = async (req, res, next) => {
       return next(error);
     }
 
-    // Generate unique lead ID
-    const leadID = `LEAD-${Date.now()}`;
+    let newLead = null;
+    let serviceId = "";
 
-    // Create new lead with initial "new" stage
-    const newLead = await Leads.create({
-      leadID,
-      clientName: fullName,
-      clientEmail: email,
-      clientPhone: phoneNumber,
-      interestedService,
-      selectedPackage,
-      state,
-      assignedTo: admin._id,
-      closeRemarks: "",
-      leadStages: [
-        {
-          stageName: "new",
-          updatedby: admin._id,
-          updatedAt: new Date(),
+    // Retry on duplicate ID collisions caused by concurrent requests.
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      serviceId = await generateServiceId(phoneNumber);
+
+      try {
+        newLead = await Leads.create({
+          serviceID: serviceId,
+          clientName: fullName,
+          clientEmail: email,
+          clientPhone: phoneNumber,
+          interestedService,
+          selectedPackage,
+          state,
+          assignedTo: admin._id,
+          closeRemarks: "",
+          leadStages: [
+            {
+              stageName: "new",
+              updatedby: admin._id,
+              updatedAt: new Date(),
+            },
+          ],
+        });
+        break;
+      } catch (createError) {
+        if (createError?.code !== 11000) {
+          throw createError;
         }
-      ],
-    });
+      }
+    }
+
+    if (!newLead) {
+      const error = new Error("Unable to generate a unique service ID. Please try again.");
+      error.statusCode = 503;
+      return next(error);
+    }
 
     // Send lead creation confirmation email to client
     try {
@@ -108,7 +174,7 @@ export const LeadCapture = async (req, res, next) => {
         clientName: fullName,
         clientEmail: email,
         serviceName: interestedService,
-        leadId: leadID,
+        serviceId,
         createdDate: new Date(),
       });
     } catch (emailError) {
@@ -117,7 +183,8 @@ export const LeadCapture = async (req, res, next) => {
     }
 
     res.status(201).json({
-      message: "Lead created successfully",
+      message: "Service request created successfully",
+      serviceId,
       data: newLead,
     });
   } catch (error) {
@@ -126,20 +193,22 @@ export const LeadCapture = async (req, res, next) => {
 };
 export const TrackService = async (req, res, next) => {
   try {
-    const { leadId } = req.params;
+    const serviceId = req.params.serviceId || req.params.leadId;
 
-    if (!leadId) {
-      const error = new Error("Lead ID is required");
+    if (!serviceId) {
+      const error = new Error("Service ID is required");
       error.statusCode = 400;
       return next(error);
     }
 
-    const lead = await Leads.findOne({ leadID: leadId })
-      .select("leadID clientName clientEmail clientPhone interestedService state leadStages")
+    const lead = await Leads.findOne({
+      $or: [{ serviceID: serviceId }, { leadID: serviceId }],
+    })
+      .select("serviceID leadID clientName clientEmail clientPhone interestedService state leadStages")
       .populate("leadStages.updatedby", "fullName role");
 
     if (!lead) {
-      const error = new Error("Lead not found");
+      const error = new Error("Service not found");
       error.statusCode = 404;
       return next(error);
     }
@@ -152,9 +221,10 @@ export const TrackService = async (req, res, next) => {
     }));
 
     res.status(200).json({
-      message: "Lead tracking information fetched successfully",
+      message: "Service tracking information fetched successfully",
       data: {
-        leadId: lead.leadID,
+        serviceId: lead.serviceID || lead.leadID,
+        leadId: lead.leadID || lead.serviceID,
         clientName: lead.clientName,
         clientEmail: lead.clientEmail,
         clientPhone: lead.clientPhone,
@@ -231,7 +301,7 @@ export const getFeedbackByserviceId = (req, res) => {
 
 export const getPublicServices = async (req, res, next) => {
   try {
-    const services = await Service.find({ isActive: true })
+    const services = await Service.find({ isActive: true, isVisible: true })
       .populate("category", "name")
       .populate("subCategory", "name")
       .select("serviceName category subCategory")
@@ -282,7 +352,8 @@ export const getPublicServicesBySubCategory = async (req, res, next) => {
 
     const services = await Service.find({ 
       subCategory: subCategoryId, 
-      isActive: true 
+      isActive: true,
+      isVisible: true,
     })
       .select("serviceName shortDescription")
       .sort({ serviceName: 1 });
@@ -309,7 +380,7 @@ export const getServiceById = async (req, res, next) => {
     const service = await Service.findById(serviceId)
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive Featured packages offer category subCategory createdAt updatedAt");
+      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive isVisible Featured packages offer documents category subCategory createdAt updatedAt");
     
     if (!service) {
       const error = new Error("Service not found");
@@ -317,7 +388,7 @@ export const getServiceById = async (req, res, next) => {
       return next(error);
     }
 
-    if (!service.isActive) {
+    if (!service.isActive || !service.isVisible) {
       const error = new Error("Service is not available");
       error.statusCode = 404;
       return next(error);
@@ -334,7 +405,7 @@ export const getServiceById = async (req, res, next) => {
 
 export const getFeaturedServices = async (req, res, next) => {
   try {
-    const services = await Service.find({ isActive: true, "Featured.isFeatured": true })
+    const services = await Service.find({ isActive: true, isVisible: true, "Featured.isFeatured": true })
       .populate("category", "name")
       .populate("subCategory", "name")
       .select("serviceName shortDescription category subCategory Featured offer")
@@ -381,7 +452,7 @@ export const getAllSubCategoriesGrouped = async (req, res, next) => {
 export const getAllServicesGrouped = async (req, res, next) => {
   try {
     // Fetch all active services with subcategory info
-    const services = await Service.find({ isActive: true })
+    const services = await Service.find({ isActive: true, isVisible: true })
       .populate("subCategory", "_id")
       .select("_id serviceName shortDescription subCategory")
       .sort({ serviceName: 1 });

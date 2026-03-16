@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../config/api';
 import toast from 'react-hot-toast';
-import { FaLeaf, FaUsers, FaBox, FaClipboardCheck } from 'react-icons/fa';
+import { FaLeaf, FaUsers, FaBox, FaClipboardCheck, FaTrash } from 'react-icons/fa';
 
 const stages = [
   "new",
@@ -37,6 +37,7 @@ const Overview = () => {
   });
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [purging, setPurging] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -190,8 +191,8 @@ const Overview = () => {
                         <h3 className="text-xs sm:text-sm font-medium text-gray-900 break-words">
                           {lead.clientName}
                         </h3>
-                        <span className="text-xs text-gray-400 flex-shrink-0">
-                          #{lead.leadID}
+                          <span className="text-xs text-gray-400 flex-shrink-0">
+                            #{lead.serviceID || lead.leadID}
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5 break-all">
@@ -252,6 +253,34 @@ const Overview = () => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Maintenance */}
+      <div className="border border-red-100 rounded-lg p-4 bg-red-50">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">Storage Maintenance</h2>
+        <p className="text-xs text-gray-500 mb-4">
+          Remove files in the uploads folder that are no longer linked to any service document.
+        </p>
+        <button
+          onClick={async () => {
+            if (!window.confirm('This will permanently delete all orphaned files from the server uploads folder. Continue?')) return;
+            try {
+              setPurging(true);
+              const res = await axios.delete('/services/maintenance/purge-orphaned-documents');
+              const { message, deleted } = res.data;
+              toast.success(`${message}${deleted.length ? ' (' + deleted.join(', ') + ')' : ''}`);
+            } catch (err) {
+              toast.error(err?.response?.data?.message || 'Purge failed');
+            } finally {
+              setPurging(false);
+            }
+          }}
+          disabled={purging}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors"
+        >
+          <FaTrash className="w-3.5 h-3.5" />
+          {purging ? 'Purging...' : 'Purge Orphaned Files'}
+        </button>
       </div>
     </div>
   );

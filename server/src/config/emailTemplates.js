@@ -96,12 +96,13 @@ export const serviceRequestEmailTemplate = (requestData) => {
 
 // 3. Lead Creation Email (to client)
 export const leadCreationEmailTemplate = (leadData) => {
-  const { clientName, clientEmail, serviceName, leadId, createdDate } = leadData;
+  const { clientName, clientEmail, serviceName, serviceId, leadId, createdDate } = leadData;
+  const trackingId = serviceId || leadId;
   const responseDeadline = new Date(createdDate);
   responseDeadline.setDate(responseDeadline.getDate() + 2); // 2 days for 24-48 hours
   
   return {
-    subject: `Your Service Request Confirmed - Lead ID: ${leadId}`,
+    subject: `Your Service Request Confirmed - Service ID: ${trackingId}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
         ${emailHeader()}
@@ -114,13 +115,13 @@ export const leadCreationEmailTemplate = (leadData) => {
             <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 14px;"><strong>Service:</strong></p>
             <p style="margin: 0 0 20px 0; color: ${primaryColor}; font-size: 18px; font-weight: bold;">${serviceName}</p>
             
-            <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 14px;"><strong>Your Lead ID:</strong></p>
+            <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 14px;"><strong>Your Service ID:</strong></p>
             <div style="background-color: white; padding: 12px 15px; border-radius: 6px; font-family: monospace; font-size: 16px; font-weight: bold; color: ${primaryColor}; margin-bottom: 20px;">
-              ${leadId}
+              ${trackingId}
             </div>
             
             <p style="margin: 0; color: ${textColor}; font-size: 14px; line-height: 1.6;">
-              Please save this Lead ID for your reference. You'll need it for all future communications regarding this service.
+              Please save this Service ID for your reference. You'll need it for all future communications regarding this service.
             </p>
           </div>
           
@@ -153,10 +154,11 @@ export const leadCreationEmailTemplate = (leadData) => {
 
 // 4. RM Assignment Email (to client)
 export const rmAssignmentEmailTemplate = (assignmentData) => {
-  const { clientName, clientEmail, rmName, rmEmail, rmPhone, leadId, serviceName } = assignmentData;
+  const { clientName, clientEmail, rmName, rmEmail, rmPhone, serviceId, leadId, serviceName } = assignmentData;
+  const trackingId = serviceId || leadId;
   
   return {
-    subject: `Your Relationship Manager Has Been Assigned - Lead ID: ${leadId}`,
+    subject: `Your Relationship Manager Has Been Assigned - Service ID: ${trackingId}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
         ${emailHeader()}
@@ -182,7 +184,7 @@ export const rmAssignmentEmailTemplate = (assignmentData) => {
           <div style="background-color: ${lightBg}; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid ${primaryColor};">
             <h3 style="color: ${primaryColor}; margin-top: 0; font-size: 16px;">Service Details</h3>
             <p style="margin: 10px 0; color: ${textColor};"><strong>Service:</strong> ${serviceName}</p>
-            <p style="margin: 10px 0; color: ${textColor};"><strong>Lead ID:</strong> <code style="background-color: white; padding: 5px 10px; border-radius: 4px; font-family: monospace;">${leadId}</code></p>
+            <p style="margin: 10px 0; color: ${textColor};"><strong>Service ID:</strong> <code style="background-color: white; padding: 5px 10px; border-radius: 4px; font-family: monospace;">${trackingId}</code></p>
           </div>
           
           <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; border-left: 4px solid ${successColor};">
@@ -204,13 +206,14 @@ export const rmAssignmentEmailTemplate = (assignmentData) => {
 
 // 5. Lead Update Email (to client)
 export const leadUpdateEmailTemplate = (updateData) => {
-  const { clientName, clientEmail, leadId, serviceName, updateTitle, updateDescription, status, progressPercentage } = updateData;
+  const { clientName, clientEmail, serviceId, leadId, serviceName, updateTitle, updateDescription, status, progressPercentage } = updateData;
+  const trackingId = serviceId || leadId;
   
   const statusColor = status === "in_progress" ? successColor : status === "pending" ? accentColor : primaryColor;
   const statusLabel = status === "in_progress" ? "In Progress" : status === "pending" ? "Pending" : "Review";
   
   return {
-    subject: `Lead Update - ${updateTitle} | Lead ID: ${leadId}`,
+    subject: `Service Update - ${updateTitle} | Service ID: ${trackingId}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
         ${emailHeader()}
@@ -230,7 +233,7 @@ export const leadUpdateEmailTemplate = (updateData) => {
           
           <div style="background-color: ${lightBg}; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
             <h3 style="color: ${primaryColor}; margin-top: 0; font-size: 16px;">Progress Overview</h3>
-            <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 13px;"><strong>Lead ID:</strong> ${leadId}</p>
+            <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 13px;"><strong>Service ID:</strong> ${trackingId}</p>
             <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 13px;"><strong>Service:</strong> ${serviceName}</p>
             
             <div style="background-color: white; padding: 15px; border-radius: 6px;">
@@ -261,10 +264,11 @@ export const leadUpdateEmailTemplate = (updateData) => {
 
 // Admin notification for updates
 export const adminUpdateNotificationTemplate = (updateData) => {
-  const { clientName, leadId, serviceName, updateTitle, updateDescription } = updateData;
+  const { clientName, serviceId, leadId, serviceName, updateTitle, updateDescription } = updateData;
+  const trackingId = serviceId || leadId;
   
   return {
-    subject: `Update Notification - ${serviceName} (Lead ID: ${leadId})`,
+    subject: `Update Notification - ${serviceName} (Service ID: ${trackingId})`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
         ${emailHeader()}
@@ -274,7 +278,7 @@ export const adminUpdateNotificationTemplate = (updateData) => {
           
           <div style="background-color: ${lightBg}; padding: 20px; border-radius: 8px; border-left: 4px solid ${primaryColor};">
             <p style="margin: 0 0 12px 0; color: ${textColor};"><strong>Client:</strong> ${clientName}</p>
-            <p style="margin: 0 0 12px 0; color: ${textColor};"><strong>Lead ID:</strong> <code style="background-color: white; padding: 5px 10px; border-radius: 4px; font-family: monospace;">${leadId}</code></p>
+            <p style="margin: 0 0 12px 0; color: ${textColor};"><strong>Service ID:</strong> <code style="background-color: white; padding: 5px 10px; border-radius: 4px; font-family: monospace;">${trackingId}</code></p>
             <p style="margin: 0 0 12px 0; color: ${textColor};"><strong>Service:</strong> ${serviceName}</p>
             <hr style="border: none; border-top: 1px solid #d1d5db; margin: 15px 0;">
             <p style="margin: 0 0 12px 0; color: ${textColor};"><strong>Update:</strong> ${updateTitle}</p>

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { MdAdd, MdEdit, MdDelete, MdSearch, MdVisibility, MdStar } from "react-icons/md";
+import {
+  MdAdd,
+  MdEdit,
+  MdDelete,
+  MdSearch,
+  MdVisibility,
+  MdStar,
+} from "react-icons/md";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../../utils/confirmDialog";
@@ -65,13 +72,35 @@ const Services = () => {
           toast.success("Service deleted successfully!");
         } catch (err) {
           console.error("deleteService", err);
-          toast.error(err.response?.data?.message || "Failed to delete service");
+          toast.error(
+            err.response?.data?.message || "Failed to delete service",
+          );
         }
       },
       () => {
         // Cancelled
-      }
+      },
     );
+  };
+
+  const handleVisibilityToggle = async (svc) => {
+    try {
+      const res = await axios.put(`/services/${svc._id}`, {
+        isVisible: !svc.isVisible,
+      });
+
+      if (res.data?.data) {
+        setServices((prev) =>
+          prev.map((s) => (s._id === svc._id ? res.data.data : s)),
+        );
+      }
+      toast.success(
+        `Service is now ${!svc.isVisible ? "Visible" : "Not Visible"}`,
+      );
+    } catch (err) {
+      console.error("toggleVisibility", err);
+      toast.error(err.response?.data?.message || "Failed to update visibility");
+    }
   };
 
   const filtered = services.filter((s) => {
@@ -120,6 +149,7 @@ const Services = () => {
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Sub-Category</th>
+              <th className="px-4 py-3">Visibility</th>
               <th className="px-4 py-3">Featured</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
@@ -146,6 +176,23 @@ const Services = () => {
                   </td>
                   <td className="px-4 py-3 align-top">
                     {getDisplayName(svc.subCategory)}
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    {svc.isVisible ? (
+                      <span className="text-green-600 font-semibold">Yes</span>
+                    ) : (
+                      <span className="text-gray-400">No</span>
+                    )}{" "}
+                    | {" "}
+                    <button
+                      onClick={() => handleVisibilityToggle(svc)}
+                      className="text-indigo-600 mr-3"
+                      title={
+                        svc.isVisible ? "Mark Not Visible" : "Mark Visible"
+                      }
+                    >
+                      {svc.isVisible ? "Hide" : "Show"}
+                    </button>
                   </td>
                   <td className="px-4 py-3 align-top">
                     {svc.Featured?.isFeatured ? (

@@ -23,7 +23,7 @@ export const getAllLeads = async (req, res, next) => {
 
 export const assignLeadToRM = async (req, res, next) => {
   try {
-    const { leadId } = req.params;
+    const serviceId = req.params.serviceId || req.params.leadId;
     const { rmId, stageName } = req.body;
     const adminId = req.user._id;
 
@@ -66,7 +66,7 @@ export const assignLeadToRM = async (req, res, next) => {
     }
 
     const updatedLead = await Leads.findByIdAndUpdate(
-      leadId,
+      serviceId,
       updateData,
       { new: true }
     ).populate("assignedTo", "fullName email phone role");
@@ -86,7 +86,7 @@ export const assignLeadToRM = async (req, res, next) => {
           rmName: updatedLead.assignedTo.fullName,
           rmEmail: updatedLead.assignedTo.email,
           rmPhone: updatedLead.assignedTo.phone,
-          leadId: updatedLead.leadID,
+          serviceId: updatedLead.serviceID || updatedLead.leadID,
           serviceName: updatedLead.interestedService,
         });
       } catch (emailError) {

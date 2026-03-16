@@ -2,10 +2,16 @@ import mongoose from "mongoose";
 
 const leadsSchema = mongoose.Schema(
   {
-    leadID: {
+    serviceID: {
       type: String,
       required: true,
       unique: true,
+      sparse: true,
+    },
+    leadID: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
     clientName: {
       type: String,
@@ -109,5 +115,16 @@ const leadsSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Keep legacy leadID and new serviceID in sync during transition.
+leadsSchema.pre("validate", function syncServiceAndLeadId() {
+  if (!this.serviceID && this.leadID) {
+    this.serviceID = this.leadID;
+  }
+  if (!this.leadID && this.serviceID) {
+    this.leadID = this.serviceID;
+  }
+});
+
 const Leads = mongoose.model("Leads", leadsSchema);
 export default Leads;

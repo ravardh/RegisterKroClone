@@ -100,6 +100,26 @@ const serviceSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    isVisible: {
+      type: Boolean,
+      default: true,
+    },
+    documents: [
+      {
+        displayName: {
+          type: String,
+          required: true,
+        },
+        filename: {
+          type: String,
+          required: true,
+        },
+        url: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

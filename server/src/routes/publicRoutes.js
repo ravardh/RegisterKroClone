@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.post("/contact", ContactUs);
 router.post("/lead", LeadCapture);
-router.get("/track/:leadId", TrackService);
+router.get("/track/:serviceId", TrackService);
 router.post("/feedback", PostFeedback);
 router.get("/feedback", getAllFeedback);
 router.get("/feedback/:id", getFeedbackByserviceId);

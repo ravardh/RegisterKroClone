@@ -36,8 +36,7 @@ const ContactForm = () => {
       return;
     }
     
-    // Email validation - only accept major providers
-    const allowedDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'protonmail.com'];
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!contactData.email.trim()) {
       toast.error("Email is required");
@@ -45,12 +44,6 @@ const ContactForm = () => {
     } else if (!emailRegex.test(contactData.email)) {
       toast.error("Please enter a valid email address");
       return;
-    } else {
-      const emailDomain = contactData.email.toLowerCase().split('@')[1];
-      if (!allowedDomains.includes(emailDomain)) {
-        toast.error("Invalid email domain");
-        return;
-      }
     }
     
     // Phone validation - only 10 digits

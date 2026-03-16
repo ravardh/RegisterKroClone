@@ -21,7 +21,7 @@ export const AssignedLeads = async (req, res, next) => {
 
 export const UpdateLeadStage = async (req, res, next) => {
   try {
-    const { leadId } = req.params;
+    const serviceId = req.params.serviceId || req.params.leadId;
     const { stageName } = req.body;
     const rmId = req.user._id;
 
@@ -50,7 +50,7 @@ export const UpdateLeadStage = async (req, res, next) => {
 
     // Add the new stage to the leadStages array
     const updatedLead = await Leads.findByIdAndUpdate(
-      leadId,
+      serviceId,
       {
         $push: {
           leadStages: {
@@ -89,7 +89,7 @@ export const UpdateLeadStage = async (req, res, next) => {
         await sendLeadUpdateEmail({
           clientName: updatedLead.clientName,
           clientEmail: updatedLead.clientEmail,
-          leadId: updatedLead.leadID,
+          serviceId: updatedLead.serviceID || updatedLead.leadID,
           serviceName: updatedLead.interestedService,
           updateTitle: `Service ${stageName}`,
           updateDescription: `Your service request has been ${stageName}. Our team is working on it.`,
@@ -106,9 +106,9 @@ export const UpdateLeadStage = async (req, res, next) => {
     try {
       await sendAdminUpdateNotification({
         clientName: updatedLead.clientName,
-        leadId: updatedLead.leadID,
+        serviceId: updatedLead.serviceID || updatedLead.leadID,
         serviceName: updatedLead.interestedService,
-        updateTitle: `Lead Stage Updated to ${stageName}`,
+        updateTitle: `Service Stage Updated to ${stageName}`,
         updateDescription: `Client ${updatedLead.clientName} (${updatedLead.clientEmail}) has been moved to stage: ${stageName}`,
       });
     } catch (emailError) {
@@ -127,7 +127,7 @@ export const UpdateLeadStage = async (req, res, next) => {
 
 export const UpdateLeadStatus = async (req, res, next) => {
   try {
-    const { leadId } = req.params;
+    const serviceId = req.params.serviceId || req.params.leadId;
     const { leadStatus, closeRemarks } = req.body;
 
     if (!leadStatus) {
@@ -144,7 +144,7 @@ export const UpdateLeadStatus = async (req, res, next) => {
     }
 
     const updatedLead = await Leads.findByIdAndUpdate(
-      leadId,
+      serviceId,
       {
         leadStatus,
         closeRemarks: closeRemarks || "",

@@ -17,6 +17,7 @@ const AddServiceModal = ({
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [formData, setFormData] = useState({
+    isVisible: true,
     category: "",
     subCategory: "",
     serviceName: "",
@@ -29,13 +30,27 @@ const AddServiceModal = ({
     Featured: { isFeatured: false, featureOrder: "" },
     offer: "",
     faqs: [{ question: "", answer: "" }],
+    documents: [],
   });
+  const [newDocuments, setNewDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeDescTab, setActiveDescTab] = useState(0);
 
   const quillRefs = useRef([]);
   const quillInstances = useRef([]);
+  const fileInputRef = useRef(null);
+
+  const handleAddDocument = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewDocuments((prev) => [...prev, file]);
+    e.target.value = "";
+  };
+
+  const handleRemoveNewDoc = (index) => {
+    setNewDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     const style = document.createElement("style");
@@ -56,6 +71,7 @@ const AddServiceModal = ({
       fetchCategories();
       if (editingService) {
         setFormData({
+          isVisible: editingService.isVisible ?? true,
           category: editingService.category?._id || editingService.category,
           subCategory:
             editingService.subCategory?._id || editingService.subCategory,
@@ -91,11 +107,15 @@ const AddServiceModal = ({
             featureOrder: editingService.Featured?.featureOrder || "",
           },
           offer: editingService.offer || "",
+          documents: editingService.documents || [],
         });
+        setNewDocuments([]);
         setActiveDescTab(0);
         fetchSubCategories(
           editingService.category?._id || editingService.category
         );
+      } else {
+        setNewDocuments([]);
       }
     }
   }, [isOpen, editingService]);
@@ -351,6 +371,7 @@ const AddServiceModal = ({
       }
 
       const submitData = {
+        isVisible: formData.isVisible,
         category: formData.category,
         subCategory: formData.subCategory,
         serviceName: formData.serviceName,
@@ -377,6 +398,7 @@ const AddServiceModal = ({
             : undefined,
         },
         offer: formData.offer?.trim() || null,
+        documents: formData.documents || [],
       };
 
       // Validate at least one description tab has content
@@ -386,9 +408,33 @@ const AddServiceModal = ({
         return;
       }
 
+      const formPayload = new FormData();
+      formPayload.append("isVisible", String(submitData.isVisible));
+      formPayload.append("category", submitData.category);
+      formPayload.append("subCategory", submitData.subCategory);
+      formPayload.append("serviceName", submitData.serviceName);
+      formPayload.append("OneLinner", submitData.OneLinner);
+      formPayload.append("priceTag", submitData.priceTag);
+      formPayload.append("shortDescription", submitData.shortDescription);
+      formPayload.append("topPointers", JSON.stringify(submitData.topPointers));
+      formPayload.append("description", JSON.stringify(submitData.description));
+      formPayload.append("faqs", JSON.stringify(submitData.faqs));
+      formPayload.append("packages", JSON.stringify(submitData.packages));
+      formPayload.append("Featured", JSON.stringify(submitData.Featured));
+      formPayload.append("offer", submitData.offer || "");
+      formPayload.append("documents", JSON.stringify(submitData.documents));
+
+      newDocuments.forEach((file) => {
+        formPayload.append("documents", file);
+      });
+
       const res = editingService
-        ? await axios.put(`/services/${editingService._id}`, submitData)
-        : await axios.post("/services", submitData);
+        ? await axios.put(`/services/${editingService._id}`, formPayload, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        : await axios.post("/services", formPayload, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
 
       if (res.data.data) {
         toast.success(`Service ${editingService ? 'updated' : 'added'} successfully!`);
@@ -405,6 +451,7 @@ const AddServiceModal = ({
 
   const resetForm = () => {
     setFormData({
+      isVisible: true,
       category: "",
       subCategory: "",
       serviceName: "",
@@ -417,7 +464,9 @@ const AddServiceModal = ({
       Featured: { isFeatured: false, featureOrder: "" },
       offer: "",
       faqs: [{ question: "", answer: "" }],
+      documents: [],
     });
+    setNewDocuments([]);
 
     // Cleanup all Quill instances
     quillInstances.current.forEach((q) => {
@@ -461,6 +510,32 @@ const AddServiceModal = ({
                 {error}
               </div>
             )}
+
+            {/* Visibility Toggle */}
+            <div className="rounded-lg border border-gray-200 p-3 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Visibility</p>
+                  <p className="text-xs text-gray-500">Set whether this service appears on public pages.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isVisible: !prev.isVisible,
+                    }))
+                  }
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                    formData.isVisible
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {formData.isVisible ? "Visible" : "Not Visible"}
+                </button>
+              </div>
+            </div>
 
             {/* Category */}
             <div>
@@ -822,6 +897,77 @@ const AddServiceModal = ({
                 placeholder="e.g. 20% off for first-time customers (optional)"
                 disabled={!formData.subCategory}
               />
+            </div>
+
+            {/* Documents */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Service Documents
+              </label>
+
+              {/* Hidden file input — triggered one at a time */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.xls,.xlsx,.ppt,.pptx,.doc,.docx,.txt,.csv"
+                onChange={handleAddDocument}
+                className="hidden"
+                disabled={!formData.subCategory}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={!formData.subCategory}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <MdAdd className="w-4 h-4" /> Add Document
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Allowed: PDF, XLS, XLSX, PPT, PPTX, DOC, DOCX, TXT, CSV (max 10MB each)
+              </p>
+
+              {/* Existing saved documents */}
+              {formData.documents?.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Saved Documents</p>
+                  {formData.documents.map((doc, index) => (
+                    <div key={`${doc.url}-${index}`} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                      <span className="truncate text-gray-700">{doc.displayName || doc.name}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            documents: prev.documents.filter((_, i) => i !== index),
+                          }))
+                        }
+                        className="ml-3 text-xs text-red-600 hover:text-red-700 font-medium flex-shrink-0"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Newly queued documents (not yet uploaded) */}
+              {newDocuments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Queued for Upload</p>
+                  {newDocuments.map((doc, index) => (
+                    <div key={`${doc.name}-${doc.size}-${index}`} className="flex items-center justify-between text-sm bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                      <span className="truncate text-gray-700">{doc.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNewDoc(index)}
+                        className="ml-3 text-xs text-red-600 hover:text-red-700 font-medium flex-shrink-0"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Description Tabs */}

@@ -165,7 +165,7 @@ const LeadsManage = () => {
                         {lead.clientName}
                       </h3>
                       <span className="text-xs text-gray-400 shrink-0">
-                        #{lead.leadID}
+                        #{lead.serviceID || lead.leadID}
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5 truncate">

@@ -13,7 +13,7 @@ const TrackStatus = () => {
     "name": "Track Application Status",
     "description": "Track the status of your business application with TaxProSolution"
   };
-  const [leadId, setLeadId] = useState("");
+  const [serviceIdInput, setServiceIdInput] = useState("");
   const [trackingData, setTrackingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -54,8 +54,8 @@ const TrackStatus = () => {
   const handleGetStatus = async (e) => {
     e.preventDefault();
 
-    if (!leadId.trim()) {
-      toast.error("Please enter a lead ID");
+    if (!serviceIdInput.trim()) {
+      toast.error("Please enter a service ID");
       return;
     }
 
@@ -64,13 +64,13 @@ const TrackStatus = () => {
     setTrackingData(null);
 
     try {
-      const response = await axios.get(`/public/track/${leadId}`);
+      const response = await axios.get(`/public/track/${serviceIdInput}`);
       setTrackingData(response.data.data);
-      toast.success("Lead information found!");
+      toast.success("Service information found!");
     } catch (err) {
       const errorMsg =
         err.response?.data?.message ||
-        "Lead not found. Please check the ID and try again.";
+        "Service not found. Please check the ID and try again.";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -109,13 +109,13 @@ const TrackStatus = () => {
                   <form onSubmit={handleGetStatus} className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-gray-700">
-                        Lead ID
+                        Service ID
                       </label>
                       <input
                         type="text"
-                        value={leadId}
-                        onChange={(e) => setLeadId(e.target.value)}
-                        placeholder="e.g., LEAD-1736601234567"
+                        value={serviceIdInput}
+                        onChange={(e) => setServiceIdInput(e.target.value)}
+                        placeholder="e.g., 160326+9876543210+10001"
                         className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm md:text-base"
                       />
                     </div>
@@ -140,7 +140,7 @@ const TrackStatus = () => {
                   Track your application
                 </h1>
                 <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-                  Enter your Lead ID to check the latest status of your
+                  Enter your Service ID to check the latest status of your
                   application instantly.
                 </p>
               </section>
@@ -166,9 +166,9 @@ const TrackStatus = () => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Lead ID</p>
+                        <p className="text-sm text-gray-600">Service ID</p>
                         <p className="text-base font-semibold text-gray-900">
-                          {trackingData.leadId}
+                          {trackingData.serviceId || trackingData.leadId}
                         </p>
                       </div>
                       <div>

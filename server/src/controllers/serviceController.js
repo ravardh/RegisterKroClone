@@ -1,6 +1,42 @@
 import Service from "../models/ServiceModel.js";
 import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
+import fs from "fs";
+import path from "path";
+
+const parseMaybeJson = (value, fallback) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+const parseBoolean = (value, fallback = false) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true";
+  }
+  return Boolean(value);
+};
+
+const mapUploadedDocuments = (files = []) =>
+  files.map((file) => ({
+    displayName: file.originalname,
+    filename: file.filename,
+    url: `/uploads/service-documents/${file.filename}`,
+  }));
 
 const sanitizeFaqs = (faqs) => {
   if (!Array.isArray(faqs)) {
@@ -33,21 +69,15 @@ export const getAllServices = async (req, res, next) => {
 
 export const createService = async (req, res, next) => {
   try {
-    const {
-      category,
-      subCategory,
-      serviceName,
-      OneLinner,
-      priceTag,
-      shortDescription,
-      topPointers,
-      description,
-      faqs,
-      packages,
-      isActive,
-      Featured,
-      offer,
-    } = req.body;
+    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer } = req.body;
+    const topPointers = parseMaybeJson(req.body.topPointers, []);
+    const description = parseMaybeJson(req.body.description, []);
+    const faqs = parseMaybeJson(req.body.faqs, []);
+    const packages = parseMaybeJson(req.body.packages, []);
+    const Featured = parseMaybeJson(req.body.Featured, { isFeatured: false });
+    const isActive = parseBoolean(req.body.isActive, true);
+    const isVisible = parseBoolean(req.body.isVisible, true);
+    const uploadedDocuments = mapUploadedDocuments(req.files);
 
     if (
       !category ||
@@ -106,9 +136,11 @@ export const createService = async (req, res, next) => {
       description,
       faqs: sanitizedFaqs,
       packages: packages || [],
-      isActive: typeof isActive === "boolean" ? isActive : true,
+      isActive,
+      isVisible,
       Featured: Featured || { isFeatured: false },
       offer: offer || null,
+      documents: uploadedDocuments,
       lastEditedBy: req.user._id,
     });
 
@@ -129,21 +161,16 @@ export const createService = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const {
-      category,
-      subCategory,
-      serviceName,
-      OneLinner,
-      priceTag,
-      shortDescription,
-      topPointers,
-      description,
-      faqs,
-      packages,
-      isActive,
-      Featured,
-      offer,
-    } = req.body;
+    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer } = req.body;
+    const topPointers = parseMaybeJson(req.body.topPointers, undefined);
+    const description = parseMaybeJson(req.body.description, undefined);
+    const faqs = parseMaybeJson(req.body.faqs, undefined);
+    const packages = parseMaybeJson(req.body.packages, undefined);
+    const Featured = parseMaybeJson(req.body.Featured, undefined);
+    const documents = parseMaybeJson(req.body.documents, undefined);
+    const hasIsActive = req.body.isActive !== undefined;
+    const hasIsVisible = req.body.isVisible !== undefined;
+    const uploadedDocuments = mapUploadedDocuments(req.files);
 
     if (!id) {
       const error = new Error("Service ID is required");
@@ -169,7 +196,7 @@ export const updateService = async (req, res, next) => {
     }
 
     // Validate packages limit
-    if (packages && packages.length > 3) {
+    if (Array.isArray(packages) && packages.length > 3) {
       const error = new Error("Maximum 3 packages allowed per service");
       error.statusCode = 400;
       return next(error);
@@ -182,9 +209,12 @@ export const updateService = async (req, res, next) => {
       return next(error);
     }
 
-    const sanitizedFaqs = sanitizeFaqs(faqs);
-    const shouldUpdateFaqs = faqs !== undefined;
-    const hasIsActive = typeof isActive === "boolean";
+    const sanitizedFaqs = faqs !== undefined ? sanitizeFaqs(faqs) : existingService.faqs;
+    const parsedIsActive = parseBoolean(req.body.isActive, existingService.isActive);
+    const parsedIsVisible = parseBoolean(req.body.isVisible, existingService.isVisible);
+    const finalDocuments = documents !== undefined
+      ? [...documents, ...uploadedDocuments]
+      : [...(existingService.documents || []), ...uploadedDocuments];
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
@@ -195,13 +225,15 @@ export const updateService = async (req, res, next) => {
         OneLinner: OneLinner || existingService.OneLinner,
         priceTag: priceTag || existingService.priceTag,
         shortDescription: shortDescription || existingService.shortDescription,
-        topPointers: topPointers || existingService.topPointers,
+        topPointers: topPointers !== undefined ? topPointers : existingService.topPointers,
         description: description !== undefined ? description : existingService.description,
-        faqs: shouldUpdateFaqs ? sanitizedFaqs : existingService.faqs,
+        faqs: sanitizedFaqs,
         packages: packages !== undefined ? packages : existingService.packages,
-        isActive: hasIsActive ? isActive : existingService.isActive,
+        isActive: hasIsActive ? parsedIsActive : existingService.isActive,
+        isVisible: hasIsVisible ? parsedIsVisible : existingService.isVisible,
         Featured: Featured || existingService.Featured,
         offer: offer !== undefined ? offer : existingService.offer,
+        documents: finalDocuments,
         lastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }
@@ -572,6 +604,53 @@ export const deleteSubCategory = async (req, res, next) => {
     res.status(200).json({
       message: "Sub-category deleted successfully",
       data: subCategory,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const purgeOrphanedDocuments = async (req, res, next) => {
+  try {
+    const uploadsDir = path.join(process.cwd(), "uploads", "service-documents");
+
+    // Collect all filenames referenced in the DB
+    const services = await Service.find({}, "documents").lean();
+    const referencedFilenames = new Set();
+    for (const svc of services) {
+      for (const doc of svc.documents || []) {
+        if (doc.filename) referencedFilenames.add(doc.filename);
+        // Fallback: derive filename from url for legacy records
+        else if (doc.url) referencedFilenames.add(path.basename(doc.url));
+      }
+    }
+
+    // Read the uploads directory
+    let filesOnDisk = [];
+    try {
+      filesOnDisk = fs.readdirSync(uploadsDir);
+    } catch {
+      // Directory doesn't exist yet — nothing to purge
+      return res.status(200).json({ message: "No uploads directory found.", deleted: [] });
+    }
+
+    const deleted = [];
+    const errors = [];
+    for (const filename of filesOnDisk) {
+      if (!referencedFilenames.has(filename)) {
+        try {
+          fs.unlinkSync(path.join(uploadsDir, filename));
+          deleted.push(filename);
+        } catch (err) {
+          errors.push({ filename, error: err.message });
+        }
+      }
+    }
+
+    res.status(200).json({
+      message: `Purge complete. Deleted ${deleted.length} orphaned file(s).`,
+      deleted,
+      errors,
     });
   } catch (error) {
     next(error);

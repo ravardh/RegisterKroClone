@@ -17,7 +17,7 @@ const Footer = () => {
   useEffect(() => {
     if (allCategories.length > 0) {
       const mainCategories = allCategories
-        .filter(cat => {
+        .filter((cat) => {
           const order = parseInt(cat.headerOrder);
           return !isNaN(order) && order >= 1 && order <= 5;
         })
@@ -40,7 +40,10 @@ const Footer = () => {
               <div className="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-bold text-white flex-shrink-0">
                 TP
               </div>
-              <span to={"/"} className="text-lg sm:text-xl font-semibold truncate">
+              <span
+                to={"/"}
+                className="text-lg sm:text-xl font-semibold truncate"
+              >
                 {CommonData.companyName}
               </span>
             </Link>
@@ -81,7 +84,9 @@ const Footer = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 md:w-2/3 w-full">
             <div className="min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">Company</h4>
+              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">
+                Company
+              </h4>
               <ul className="text-xs sm:text-sm text-gray-400 space-y-1 sm:space-y-2">
                 <li>
                   <Link to="/about" className="hover:text-white break-words">
@@ -97,7 +102,9 @@ const Footer = () => {
             </div>
 
             <div className="min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">Popular Services</h4>
+              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">
+                Popular Services
+              </h4>
               {popularCategories.length > 0 ? (
                 <ul className="text-xs sm:text-sm text-gray-400 space-y-1 sm:space-y-2">
                   {popularCategories.map((category) => (
@@ -115,7 +122,9 @@ const Footer = () => {
             </div>
 
             <div className="min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">Support</h4>
+              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3">
+                Support
+              </h4>
               <ul className="text-xs sm:text-sm text-gray-400 space-y-1 sm:space-y-2">
                 <li>
                   <Link to="/contact" className="hover:text-white break-words">
@@ -128,8 +137,16 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/trackStatus" className="hover:text-white break-words">
+                  <Link
+                    to="/trackStatus"
+                    className="hover:text-white break-words"
+                  >
                     Track Status
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/login" className="hover:text-white break-words">
+                    Login
                   </Link>
                 </li>
               </ul>

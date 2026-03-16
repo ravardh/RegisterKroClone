@@ -4,6 +4,7 @@ import {
   createService,
   updateService,
   deleteService,
+  purgeOrphanedDocuments,
   getAllCategories,
   createCategory,
   updateCategory,
@@ -14,6 +15,7 @@ import {
   deleteSubCategory,
 } from "../controllers/serviceController.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
+import { uploadServiceDocuments } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -22,9 +24,12 @@ router.use(adminProtect);
 
 // Service routes
 router.get("/", getAllServices);
-router.post("/", createService);
-router.put("/:id", updateService);
+router.post("/", uploadServiceDocuments, createService);
+router.put("/:id", uploadServiceDocuments, updateService);
 router.delete("/:id", deleteService);
+
+// Maintenance
+router.delete("/maintenance/purge-orphaned-documents", purgeOrphanedDocuments);
 
 // Category CRUD routes
 router.get("/categories-list", getAllCategories);

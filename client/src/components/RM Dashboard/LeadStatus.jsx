@@ -63,10 +63,10 @@ const LeadStatus = () => {
     return getCurrentStage(lead) === filterStage;
   });
 
-  const handleStageChange = async (leadId, newStage) => {
+  const handleStageChange = async (serviceRecordId, newStage) => {
     try {
       const payload = { stageName: newStage };
-      await axios.put(`/rm/update-stage/${leadId}`, payload);
+      await axios.put(`/rm/update-stage/${serviceRecordId}`, payload);
       toast.success("Lead stage updated successfully");
       setEditingLead(null);
       setSelectedStage("");
@@ -156,7 +156,7 @@ const LeadStatus = () => {
                       <h3 className="text-xs sm:text-sm font-medium text-gray-900 break-words">
                         {lead.clientName}
                       </h3>
-                      <span className="text-xs text-gray-400">#{lead.leadID}</span>
+                      <span className="text-xs text-gray-400">#{lead.serviceID || lead.leadID}</span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs text-gray-500 mb-2">

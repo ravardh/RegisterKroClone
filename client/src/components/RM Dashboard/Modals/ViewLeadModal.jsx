@@ -31,10 +31,10 @@ const ViewLeadModal = ({ showModal, setShowModal, selectedLead }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-gray-600">
-                Lead ID
+                Service ID
               </label>
               <div className="text-lg font-medium text-gray-900">
-                {selectedLead.leadID}
+                {selectedLead.serviceID || selectedLead.leadID}
               </div>
             </div>
             <div>

@@ -88,7 +88,20 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
           </div>
 
           {/* Is Featured */}
-          <div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Visibility
+              </label>
+              <p className="text-gray-900">
+                {service.isVisible ? (
+                  <span className="text-green-600 font-semibold">Yes</span>
+                ) : (
+                  <span className="text-gray-500">No</span>
+                )}
+              </p>
+            </div>
+            <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">
               Featured Status
             </label>
@@ -101,7 +114,34 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
                 <span className="text-gray-500">Not Featured</span>
               )}
             </p>
+            </div>
           </div>
+
+          {service.documents && service.documents.length > 0 && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Documents
+              </label>
+              <div className="space-y-2">
+                {service.documents.map((doc, index) => (
+                  <div
+                    key={`${doc.url}-${index}`}
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
+                  >
+                    <span className="text-sm text-gray-700 truncate">{doc.displayName || doc.name}</span>
+                    <a
+                      href={`${import.meta.env.VITE_BACKEND_URL}${doc.url}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 text-sm font-medium hover:underline"
+                    >
+                      Download
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Packages */}
           {service.packages && service.packages.length > 0 && (
