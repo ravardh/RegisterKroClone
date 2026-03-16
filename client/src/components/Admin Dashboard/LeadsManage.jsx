@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
-import { FaEdit, FaCheckCircle } from "react-icons/fa";
+import { FaEdit, FaCheckCircle, FaDownload } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 const stages = [
   "new",
@@ -35,6 +36,10 @@ const LeadsManage = () => {
   const [selectedRM, setSelectedRM] = useState("");
   const [selectedStage, setSelectedStage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportStartDate, setExportStartDate] = useState("");
+  const [exportEndDate, setExportEndDate] = useState("");
+  const [exportStage, setExportStage] = useState("all");
 
   useEffect(() => {
     fetchLeads();
@@ -111,10 +116,53 @@ const LeadsManage = () => {
     }
   };
 
-  const filteredLeads =
-    filterStage === "all"
-      ? leads
-      : leads.filter((lead) => getCurrentStage(lead) === filterStage);
+  const filteredLeads = leads.filter(
+    (lead) => filterStage === "all" || getCurrentStage(lead) === filterStage
+  );
+
+  const handleDownloadExcel = () => {
+    const exportLeads = leads.filter((lead) => {
+      if (exportStage !== "all" && getCurrentStage(lead) !== exportStage) return false;
+      if (exportStartDate || exportEndDate) {
+        const created = new Date(lead.createdAt);
+        const start = exportStartDate ? new Date(exportStartDate) : null;
+        const end = exportEndDate ? new Date(exportEndDate) : null;
+        if (end) end.setHours(23, 59, 59, 999);
+        if (start && created < start) return false;
+        if (end && created > end) return false;
+      }
+      return true;
+    });
+
+    if (exportLeads.length === 0) {
+      toast.error("No leads found for the selected date range");
+      return;
+    }
+    const rows = exportLeads.map((lead) => ({
+      "Service ID": lead.serviceID || lead.leadID || "",
+      "Client Name": lead.clientName || "",
+      "Email": lead.clientEmail || "",
+      "Phone": lead.clientPhone || "",
+      "Interested Service": lead.interestedService || "",
+      "Selected Package": lead.selectedPackage || "",
+      "State": lead.state || "",
+      "Assigned RM": lead.assignedTo?.fullName || "Not Assigned",
+      "Current Stage": getCurrentStage(lead) || "No Stage",
+      "Stage History": (lead.leadStages || []).map((s) => s.stageName).join(" → "),
+      "Close Remarks": lead.closeRemarks || "",
+      "Created At": lead.createdAt ? new Date(lead.createdAt).toLocaleString() : "",
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    const fileName = `Leads_${exportStartDate || "all"}_to_${exportEndDate || "all"}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    toast.success(`Exported ${exportLeads.length} lead(s)`);
+    setIsExportModalOpen(false);
+    setExportStartDate("");
+    setExportEndDate("");
+    setExportStage("all");
+  };
 
   if (loading) {
     return (
@@ -129,20 +177,30 @@ const LeadsManage = () => {
 
   return (
     <div className="bg-white rounded-lg p-4">
-      <div className="flex justify-between items-center mb-6 gap-3">
+      {/* Header */}
+      <div className="flex justify-between items-center gap-3 mb-6">
         <h2 className="text-lg font-semibold text-gray-900">Leads</h2>
-        <select
-          value={filterStage}
-          onChange={(e) => setFilterStage(e.target.value)}
-          className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-(--primary)"
-        >
-          <option value="all">All</option>
-          {stages.map((stage) => (
-            <option key={stage} value={stage}>
-              {stage}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            value={filterStage}
+            onChange={(e) => setFilterStage(e.target.value)}
+            className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-(--primary)"
+          >
+            <option value="all">All Stages</option>
+            {stages.map((stage) => (
+              <option key={stage} value={stage}>
+                {stage}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+          >
+            <FaDownload size={12} />
+            Export Excel
+          </button>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -236,6 +294,71 @@ const LeadsManage = () => {
           })
         )}
       </div>
+
+      {/* Export Excel Modal */}
+      {isExportModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-base font-bold text-gray-900 mb-1">Export Leads to Excel</h3>
+            <p className="text-xs text-gray-500 mb-5">
+              Leave fields empty to export all leads.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Stage</label>
+                <select
+                  value={exportStage}
+                  onChange={(e) => setExportStage(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="all">All Stages</option>
+                  {stages.map((stage) => (
+                    <option key={stage} value={stage}>{stage}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={exportStartDate}
+                  onChange={(e) => setExportStartDate(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={exportEndDate}
+                  min={exportStartDate || undefined}
+                  onChange={(e) => setExportEndDate(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setIsExportModalOpen(false);
+                  setExportStartDate("");
+                  setExportEndDate("");
+                  setExportStage("all");
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDownloadExcel}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition"
+              >
+                <FaDownload size={12} /> Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Assign/Stage Modal */}
       {isAssignModalOpen && selectedLead && (
