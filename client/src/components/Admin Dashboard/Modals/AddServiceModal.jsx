@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MdClose, MdAdd, MdDelete } from "react-icons/md";
+import { MdClose, MdAdd, MdDelete, MdVisibility } from "react-icons/md";
 import axios from "../../../config/api";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
@@ -36,10 +36,39 @@ const AddServiceModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeDescTab, setActiveDescTab] = useState(0);
+  const [previewDoc, setPreviewDoc] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const quillRefs = useRef([]);
   const quillInstances = useRef([]);
   const fileInputRef = useRef(null);
+
+  const getDocumentUrl = (url) => {
+    if (!url) return "#";
+    if (/^https?:\/\//i.test(url)) return url;
+    const base = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+    const path = url.startsWith("/") ? url : `/${url}`;
+    return `${base}${path}`;
+  };
+
+  const getFileExtension = (name = "") => {
+    return name.split(".").pop()?.toLowerCase() || "";
+  };
+
+  const canPreviewInBrowser = (name = "", mimeType = "") => {
+    const extension = getFileExtension(name);
+    return (
+      mimeType.startsWith("application/pdf") ||
+      mimeType.startsWith("text/") ||
+      ["pdf", "txt", "csv"].includes(extension)
+    );
+  };
+
+  const getOfficePreviewUrl = (url) => {
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+      url,
+    )}`;
+  };
 
   const handleAddDocument = (e) => {
     const file = e.target.files?.[0];
@@ -50,6 +79,57 @@ const AddServiceModal = ({
 
   const handleRemoveNewDoc = (index) => {
     setNewDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePreviewNewDoc = (file) => {
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewDoc({
+      name: file.name,
+      url: previewUrl,
+      isObjectUrl: true,
+      canPreview: canPreviewInBrowser(file.name, file.type),
+    });
+  };
+
+  const handlePreviewSavedDoc = async (doc) => {
+    const name = doc.displayName || doc.name || "Document";
+    const url = getDocumentUrl(doc.url);
+    const extension = getFileExtension(name);
+
+    if (["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(extension)) {
+      setPreviewDoc({
+        name,
+        url: getOfficePreviewUrl(url),
+        isObjectUrl: false,
+        canPreview: true,
+      });
+      return;
+    }
+
+    setPreviewLoading(true);
+    try {
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) throw new Error("Unable to load document preview");
+      const blob = await response.blob();
+      const previewUrl = URL.createObjectURL(blob);
+      setPreviewDoc({
+        name,
+        url: previewUrl,
+        isObjectUrl: true,
+        canPreview: canPreviewInBrowser(name, blob.type),
+      });
+    } catch (error) {
+      toast.error(error.message || "Unable to preview document");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const closePreview = () => {
+    if (previewDoc?.isObjectUrl) {
+      URL.revokeObjectURL(previewDoc.url);
+    }
+    setPreviewDoc(null);
   };
 
   useEffect(() => {
@@ -482,6 +562,7 @@ const AddServiceModal = ({
   };
 
   const handleClose = () => {
+    closePreview();
     resetForm();
     onClose();
   };
@@ -933,18 +1014,28 @@ const AddServiceModal = ({
                   {formData.documents.map((doc, index) => (
                     <div key={`${doc.url}-${index}`} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                       <span className="truncate text-gray-700">{doc.displayName || doc.name}</span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            documents: prev.documents.filter((_, i) => i !== index),
-                          }))
-                        }
-                        className="ml-3 text-xs text-red-600 hover:text-red-700 font-medium flex-shrink-0"
-                      >
-                        Remove
-                      </button>
+                      <div className="ml-3 flex flex-shrink-0 items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handlePreviewSavedDoc(doc)}
+                          disabled={previewLoading}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <MdVisibility className="h-4 w-4" /> Preview
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              documents: prev.documents.filter((_, i) => i !== index),
+                            }))
+                          }
+                          className="text-xs text-red-600 hover:text-red-700 font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -957,13 +1048,22 @@ const AddServiceModal = ({
                   {newDocuments.map((doc, index) => (
                     <div key={`${doc.name}-${doc.size}-${index}`} className="flex items-center justify-between text-sm bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
                       <span className="truncate text-gray-700">{doc.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveNewDoc(index)}
-                        className="ml-3 text-xs text-red-600 hover:text-red-700 font-medium flex-shrink-0"
-                      >
-                        Remove
-                      </button>
+                      <div className="ml-3 flex flex-shrink-0 items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handlePreviewNewDoc(doc)}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                        >
+                          <MdVisibility className="h-4 w-4" /> Preview
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewDoc(index)}
+                          className="text-xs text-red-600 hover:text-red-700 font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1147,6 +1247,50 @@ const AddServiceModal = ({
             </button>
           </div>
         </form>
+
+        {previewDoc && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+            <div className="flex h-[85vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-800">
+                    {previewDoc.name}
+                  </p>
+                  <p className="text-xs text-gray-500">Document Preview</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closePreview}
+                  className="ml-3 text-gray-500 hover:text-gray-700"
+                >
+                  <MdClose className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 bg-gray-100 p-3">
+                {previewDoc.canPreview ? (
+                  <iframe
+                    title={`Preview ${previewDoc.name}`}
+                    src={previewDoc.url}
+                    className="h-full w-full rounded-lg border border-gray-200 bg-white"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        Preview is not available for this file type.
+                      </p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        PDF, TXT, and CSV files can be previewed directly before
+                        upload.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

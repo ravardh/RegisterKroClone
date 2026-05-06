@@ -20,6 +20,8 @@ const Services = () => {
   const [editingService, setEditingService] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const getDisplayName = (entity) => {
     if (!entity) return "";
     if (typeof entity === "string") return entity;
@@ -29,6 +31,10 @@ const Services = () => {
   useEffect(() => {
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, services.length]);
 
   const fetchServices = async () => {
     try {
@@ -113,6 +119,18 @@ const Services = () => {
       getDisplayName(s.subCategory).toLowerCase().includes(q)
     );
   });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const pageStartIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedServices = filtered.slice(
+    pageStartIndex,
+    pageStartIndex + itemsPerPage,
+  );
+  const showingStart = filtered.length === 0 ? 0 : pageStartIndex + 1;
+  const showingEnd = Math.min(pageStartIndex + itemsPerPage, filtered.length);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(Math.min(Math.max(page, 1), totalPages));
+  };
 
   return (
     <div className="p-6">
@@ -142,42 +160,62 @@ const Services = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded shadow overflow-auto">
-        <table className="w-full table-auto">
-          <thead className="bg-gray-50 text-left">
+      <div className="bg-white rounded shadow overflow-auto border border-gray-200">
+        <table className="w-full table-auto border-collapse text-sm">
+          <thead className="bg-gray-100 text-left text-gray-700">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Sub-Category</th>
-              <th className="px-4 py-3">Visibility</th>
-              <th className="px-4 py-3">Featured</th>
-              <th className="px-4 py-3">Actions</th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+               Service Name
+              </th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+                Category
+              </th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+                Sub-Category
+              </th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+                Visibility
+              </th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+                Featured
+              </th>
+              <th className="border border-gray-200 px-4 py-3 font-semibold">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-gray-700">
             {loading ? (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-gray-500">
+                <td
+                  colSpan={6}
+                  className="border border-gray-200 p-6 text-center text-gray-500"
+                >
                   Loading...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-gray-500">
+                <td
+                  colSpan={6}
+                  className="border border-gray-200 p-6 text-center text-gray-500"
+                >
                   No services found
                 </td>
               </tr>
             ) : (
-              filtered.map((svc) => (
-                <tr key={svc._id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 align-top">{svc.serviceName}</td>
-                  <td className="px-4 py-3 align-top">
+              paginatedServices.map((svc) => (
+                <tr key={svc._id} className="hover:bg-blue-50/40">
+                  <td className="border border-gray-200 px-4 py-3 align-top font-medium text-gray-900">
+                    {svc.serviceName}
+                  </td>
+                  <td className="border border-gray-200 px-4 py-3 align-top">
                     {getDisplayName(svc.category)}
                   </td>
-                  <td className="px-4 py-3 align-top">
+                  <td className="border border-gray-200 px-4 py-3 align-top">
                     {getDisplayName(svc.subCategory)}
                   </td>
-                  <td className="px-4 py-3 align-top">
+                  <td className="border border-gray-200 px-4 py-3 align-top">
                     {svc.isVisible ? (
                       <span className="text-green-600 font-semibold">Yes</span>
                     ) : (
@@ -194,7 +232,7 @@ const Services = () => {
                       {svc.isVisible ? "Hide" : "Show"}
                     </button>
                   </td>
-                  <td className="px-4 py-3 align-top">
+                  <td className="border border-gray-200 px-4 py-3 align-top">
                     {svc.Featured?.isFeatured ? (
                       <span className="flex items-center gap-1 text-yellow-600 font-semibold">
                         <MdStar className="w-4 h-4" /> Yes
@@ -203,7 +241,7 @@ const Services = () => {
                       <span className="text-gray-400">No</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 align-top">
+                  <td className="border border-gray-200 px-4 py-3 align-top">
                     <button
                       onClick={() => setSelectedService(svc)}
                       className="text-blue-600 mr-3"
@@ -231,6 +269,33 @@ const Services = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Showing {showingStart} to {showingEnd} of {filtered.length} services
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="rounded border border-gray-300 px-3 py-1.5 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="rounded border border-gray-200 bg-gray-50 px-3 py-1.5 font-medium text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="rounded border border-gray-300 px-3 py-1.5 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       <AddServiceModal

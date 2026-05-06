@@ -1,5 +1,6 @@
 import React from "react";
 import { MdClose, MdEdit, MdDelete } from "react-icons/md";
+import "quill/dist/quill.snow.css";
 
 const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
   if (!service) return null;
@@ -214,7 +215,7 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
                     </h4>
                     <div className="max-h-48 overflow-y-auto">
                       <div
-                        className="text-gray-900 leading-relaxed text-sm"
+                        className="ql-editor text-gray-900 leading-relaxed text-sm !p-0"
                         dangerouslySetInnerHTML={{ __html: desc.content || "" }}
                       />
                     </div>
@@ -224,7 +225,7 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
             ) : (
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-48 overflow-y-auto">
                 <div
-                  className="text-gray-900 leading-relaxed"
+                  className="ql-editor text-gray-900 leading-relaxed !p-0"
                   dangerouslySetInnerHTML={{ __html: service.description || "" }}
                 />
               </div>

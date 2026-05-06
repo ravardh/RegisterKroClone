@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+import dns from "dns";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
@@ -50,8 +51,23 @@ app.use((err, req, res, next) => {
   });
 });
 
+import { validateEnv } from "./src/config/validateEnv.js";
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
-});
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
+const startServer = async () => {
+  try {
+    validateEnv();
+    await connectDB();
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (e) {
+    console.error("Server startup failed:", e.message);
+    process.exit(1);
+  }
+};
+
+startServer();
