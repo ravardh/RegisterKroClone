@@ -81,6 +81,12 @@ const TopHeader = () => {
                 Contact
               </Link>
               <Link
+                to="/blog"
+                className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
+              >
+                Blog
+              </Link>
+              <Link
                 to="/trackStatus"
                 className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300 whitespace-nowrap"
               >

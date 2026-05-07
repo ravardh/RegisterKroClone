@@ -17,8 +17,6 @@ const Header = () => {
   const [mobileSubCategories, setMobileSubCategories] = useState([]);
   const [mobileServices, setMobileServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [subCategories, setSubCategories] = useState([]);
@@ -26,6 +24,7 @@ const Header = () => {
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [allServices, setAllServices] = useState([]);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [isOtherServicesOpen, setIsOtherServicesOpen] = useState(false);
   const headerRef = useRef(null);
   const searchDropdownRef = useRef(null);
   const location = useLocation();
@@ -99,6 +98,9 @@ const Header = () => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setActiveTab(null);
         setSubCategories([]);
+        setIsSubMenuOpen(false);
+        setSelectedSubcategory(null);
+        setIsOtherServicesOpen(false);
       }
     };
 
@@ -106,27 +108,44 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleTabHover = (tabName) => {
-    setActiveTab(tabName);
-    const category = allCategories.find(
-      (c) => c.name.toLowerCase() === tabName.toLowerCase(),
-    );
-    if (category) {
-      setSubCategories(subCategoriesData[category._id] || []);
+  const handleDesktopCategoryClick = (category) => {
+    const isAlreadyOpen = activeTab === category.name;
+
+    setIsOtherServicesOpen(false);
+    setIsSubMenuOpen(false);
+    setSelectedSubcategory(null);
+
+    if (isAlreadyOpen) {
+      setActiveTab(null);
+      setSubCategories([]);
+      return;
     }
+
+    setActiveTab(category.name);
+    setSubCategories(subCategoriesData[category._id] || []);
+  };
+
+  const handleOtherServicesClick = () => {
+    setActiveTab(null);
+    setSubCategories([]);
+    setIsSubMenuOpen(false);
+    setSelectedSubcategory(null);
+    setIsOtherServicesOpen((prev) => !prev);
   };
 
   const handleSubcategoryClick = (subcategory) => {
+    const isAlreadyOpen = selectedSubcategory?._id === subcategory._id;
+
+    if (isAlreadyOpen) {
+      setSelectedSubcategory(null);
+      setIsSubMenuOpen(false);
+      setSubCategoryServices([]);
+      return;
+    }
+
     setSelectedSubcategory(subcategory);
     setIsSubMenuOpen(true);
     setSubCategoryServices(servicesData[subcategory._id] || []);
-  };
-
-  const handleCategorySelect = (category) => {
-    navigate("/services", { state: { selectedCategory: category } });
-    setSearchQuery("");
-    setSearchResults([]);
-    setIsSearching(false);
   };
 
   const handleServiceClick = (serviceId) => {
@@ -135,6 +154,7 @@ const Header = () => {
     setSelectedSubcategory(null);
     setActiveTab(null);
     setSubCategories([]);
+    setIsOtherServicesOpen(false);
   };
 
   const handleMobileTabClick = (tabName) => {
@@ -205,14 +225,12 @@ const Header = () => {
                     <div
                       key={category._id}
                       className="relative"
-                      onMouseEnter={() => handleTabHover(category.name)}
-                      onMouseLeave={() => {
-                        setActiveTab(null);
-                        setSubCategories([]);
-                      }}
                     >
                       {/* Tab Button */}
                       <button
+                        type="button"
+                        onClick={() => handleDesktopCategoryClick(category)}
+                        aria-expanded={activeTab === category.name}
                         className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
                       >
                         {category.name}
@@ -222,21 +240,24 @@ const Header = () => {
                       {activeTab === category.name && subCategories.length > 0 && (
                         <div
                           className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible"
-                          onMouseLeave={() => {
-                            setIsSubMenuOpen(false);
-                            setSelectedSubcategory(null);
-                          }}
                         >
                           <div className="p-3 overflow-y-auto">
                             {subCategories.map((subCat) => (
                               <div
                                 key={subCat._id}
                                 className="relative"
-                                onMouseEnter={() => handleSubcategoryClick(subCat)}
                               >
                                 <button
+                                  type="button"
                                   onClick={() => handleSubcategoryClick(subCat)}
-                                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
+                                  aria-expanded={
+                                    selectedSubcategory?._id === subCat._id
+                                  }
+                                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 ${
+                                    selectedSubcategory?._id === subCat._id
+                                      ? "text-(--primary) bg-blue-50"
+                                      : ""
+                                  }`}
                                 >
                                   <span className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
@@ -294,34 +315,42 @@ const Header = () => {
 
               {/* Other Services - Only show if there are categories with headerOrder > 5 */}
               {filteredOtherServices.length > 0 && (
-                <div className="relative group">
+                <div className="relative">
                   <button
-                    className="font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent group-hover:bg-(--primary)/10 group-hover:rounded-xl "
-                    onClick={() => navigate("/services")}
+                    type="button"
+                    className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${
+                      isOtherServicesOpen ? "bg-(--primary)/10 rounded-xl" : ""
+                    }`}
+                    onClick={handleOtherServicesClick}
+                    aria-expanded={isOtherServicesOpen}
                   >
                     Other Services
                   </button>
 
                   {/* Other Services Dropdown */}
-                  <div className="absolute left-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 animate-in fade-in">
-                    <div className="p-3 max-h-96 overflow-y-auto">
-                      {filteredOtherServices.map((category) => (
-                        <button
-                          key={category._id}
-                          onClick={() => {
-                            setSelectedCategoryName(category.name);
-                            setIsModalOpen(true);
-                          }}
-                          className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
-                        >
-                          <span className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                            {category.name}
-                          </span>
-                        </button>
-                      ))}
+                  {isOtherServicesOpen && (
+                    <div className="absolute left-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 transition-all duration-200 animate-in fade-in">
+                      <div className="p-3 max-h-96 overflow-y-auto">
+                        {filteredOtherServices.map((category) => (
+                          <button
+                            key={category._id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategoryName(category.name);
+                              setIsModalOpen(true);
+                              setIsOtherServicesOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
+                          >
+                            <span className="flex items-center gap-3">
+                              <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
+                              {category.name}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </nav>

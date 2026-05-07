@@ -4,6 +4,7 @@ import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { MdDownload } from "react-icons/md";
 import toast from "react-hot-toast";
+import "quill/dist/quill.snow.css";
 import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
 import { useAppData } from "../context/DataContext";
@@ -68,7 +69,6 @@ const ServiceDetail = () => {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
-  const tabContentRefs = useRef([]);
   const pageContainerRef = useRef(null);
 
   const indianStates = [
@@ -119,51 +119,6 @@ const ServiceDetail = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Auto-activate tabs on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const triggerPoint = window.innerHeight * 0.2; // 20% from top of viewport
-
-      let closestTabIndex = 0;
-      let closestDistance = Infinity;
-
-      tabContentRefs.current.forEach((ref, index) => {
-        if (!ref) return;
-
-        const rect = ref.getBoundingClientRect();
-        const tabTop = rect.top;
-
-        // Distance from the trigger point (20% from top)
-        const distance = Math.abs(tabTop - triggerPoint);
-
-        // Check if this tab's content is in view and closest to trigger point
-        if (
-          tabTop < window.innerHeight &&
-          tabTop > -rect.height &&
-          distance < closestDistance
-        ) {
-          closestDistance = distance;
-          closestTabIndex = index;
-        }
-      });
-
-      setActiveTab(closestTabIndex);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [descriptionTabs.length]);
-
-  // Clean up refs array when description tabs change
-  useEffect(() => {
-    tabContentRefs.current = tabContentRefs.current.slice(
-      0,
-      descriptionTabs.length,
-    );
-  }, [descriptionTabs.length]);
-
   // Calculate maxReviewIndex based on actual reviews from backend
   const maxReviewIndex =
     reviews.length > 0 ? Math.ceil(reviews.length / reviewsPerPage) - 1 : 0;
@@ -183,6 +138,7 @@ const ServiceDetail = () => {
           response.data.data.description.length > 0
         ) {
           setDescriptionTabs(response.data.data.description);
+          setActiveTab(0);
         }
 
         setError(null);
@@ -270,18 +226,8 @@ const ServiceDetail = () => {
     (reviewIndex + 1) * reviewsPerPage,
   );
 
-  const scrollToSection = (tabIndex) => {
+  const handleDescriptionTabClick = (tabIndex) => {
     setActiveTab(tabIndex);
-    const element = document.getElementById(`tab-${tabIndex}`);
-    if (element) {
-      const offset = 140; // Offset for fixed header (64px main header + 60px tab header + 16px padding)
-      const elementPosition =
-        element.getBoundingClientRect().top + window.pageYOffset;
-      window.scrollTo({
-        top: elementPosition - offset,
-        behavior: "smooth",
-      });
-    }
   };
 
   const handleFormChange = (e) => {
@@ -812,7 +758,7 @@ const ServiceDetail = () => {
                   {descriptionTabs.map((tab, index) => (
                     <button
                       key={index}
-                      onClick={() => scrollToSection(index)}
+                      onClick={() => handleDescriptionTabClick(index)}
                       className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
                         activeTab === index
                           ? "border-b-2 border-blue-600 text-blue-600"
@@ -825,32 +771,25 @@ const ServiceDetail = () => {
                 </div>
               </div>
 
-              {/* Tab Content - All sections displayed */}
-              <div className="p-4 sm:p-6 md:p-8 space-y-8 sm:space-y-10 md:space-y-12">
-                {descriptionTabs.map((tab, index) => (
-                  <div
-                    ref={(el) => (tabContentRefs.current[index] = el)}
-                    key={index}
-                    id={`tab-${index}`}
-                    className="scroll-mt-32"
-                  >
-                    <div
-                      className="text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none
-                      prose-headings:text-gray-900 
-                      prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
-                      prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
-                      prose-p:text-gray-700 prose-p:mb-3
-                      prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
-                      prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
-                      prose-li:text-gray-700 prose-li:mb-1
-                      prose-table:w-full prose-table:border-collapse prose-table:my-4
-                      prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                      prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                      prose-strong:font-semibold prose-strong:text-gray-900"
-                      dangerouslySetInnerHTML={{ __html: tab.content }}
-                    />
-                  </div>
-                ))}
+              {/* Active Tab Content */}
+              <div className="p-4 sm:p-6 md:p-8">
+                <div
+                  className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
+                  prose-headings:text-gray-900 
+                  prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
+                  prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+                  prose-p:text-gray-700 prose-p:mb-3
+                  prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+                  prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+                  prose-li:text-gray-700 prose-li:mb-1
+                  prose-table:w-full prose-table:border-collapse prose-table:my-4
+                  prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                  prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
+                  prose-strong:font-semibold prose-strong:text-gray-900"
+                  dangerouslySetInnerHTML={{
+                    __html: descriptionTabs[activeTab]?.content || "",
+                  }}
+                />
               </div>
             </div>
           </div>

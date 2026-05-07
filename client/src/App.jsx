@@ -16,6 +16,8 @@ import Register from "./pages/Register";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
+import Blog from "./pages/Blog";
+import CreateBlog from "./pages/CreateBlog";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
@@ -78,6 +80,8 @@ const Layout = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/sitemap" element={<Sitemap />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/create-blog" element={<CreateBlog />} />
           <Route
             path="/adminDashboard"
             element={
