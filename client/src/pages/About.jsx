@@ -43,7 +43,7 @@ const About = () => {
                 Who We Are
               </h2>
               <p className="text-(--secondary) text-lg leading-relaxed mb-4">
-                RegisterKaro is a leading business services platform dedicated to helping entrepreneurs and businesses navigate the complex world of company registration, compliance, and legal documentation.
+                TaxPro Solution is a leading business services platform dedicated to helping entrepreneurs and businesses navigate the complex world of company registration, compliance, and legal documentation.
               </p>
               <p className="text-(--secondary) text-lg leading-relaxed mb-4">
                 With years of experience and a team of seasoned professionals, we've helped thousands of businesses establish their presence, maintain compliance, and achieve their growth objectives.

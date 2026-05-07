@@ -61,8 +61,9 @@ const ServiceDetail = () => {
     state: "",
     selectedPackage: "",
   });
-  const [hasModalTriggered, setHasModalTriggered] = useState(false);
+  const [hasModalTriggered, setHasModalTriggered] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTopFormVisible, setIsTopFormVisible] = useState(true);
   const formRef = useRef(null);
   const [descriptionTabs, setDescriptionTabs] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -70,6 +71,24 @@ const ServiceDetail = () => {
   const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
   const pageContainerRef = useRef(null);
+  const tabScrollRef = useRef(null);
+
+  // Track top form visibility for mobile sticky bar
+  useEffect(() => {
+    if (!formRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsTopFormVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(formRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollTabs = (direction) => {
+    if (tabScrollRef.current) {
+      tabScrollRef.current.scrollBy({ left: direction * 150, behavior: "smooth" });
+    }
+  };
 
   const indianStates = [
     "Andhra Pradesh",
@@ -228,6 +247,26 @@ const ServiceDetail = () => {
 
   const handleDescriptionTabClick = (tabIndex) => {
     setActiveTab(tabIndex);
+    if (tabScrollRef.current) {
+      const container = tabScrollRef.current;
+      const buttons = container.querySelectorAll("button");
+      const button = buttons[tabIndex];
+      if (button) {
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = button.getBoundingClientRect();
+        const prevBtn = buttons[tabIndex - 1];
+        const nextBtn = buttons[tabIndex + 1];
+        const relativeLeft = buttonRect.left - containerRect.left;
+        const relativeRight = buttonRect.right - containerRect.left;
+        if (relativeLeft < 0) {
+          const extraWidth = prevBtn ? prevBtn.offsetWidth : 0;
+          container.scrollBy({ left: relativeLeft - extraWidth, behavior: "smooth" });
+        } else if (relativeRight > containerRect.width) {
+          const extraWidth = nextBtn ? nextBtn.offsetWidth : 0;
+          container.scrollBy({ left: relativeRight - containerRect.width + extraWidth, behavior: "smooth" });
+        }
+      }
+    }
   };
 
   const handleFormChange = (e) => {
@@ -386,7 +425,7 @@ const ServiceDetail = () => {
           },
         }}
       />
-      <div className="bg-(--background) -mt-20">
+      <div className="bg-(--background) -mt-20 lg:pb-0 pb-20">
         {/* Hero Section - Service Name, One Liner, PriceTag */}
         <div className="bg-linear-to-r from-amber-50 to-blue-100 text-(--text) pt-16 relative overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 text-center">
@@ -751,51 +790,179 @@ const ServiceDetail = () => {
         {/* Description Tabs Section */}
         {descriptionTabs.length > 0 && (
           <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-            <div className="bg-white rounded-lg shadow-sm">
-              {/* Tab Navigation */}
-              <div className="border-b sticky top-16 bg-white z-10 rounded-t-lg">
-                <div className="flex overflow-x-auto scrollbar-hide">
-                  {descriptionTabs.map((tab, index) => (
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              {/* Description Tabs */}
+              <div className="flex-1 bg-white rounded-lg shadow-sm min-w-0">
+                {/* Tab Navigation */}
+                <div className="border-b sticky top-16 bg-white z-10 rounded-t-lg">
+                  <div className="relative flex items-center">
                     <button
-                      key={index}
-                      onClick={() => handleDescriptionTabClick(index)}
-                      className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
-                        activeTab === index
-                          ? "border-b-2 border-blue-600 text-blue-600"
-                          : "text-gray-600 hover:text-blue-600"
-                      }`}
+                      onClick={() => scrollTabs(-1)}
+                      className="shrink-0 px-2 py-3 text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-colors border-r border-gray-100"
+                      aria-label="Scroll tabs left"
                     >
-                      {tab.tabs || `Tab ${index + 1}`}
+                      <FaChevronLeft size={14} />
                     </button>
-                  ))}
+                    <div ref={tabScrollRef} className="flex overflow-x-auto scrollbar-hide flex-1">
+                      {descriptionTabs.map((tab, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleDescriptionTabClick(index)}
+                          className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
+                            activeTab === index
+                              ? "border-b-2 border-blue-600 text-blue-600"
+                              : "text-gray-600 hover:text-blue-600"
+                          }`}
+                        >
+                          {tab.tabs || `Tab ${index + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => scrollTabs(1)}
+                      className="shrink-0 px-2 py-3 text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-colors border-l border-gray-100"
+                      aria-label="Scroll tabs right"
+                    >
+                      <FaChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Active Tab Content */}
+                <div className="p-4 sm:p-6 md:p-8">
+                  <div
+                    className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
+                    prose-headings:text-gray-900 
+                    prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
+                    prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+                    prose-p:text-gray-700 prose-p:mb-3
+                    prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
+                    prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
+                    prose-li:text-gray-700 prose-li:mb-1
+                    prose-table:w-full prose-table:border-collapse prose-table:my-4
+                    prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                    prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
+                    prose-strong:font-semibold prose-strong:text-gray-900"
+                    dangerouslySetInnerHTML={{
+                      __html: descriptionTabs[activeTab]?.content || "",
+                    }}
+                  />
                 </div>
               </div>
 
-              {/* Active Tab Content */}
-              <div className="p-4 sm:p-6 md:p-8">
-                <div
-                  className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
-                  prose-headings:text-gray-900 
-                  prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
-                  prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
-                  prose-p:text-gray-700 prose-p:mb-3
-                  prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
-                  prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
-                  prose-li:text-gray-700 prose-li:mb-1
-                  prose-table:w-full prose-table:border-collapse prose-table:my-4
-                  prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                  prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                  prose-strong:font-semibold prose-strong:text-gray-900"
-                  dangerouslySetInnerHTML={{
-                    __html: descriptionTabs[activeTab]?.content || "",
-                  }}
-                />
+              {/* Always-visible Get Started Form - desktop sidebar */}
+              <div className="hidden lg:block lg:w-80 xl:w-96 shrink-0">
+                <div className="sticky top-20 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <h3 className="text-xl font-bold mb-2 text-(--primary)">
+                    Get Started
+                  </h3>
+                  <p className="text-gray-600 mb-5 text-sm">
+                    Fill in your details and our expert will contact you shortly.
+                  </p>
+                  <form onSubmit={handleFormSubmit} className="space-y-3">
+                    <div>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleFormChange}
+                        placeholder="Full Name"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                        placeholder="Email Address"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="tel"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+                          setFormData((prev) => ({ ...prev, phoneNumber: value }));
+                        }}
+                        placeholder="10 digit phone number"
+                        maxLength="10"
+                        inputMode="numeric"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <select
+                        name="state"
+                        value={formData.state}
+                        onChange={handleFormChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                        required
+                      >
+                        <option value="">Select your state</option>
+                        {indianStates.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {serviceData.packages && serviceData.packages.length > 0 && (
+                      <div>
+                        <select
+                          name="selectedPackage"
+                          value={formData.selectedPackage}
+                          onChange={handleFormChange}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                          required
+                        >
+                          <option value="">Select a package</option>
+                          {serviceData.packages.map((pkg, idx) => (
+                            <option key={idx} value={pkg.name}>
+                              {pkg.name} - ₹ {formatIndianPrice(pkg.price)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-(--primary) text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70 text-sm"
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Request"}
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Contact Us Banner */}
+        {/* Mobile sticky bottom CTA - only on smaller screens, only when top form is scrolled out of view */}
+        {descriptionTabs.length > 0 && !isTopFormVisible && (
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500 truncate">Interested in this service?</p>
+              <p className="text-sm font-semibold text-(--primary) truncate">{serviceData?.serviceName}</p>
+            </div>
+            <button
+              onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
+              className="shrink-0 bg-(--primary) text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-(--primary-hover) transition-colors"
+            >
+              Get Started
+            </button>
+          </div>
+        )}
         <section className="cta-section max-w-7xl mx-auto my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
           <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-20 lg:px-25 gap-4 md:gap-2">
             <div className="flex-1 text-center md:text-left">

@@ -9,7 +9,7 @@ const successColor = "#10b981";
 const emailHeader = () => {
   return `
     <div style="background: linear-gradient(135deg, ${primaryColor} 0%, ${primaryHoverColor} 100%); padding: 20px; text-align: center;">
-      <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">RegisterKro</h1>
+      <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">TaxPro Solution</h1>
       <p style="color: ${accentColor}; margin: 5px 0 0 0;">Professional Business Solutions</p>
     </div>
   `;
@@ -20,7 +20,7 @@ const emailFooter = () => {
   return `
     <div style="background-color: ${lightBg}; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; margin-top: 30px;">
       <p style="color: ${textColor}; font-size: 12px; margin: 0;">
-        <strong>RegisterKro</strong> | Professional Business Services<br>
+        <strong>TaxPro Solution</strong> | Professional Business Services<br>
         Email: taxprosolution26@gmail.com<br>
         This is an automated email. Please do not reply directly.
       </p>
@@ -109,7 +109,7 @@ export const leadCreationEmailTemplate = (leadData) => {
         
         <div style="padding: 30px; background-color: white;">
           <h2 style="color: ${primaryColor}; font-size: 20px; margin-bottom: 10px;">Welcome, ${clientName}!</h2>
-          <p style="color: ${textColor}; margin-bottom: 20px; font-size: 14px;">Thank you for choosing RegisterKro for your business needs.</p>
+          <p style="color: ${textColor}; margin-bottom: 20px; font-size: 14px;">Thank you for choosing TaxPro Solution for your business needs.</p>
           
           <div style="background: linear-gradient(135deg, ${primaryColor}20 0%, ${accentColor}20 100%); padding: 25px; border-radius: 8px; border-left: 4px solid ${accentColor}; margin-bottom: 20px;">
             <p style="margin: 0 0 15px 0; color: ${textColor}; font-size: 14px;"><strong>Service:</strong></p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
 import { IoChevronDownCircleOutline } from "react-icons/io5";
+import { FaArrowAltCircleRight } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
@@ -31,11 +32,16 @@ const Header = () => {
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
-  const { categories: allCategoriesData, subCategories: subCategoriesData, services: servicesData, allServices: allServicesData } = useAppData();
+  const {
+    categories: allCategoriesData,
+    subCategories: subCategoriesData,
+    services: servicesData,
+    allServices: allServicesData,
+  } = useAppData();
 
   // Get main categories (header order 1-5)
   const mainCategories = allCategories
-    .filter(cat => {
+    .filter((cat) => {
       const order = parseInt(cat.headerOrder);
       return !isNaN(order) && order >= 1 && order <= 5;
     })
@@ -43,7 +49,7 @@ const Header = () => {
 
   // Get other categories (header order > 5)
   const otherCategories = allCategories
-    .filter(cat => {
+    .filter((cat) => {
       const order = parseInt(cat.headerOrder);
       return !isNaN(order) && order > 5;
     })
@@ -59,7 +65,10 @@ const Header = () => {
   // Close search dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target)
+      ) {
         setIsSearchDropdownOpen(false);
       }
     };
@@ -82,7 +91,7 @@ const Header = () => {
         .includes(searchQuery.toLowerCase()) ||
       service.subCategory?.name
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+        .includes(searchQuery.toLowerCase()),
   );
 
   // Sync categories from DataContext
@@ -222,10 +231,7 @@ const Header = () => {
               {mainCategories.length > 0 ? (
                 <>
                   {mainCategories.map((category) => (
-                    <div
-                      key={category._id}
-                      className="relative"
-                    >
+                    <div key={category._id} className="relative">
                       {/* Tab Button */}
                       <button
                         type="button"
@@ -237,77 +243,79 @@ const Header = () => {
                       </button>
 
                       {/* Subcategories Dropdown */}
-                      {activeTab === category.name && subCategories.length > 0 && (
-                        <div
-                          className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible"
-                        >
-                          <div className="p-3 overflow-y-auto">
-                            {subCategories.map((subCat) => (
-                              <div
-                                key={subCat._id}
-                                className="relative"
-                              >
-                                <button
-                                  type="button"
-                                  onClick={() => handleSubcategoryClick(subCat)}
-                                  aria-expanded={
-                                    selectedSubcategory?._id === subCat._id
-                                  }
-                                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 ${
-                                    selectedSubcategory?._id === subCat._id
-                                      ? "text-(--primary) bg-blue-50"
-                                      : ""
-                                  }`}
-                                >
-                                  <span className="flex items-center gap-3">
-                                    <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                                    {subCat.name}
-                                  </span>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
+                      {activeTab === category.name &&
+                        subCategories.length > 0 && (
+                          <div className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible">
+                            <div className="p-3 overflow-y-auto">
+                              {subCategories.map((subCat) => (
+                                <div key={subCat._id} className="relative">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleSubcategoryClick(subCat)
+                                    }
+                                    aria-expanded={
+                                      selectedSubcategory?._id === subCat._id
+                                    }
+                                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 ${
+                                      selectedSubcategory?._id === subCat._id
+                                        ? "text-(--primary) bg-blue-50"
+                                        : ""
+                                    }`}
+                                  >
+                                    <span className="flex items-center gap-3">
+                                      <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
+                                      <div className="flex items-center justify-between w-full">
+                                        {subCat.name}{" "}
+                                        <FaArrowAltCircleRight className="inline-block text-(--primary)" />
+                                      </div>
+                                      {/* {subCat.name} */}
+                                    </span>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
 
-                          {/* Services Submenu - Outside overflow container */}
-                          {isSubMenuOpen &&
-                            selectedSubcategory &&
-                            subCategoryServices.length > 0 &&
-                            (() => {
-                              const selectedIndex = subCategories.findIndex(
-                                (cat) => cat._id === selectedSubcategory._id,
-                              );
-                              const topOffset = selectedIndex * 52; // Each item is ~52px
-                              return (
-                                <div
-                                  style={{ top: `${topOffset}px` }}
-                                  className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
-                                >
-                                  <div className="p-4">
-                                    <h3 className="font-semibold text-sm mb-3 text-(--primary)">
-                                      {selectedSubcategory.name}
-                                    </h3>
-                                    <div className="max-h-96 overflow-y-auto space-y-2">
-                                      {subCategoryServices.map((service) => (
-                                        <button
-                                          key={service._id}
-                                          onClick={() =>
-                                            handleServiceClick(service._id)
-                                          }
-                                          className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
-                                        >
-                                          <span className="flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
-                                            {service.serviceName}
-                                          </span>
-                                        </button>
-                                      ))}
+                            {/* Services Submenu - Outside overflow container */}
+                            {isSubMenuOpen &&
+                              selectedSubcategory &&
+                              subCategoryServices.length > 0 &&
+                              (() => {
+                                const selectedIndex = subCategories.findIndex(
+                                  (cat) => cat._id === selectedSubcategory._id,
+                                );
+                                const topOffset = selectedIndex * 52; // Each item is ~52px
+                                return (
+                                  <div
+                                    style={{ top: `${topOffset}px` }}
+                                    className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
+                                  >
+                                    <div className="p-4">
+                                      <h3 className="font-semibold text-sm mb-3 text-(--primary)">
+                                        {selectedSubcategory.name}
+                                      </h3>
+                                      <div className="max-h-96 overflow-y-auto space-y-2">
+                                        {subCategoryServices.map((service) => (
+                                          <button
+                                            key={service._id}
+                                            onClick={() =>
+                                              handleServiceClick(service._id)
+                                            }
+                                            className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
+                                          >
+                                            <span className="flex items-center gap-2">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
+                                              {service.serviceName}
+                                            </span>
+                                          </button>
+                                        ))}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            })()}
-                        </div>
-                      )}
+                                );
+                              })()}
+                          </div>
+                        )}
                     </div>
                   ))}
                 </>
@@ -344,7 +352,10 @@ const Header = () => {
                           >
                             <span className="flex items-center gap-3">
                               <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                              {category.name}
+                              <div className="flex items-center justify-between w-full">
+                                {category.name}{" "}
+                                <FaArrowAltCircleRight className="inline-block text-(--primary)" />
+                              </div>
                             </span>
                           </button>
                         ))}
@@ -440,29 +451,32 @@ const Header = () => {
                     />
                   </div>
 
-                  {isSearchDropdownOpen && searchQuery.trim() && filteredSearchServices.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
-                      {filteredSearchServices.map((service) => (
-                        <button
-                          key={service._id}
-                          onClick={() => {
-                            navigate(`/service/${service._id}`);
-                            setSearchQuery("");
-                            setIsSearchDropdownOpen(false);
-                            setIsMenuOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-2.5 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text)"
-                        >
-                          <div className="font-semibold text-(--primary) text-xs">
-                            {service.serviceName}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {service.category?.name} → {service.subCategory?.name}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {isSearchDropdownOpen &&
+                    searchQuery.trim() &&
+                    filteredSearchServices.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                        {filteredSearchServices.map((service) => (
+                          <button
+                            key={service._id}
+                            onClick={() => {
+                              navigate(`/service/${service._id}`);
+                              setSearchQuery("");
+                              setIsSearchDropdownOpen(false);
+                              setIsMenuOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2.5 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text)"
+                          >
+                            <div className="font-semibold text-(--primary) text-xs">
+                              {service.serviceName}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {service.category?.name} →{" "}
+                              {service.subCategory?.name}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
 
                 {/* Mobile Tabs */}
@@ -476,7 +490,7 @@ const Header = () => {
                       <span
                         className={`transform transition-transform ${mobileExpandedTab === category.name ? "rotate-180" : "text-(--accent)"}`}
                       >
-                        <IoChevronDownCircleOutline/>
+                        <IoChevronDownCircleOutline />
                       </span>
                     </button>
 
@@ -496,7 +510,7 @@ const Header = () => {
                                 <span
                                   className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : "text-(--accent)"}`}
                                 >
-                                 <IoChevronDownCircleOutline/>
+                                  <IoChevronDownCircleOutline />
                                 </span>
                               </button>
 
