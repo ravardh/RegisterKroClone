@@ -656,3 +656,24 @@ export const purgeOrphanedDocuments = async (req, res, next) => {
     next(error);
   }
 };
+
+export const uploadBlogImageFile = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      const error = new Error("Image file is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Blog image uploaded successfully",
+      data: {
+        url: `/uploads/blog-images/${req.file.filename}`,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

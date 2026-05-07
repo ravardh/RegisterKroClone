@@ -5,6 +5,7 @@ import {
   updateService,
   deleteService,
   purgeOrphanedDocuments,
+  uploadBlogImageFile,
   getAllCategories,
   createCategory,
   updateCategory,
@@ -15,7 +16,7 @@ import {
   deleteSubCategory,
 } from "../controllers/serviceController.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
-import { uploadServiceDocuments } from "../middleware/uploadMiddleware.js";
+import { uploadBlogImage, uploadServiceDocuments } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.delete("/:id", deleteService);
 
 // Maintenance
 router.delete("/maintenance/purge-orphaned-documents", purgeOrphanedDocuments);
+router.post("/upload-blog-image", uploadBlogImage, uploadBlogImageFile);
 
 // Category CRUD routes
 router.get("/categories-list", getAllCategories);

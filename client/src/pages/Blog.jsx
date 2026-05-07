@@ -2,13 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MdAdd, MdArticle } from "react-icons/md";
 import SEOHelmet from "../components/SEOHelmet";
+import axios from "../config/api";
 
 const Blog = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const savedPosts = JSON.parse(localStorage.getItem("blogPosts") || "[]");
-    setPosts(savedPosts);
+    const fetchBlogs = async () => {
+      try {
+        const res = await axios.get("/public/blogs");
+        setPosts(res.data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch blogs:", error);
+      }
+    };
+
+    fetchBlogs();
   }, []);
 
   return (
@@ -28,12 +37,7 @@ const Blog = () => {
               Business registration, tax, and compliance insights in one place.
             </p>
           </div>
-          <Link
-            to="/create-blog"
-            className="inline-flex w-fit items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-(--primary) hover:bg-gray-100"
-          >
-            <MdAdd className="h-5 w-5" /> Create Blog
-          </Link>
+   
         </div>
       </section>
 
@@ -57,23 +61,31 @@ const Blog = () => {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <article
-                key={post.id}
-                className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
+              <Link
+                key={post._id}
+                to={`/blog/${post.slug}`}
+                className="group block rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
                 <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
                   {post.category || "Blog"}
                 </p>
-                <h2 className="mt-2 text-xl font-bold text-gray-900">
+                <h2 className="mt-2 text-xl font-bold text-gray-900 group-hover:text-(--primary)">
                   {post.title}
                 </h2>
                 <p className="mt-2 text-sm text-gray-500">
-                  {post.author} | {post.createdAt}
+                  {post.author} |{" "}
+                  {new Date(post.createdAt).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </p>
-                <p className="mt-4 line-clamp-4 text-sm leading-6 text-gray-700">
-                  {post.content}
-                </p>
-              </article>
+                <div
+                  className="prose prose-sm mt-4 max-h-36 max-w-none overflow-hidden text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+                <p className="mt-4 text-sm font-semibold text-(--primary)">Read full blog &rarr;</p>
+              </Link>
             ))}
           </div>
         )}

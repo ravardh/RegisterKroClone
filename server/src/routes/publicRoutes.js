@@ -15,6 +15,7 @@ import {
   getAllSubCategoriesGrouped,
   getAllServicesGrouped,
 } from "../controllers/publicController.js";
+import { getPublishedBlogBySlug, getPublishedBlogs } from "../controllers/blogController.js";
 
 const router = express.Router();
 
@@ -32,5 +33,7 @@ router.get("/subcategories/:subCategoryId/services", getPublicServicesBySubCateg
 router.get("/services", getPublicServices);
 router.get("/services/featured", getFeaturedServices);
 router.get("/service/:serviceId", getServiceById);
+router.get("/blogs", getPublishedBlogs);
+router.get("/blogs/:slug", getPublishedBlogBySlug);
 
 export default router;
