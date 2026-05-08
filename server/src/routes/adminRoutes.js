@@ -12,6 +12,12 @@ import {
   approveFeedback,
   rejectFeedback,
 } from "../controllers/adminController.js";
+import {
+  createBlog,
+  getAdminBlogs,
+  updateBlog,
+  updateBlogVisibility,
+} from "../controllers/blogController.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -34,6 +40,12 @@ router.delete("/contacts/:id", deleteContact);
 router.get("/feedbacks", getAllFeedbacks);
 router.patch("/feedbacks/:id/approve", approveFeedback);
 router.delete("/feedbacks/:id", rejectFeedback);
+
+// Blog routes
+router.get("/blogs", getAdminBlogs);
+router.post("/blogs", createBlog);
+router.put("/blogs/:id", updateBlog);
+router.patch("/blogs/:id/visibility", updateBlogVisibility);
 
 // Service routes
 // service/category/subcategory routes moved to serviceRoutes

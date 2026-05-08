@@ -17,6 +17,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
@@ -81,6 +82,7 @@ const Layout = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/create-blog" element={<CreateBlog />} />
           <Route
             path="/adminDashboard"

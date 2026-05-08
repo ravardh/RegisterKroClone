@@ -7,6 +7,7 @@ import Leads from "../../components/Admin Dashboard/LeadsManage";
 import Categories from "../../components/Admin Dashboard/CategoriesManage";
 import Contact from "../../components/Admin Dashboard/ContactManage";
 import Feedbacks from "../../components/Admin Dashboard/FeedbackManage";
+import BlogManage from "../../components/Admin Dashboard/BlogManage";
 import SEOHelmet from "../../components/SEOHelmet";
 
 const AdminDashboard = () => {
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
           {activeTab === "services" && <Services />}
           {activeTab === "relationshipManagers" && <RelationshipManagers />}
           {activeTab === "feedbacks" && <Feedbacks />}
+          {activeTab === "blogs" && <BlogManage />}
         </div>
       </div>
     </>
