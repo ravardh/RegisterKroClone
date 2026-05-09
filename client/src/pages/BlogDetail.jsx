@@ -94,10 +94,12 @@ const BlogDetail = () => {
               {blog.summary}
             </p>
           )}
-          <div
-            className="ql-editor !p-0 text-gray-700"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
-          />
+          <div className="overflow-x-auto w-full">
+            <div
+              className="ql-editor !p-0 text-gray-700 min-w-full"
+              dangerouslySetInnerHTML={{ __html: blog.content }}
+            />
+          </div>
         </article>
       </section>
     </>

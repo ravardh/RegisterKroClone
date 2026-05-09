@@ -304,7 +304,7 @@ export const getPublicServices = async (req, res, next) => {
     const services = await Service.find({ isActive: true, isVisible: true })
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName category subCategory")
+      .select("serviceName category subCategory sequence")
       .sort({ serviceName: 1 });
     
     res.status(200).json({
@@ -425,7 +425,7 @@ export const getAllSubCategoriesGrouped = async (req, res, next) => {
     // Fetch all subcategories with their category info
     const subCategories = await SubCategory.find({ isActive: true })
       .populate("category", "_id name")
-      .select("_id name category")
+      .select("_id name category sequence")
       .sort({ name: 1 });
     
     // Group by category ID
@@ -454,7 +454,7 @@ export const getAllServicesGrouped = async (req, res, next) => {
     // Fetch all active services with subcategory info
     const services = await Service.find({ isActive: true, isVisible: true })
       .populate("subCategory", "_id")
-      .select("_id serviceName shortDescription subCategory")
+      .select("_id serviceName shortDescription subCategory sequence")
       .sort({ serviceName: 1 });
     
     // Group by subcategory ID

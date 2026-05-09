@@ -69,7 +69,7 @@ export const getAllServices = async (req, res, next) => {
 
 export const createService = async (req, res, next) => {
   try {
-    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer } = req.body;
+    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer, sequence } = req.body;
     const topPointers = parseMaybeJson(req.body.topPointers, []);
     const description = parseMaybeJson(req.body.description, []);
     const faqs = parseMaybeJson(req.body.faqs, []);
@@ -141,6 +141,7 @@ export const createService = async (req, res, next) => {
       Featured: Featured || { isFeatured: false },
       offer: offer || null,
       documents: uploadedDocuments,
+      sequence: sequence || null,
       lastEditedBy: req.user._id,
     });
 
@@ -161,7 +162,7 @@ export const createService = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer } = req.body;
+    const { category, subCategory, serviceName, OneLinner, priceTag, shortDescription, offer, sequence } = req.body;
     const topPointers = parseMaybeJson(req.body.topPointers, undefined);
     const description = parseMaybeJson(req.body.description, undefined);
     const faqs = parseMaybeJson(req.body.faqs, undefined);
@@ -233,6 +234,7 @@ export const updateService = async (req, res, next) => {
         isVisible: hasIsVisible ? parsedIsVisible : existingService.isVisible,
         Featured: Featured || existingService.Featured,
         offer: offer !== undefined ? offer : existingService.offer,
+        sequence: sequence !== undefined ? sequence : existingService.sequence,
         documents: finalDocuments,
         lastEditedBy: req.user.id,
       },
@@ -452,7 +454,7 @@ export const getAllSubCategories = async (req, res, next) => {
 
 export const createSubCategory = async (req, res, next) => {
   try {
-    const { name, categoryId, shortDescription } = req.body;
+    const { name, categoryId, shortDescription, sequence } = req.body;
 
     if (!name || !categoryId) {
       const error = new Error("Sub-category name and category are required");
@@ -483,6 +485,7 @@ export const createSubCategory = async (req, res, next) => {
       name,
       category: categoryId,
       shortDescription: shortDescription || "",
+      sequence: sequence || null,
       isActive: true,
     });
 
@@ -502,7 +505,7 @@ export const createSubCategory = async (req, res, next) => {
 export const updateSubCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, categoryId, shortDescription, isActive } = req.body;
+    const { name, categoryId, shortDescription, isActive, sequence } = req.body;
 
     if (!id) {
       const error = new Error("Sub-category ID is required");
@@ -551,6 +554,7 @@ export const updateSubCategory = async (req, res, next) => {
           shortDescription !== undefined
             ? shortDescription
             : existingSubCategory.shortDescription,
+        sequence: sequence !== undefined ? sequence : existingSubCategory.sequence,
         isActive:
           isActive !== undefined ? isActive : existingSubCategory.isActive,
       },

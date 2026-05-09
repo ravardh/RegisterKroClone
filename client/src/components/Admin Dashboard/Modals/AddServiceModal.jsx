@@ -31,6 +31,7 @@ const AddServiceModal = ({
     offer: "",
     faqs: [{ question: "", answer: "" }],
     documents: [],
+    sequence: "",
   });
   const [newDocuments, setNewDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -188,6 +189,7 @@ const AddServiceModal = ({
           },
           offer: editingService.offer || "",
           documents: editingService.documents || [],
+          sequence: editingService.sequence || "",
         });
         setNewDocuments([]);
         setActiveDescTab(0);
@@ -479,6 +481,7 @@ const AddServiceModal = ({
         },
         offer: formData.offer?.trim() || null,
         documents: formData.documents || [],
+        sequence: formData.sequence || "",
       };
 
       // Validate at least one description tab has content
@@ -503,6 +506,7 @@ const AddServiceModal = ({
       formPayload.append("Featured", JSON.stringify(submitData.Featured));
       formPayload.append("offer", submitData.offer || "");
       formPayload.append("documents", JSON.stringify(submitData.documents));
+      formPayload.append("sequence", submitData.sequence);
 
       newDocuments.forEach((file) => {
         formPayload.append("documents", file);
@@ -545,6 +549,7 @@ const AddServiceModal = ({
       offer: "",
       faqs: [{ question: "", answer: "" }],
       documents: [],
+      sequence: "",
     });
     setNewDocuments([]);
 
@@ -713,21 +718,37 @@ const AddServiceModal = ({
               </div>
             </div>
 
-            {/* Short Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Short Description <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="shortDescription"
-                value={formData.shortDescription}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Brief description (1-2 lines)"
-                required
-                disabled={!formData.subCategory}
-              />
+            {/* Short Description & Sequence */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Short Description <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="shortDescription"
+                  value={formData.shortDescription}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Brief description (1-2 lines)"
+                  required
+                  disabled={!formData.subCategory}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Sequence
+                </label>
+                <input
+                  type="number"
+                  name="sequence"
+                  value={formData.sequence}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Display sequence (optional)"
+                  disabled={!formData.subCategory}
+                />
+              </div>
             </div>
 
             {/* Featured */}

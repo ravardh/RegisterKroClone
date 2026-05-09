@@ -185,60 +185,61 @@ const Categories = () => {
             </button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            {categories.length === 0 ? (
-              <div className="text-center py-12">No categories</div>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+          <div className="bg-white rounded shadow overflow-auto border border-gray-200">
+            <table className="w-full table-auto border-collapse text-sm">
+              <thead className="bg-gray-100 text-left text-gray-700">
+                <tr>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Name
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Description
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Header Order
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Status
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Created
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-700">
+                {categories.length === 0 ? (
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Header Order
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <td
+                      colSpan={6}
+                      className="border border-gray-200 p-6 text-center text-gray-500"
+                    >
+                      No categories found
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((cat) => (
-                    <tr key={cat._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-semibold text-gray-900">
-                          {cat.name}
-                        </div>
+                ) : (
+                  categories.map((cat) => (
+                    <tr key={cat._id} className="hover:bg-blue-50/40">
+                      <td className="border border-gray-200 px-4 py-3 align-top font-medium text-gray-900">
+                        {cat.name}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          {cat.shortDescription || "-"}
-                        </div>
+                      <td className="border border-gray-200 px-4 py-3 align-top">
+                        {cat.shortDescription || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {cat.headerOrder <= 5 ? (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                              {cat.headerOrder} (Main)
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
-                              {cat.headerOrder} (Other)
-                            </span>
-                          )}
-                        </div>
+                      <td className="border border-gray-200 px-4 py-3 align-top">
+                        {cat.headerOrder <= 5 ? (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                            {cat.headerOrder} (Main)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+                            {cat.headerOrder} (Other)
+                          </span>
+                        )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         <span
                           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             cat.isActive
@@ -249,10 +250,10 @@ const Categories = () => {
                           {cat.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         {new Date(cat.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         <button
                           onClick={() => handleEditCategory(cat)}
                           className="text-blue-600 hover:text-blue-900 mr-3"
@@ -267,10 +268,10 @@ const Categories = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -290,52 +291,61 @@ const Categories = () => {
             </button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            {subCategories.length === 0 ? (
-              <div className="text-center py-12">No sub-categories</div>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+          <div className="bg-white rounded shadow overflow-auto border border-gray-200">
+            <table className="w-full table-auto border-collapse text-sm">
+              <thead className="bg-gray-100 text-left text-gray-700">
+                <tr>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Name
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Parent Category
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Description
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Sequence
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Status
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Created
+                  </th>
+                  <th className="border border-gray-200 px-4 py-3 font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-700">
+                {subCategories.length === 0 ? (
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Parent Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <td
+                      colSpan={7}
+                      className="border border-gray-200 p-6 text-center text-gray-500"
+                    >
+                      No sub-categories found
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {subCategories.map((sc) => (
-                    <tr key={sc._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-semibold text-gray-900">
-                          {sc.name}
-                        </div>
+                ) : (
+                  subCategories.map((sc) => (
+                    <tr key={sc._id} className="hover:bg-blue-50/40">
+                      <td className="border border-gray-200 px-4 py-3 align-top font-medium text-gray-900">
+                        {sc.name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                           {sc.category?.name}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          {sc.shortDescription || "-"}
-                        </div>
+                      <td className="border border-gray-200 px-4 py-3 align-top">
+                        {sc.shortDescription || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
+                        {sc.sequence || "-"}
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         <span
                           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             sc.isActive
@@ -346,10 +356,10 @@ const Categories = () => {
                           {sc.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         {new Date(sc.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="border border-gray-200 px-4 py-3 align-top">
                         <button
                           onClick={() => handleEditSubCategory(sc)}
                           className="text-blue-600 hover:text-blue-900 mr-3"
@@ -364,10 +374,10 @@ const Categories = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

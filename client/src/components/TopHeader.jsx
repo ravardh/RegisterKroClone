@@ -67,7 +67,7 @@ const TopHeader = () => {
               </a>
             </div>
 
-            <nav className="flex gap-3 sm:gap-6 md:gap-8 items-center flex-wrap justify-center">
+            <nav className="hidden md:flex gap-3 sm:gap-6 md:gap-8 items-center flex-wrap justify-center">
               <Link
                 to="/about"
                 className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"

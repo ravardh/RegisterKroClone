@@ -29,6 +29,10 @@ const serviceSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    sequence: {
+      type: Number,
+      required: false,
+    },
     topPointers: [
       {
         type: String,

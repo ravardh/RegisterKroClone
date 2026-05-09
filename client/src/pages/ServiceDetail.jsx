@@ -829,7 +829,7 @@ const ServiceDetail = () => {
                 </div>
 
                 {/* Active Tab Content */}
-                <div className="p-4 sm:p-6 md:p-8">
+                <div className="p-4 sm:p-6 md:p-8 overflow-x-auto">
                   <div
                     className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
                     prose-headings:text-gray-900 
@@ -963,25 +963,27 @@ const ServiceDetail = () => {
             </button>
           </div>
         )}
-        <section className="cta-section max-w-7xl mx-auto my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
-          <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-20 lg:px-25 gap-4 md:gap-2">
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-white text-xl sm:text-2xl md:text-2xl font-bold mb-2 md:mb-3">
-                Have Questions? Speak with Our Experts
-              </h2>
-              <p className="text-white text-sm sm:text-base md:text-lg">
-                Get tailored advice on business registration, legal
-                requirements, and compliance from our seasoned professional
-                available to assist you anytime.
-              </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 my-10 md:my-20">
+          <section className="cta-section py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center shadow-lg">
+            <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-16 gap-6 md:gap-4">
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-bold mb-3">
+                  Have Questions? Speak with Our Experts
+                </h2>
+                <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed">
+                  Get tailored advice on business registration, legal
+                  requirements, and compliance from our seasoned professional
+                  available to assist you anytime.
+                </p>
+              </div>
+              <div className="md:ml-8 shrink-0">
+                <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold hover:bg-(--primary-hover) shadow-md transition-colors whitespace-nowrap">
+                  Call Us Now
+                </button>
+              </div>
             </div>
-            <div className="md:ml-8">
-              <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl text-base md:text-lg font-medium hover:bg-(--primary-hover) transition whitespace-nowrap">
-                Call Us Now
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* FAQs Section - Outside Tabs */}
         {serviceData.faqs && serviceData.faqs.length > 0 && (
@@ -1109,7 +1111,7 @@ const ServiceDetail = () => {
         {/* Modal - triggers only when FAQ section is scrolled into view */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 sm:p-8 relative">
+            <div className="bg-white rounded-xl max-w-md w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
               <button
                 onClick={handleCloseModal}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"

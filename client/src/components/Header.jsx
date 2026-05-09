@@ -131,7 +131,12 @@ const Header = () => {
     }
 
     setActiveTab(category.name);
-    setSubCategories(subCategoriesData[category._id] || []);
+    const sortedSubCats = [...(subCategoriesData[category._id] || [])].sort((a, b) => {
+      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
+      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+      return seqA - seqB;
+    });
+    setSubCategories(sortedSubCats);
   };
 
   const handleOtherServicesClick = () => {
@@ -154,7 +159,12 @@ const Header = () => {
 
     setSelectedSubcategory(subcategory);
     setIsSubMenuOpen(true);
-    setSubCategoryServices(servicesData[subcategory._id] || []);
+    const sortedServices = [...(servicesData[subcategory._id] || [])].sort((a, b) => {
+      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
+      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+      return seqA - seqB;
+    });
+    setSubCategoryServices(sortedServices);
   };
 
   const handleServiceClick = (serviceId) => {
@@ -176,7 +186,12 @@ const Header = () => {
         (c) => c.name.toLowerCase() === tabName.toLowerCase(),
       );
       if (category) {
-        setMobileSubCategories(subCategoriesData[category._id] || []);
+        const sortedMobileSubCats = [...(subCategoriesData[category._id] || [])].sort((a, b) => {
+          const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
+          const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+          return seqA - seqB;
+        });
+        setMobileSubCategories(sortedMobileSubCats);
       }
     }
   };
@@ -185,7 +200,12 @@ const Header = () => {
     setMobileExpandedSubcategory(
       mobileExpandedSubcategory === subcategory._id ? null : subcategory._id,
     );
-    setMobileServices(servicesData[subcategory._id] || []);
+    const sortedMobileServices = [...(servicesData[subcategory._id] || [])].sort((a, b) => {
+      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
+      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+      return seqA - seqB;
+    });
+    setMobileServices(sortedMobileServices);
   };
 
   const handleMobileServiceClick = (serviceId) => {
@@ -367,7 +387,7 @@ const Header = () => {
             </nav>
 
             {/* Search Bar */}
-            <div className="relative" ref={searchDropdownRef}>
+            <div className="relative hidden md:block" ref={searchDropdownRef}>
               <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
                 <IoSearch className="text-gray-500 mr-2" />
                 <input
@@ -479,6 +499,16 @@ const Header = () => {
                     )}
                 </div>
 
+                {/* Mobile Static Links */}
+                <div className="flex flex-col border-b border-gray-200 pb-2 mb-2 space-y-1">
+                  <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Home</Link>
+                  <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">About</Link>
+                  <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Contact</Link>
+                  <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Blog</Link>
+                  <Link to="/trackStatus" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Track Status</Link>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="text-(--primary) hover:bg-gray-50 font-bold px-3 py-2 rounded-md text-sm">Login / Account</Link>
+                </div>
+                
                 {/* Mobile Tabs */}
                 {mainCategories.map((category) => (
                   <div key={category._id} className="flex flex-col">

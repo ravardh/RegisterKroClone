@@ -21,7 +21,7 @@ const About = () => {
         structuredData={aboutSchema}
       />
       <section className="hero-section -mt-20 flex flex-col items-center justify-center h-screen bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
-        <div className="hero-content px-6 sm:px-20 md:px-50 py-10 text-center">
+        <div className="hero-content px-6 sm:px-20 md:px-32 lg:px-48 py-10 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-semibold mb-4">
             About Us
           </h1>
