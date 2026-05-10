@@ -173,7 +173,7 @@ const Footer = () => {
                 Sitemap
               </Link>
             </div>
-            <div className="order-1 md:order-3 text-xs leading-relaxed">
+            <div className="order-1 md:order-3 text-xs leading-relaxed text-center md:text-right">
               Developed by{" "}
               <a
                 href="https://www.linkedin.com/in/ravardh/"

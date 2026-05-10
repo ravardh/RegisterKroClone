@@ -222,7 +222,7 @@ const Register = () => {
             )}
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center text-sm text-(--secondary) space-x-1">
+              <label className="flex flex-wrap items-center text-sm text-(--secondary) gap-1">
                 <input 
                   type="checkbox" 
                   checked={termsAccepted}

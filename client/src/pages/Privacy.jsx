@@ -39,7 +39,7 @@ const Privacy = () => {
           </div>
 
           {/* Content */}
-          <div className="bg-white rounded-lg shadow-sm p-8 space-y-8">
+          <div className="bg-white rounded-lg shadow-sm p-5 sm:p-8 space-y-8">
             {/* Introduction */}
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">

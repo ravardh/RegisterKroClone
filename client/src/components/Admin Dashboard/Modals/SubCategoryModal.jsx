@@ -8,7 +8,8 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
   const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
-    shortDescription: ''
+    shortDescription: '',
+    sequence: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -20,11 +21,12 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
         setFormData({
           name: editingSubCategory.name,
           categoryId: editingSubCategory.category?._id || '',
-          shortDescription: editingSubCategory.shortDescription || ''
+          shortDescription: editingSubCategory.shortDescription || '',
+          sequence: editingSubCategory.sequence || ''
         })
       }
     } else {
-      setFormData({ name: '', categoryId: '', shortDescription: '' })
+      setFormData({ name: '', categoryId: '', shortDescription: '', sequence: '' })
       setError('')
     }
   }, [isOpen, editingSubCategory])
@@ -130,6 +132,20 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="Enter sub-category name"
                 required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sequence
+              </label>
+              <input
+                type="number"
+                name="sequence"
+                value={formData.sequence}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                placeholder="Display sequence (optional)"
               />
             </div>
 

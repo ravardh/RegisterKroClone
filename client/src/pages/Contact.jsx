@@ -228,7 +228,7 @@ const ContactForm = () => {
         </div>
       </section>
 
-      <section className="location px-6 sm:px-12 md:px-20 lg:px-39 py-5 mb-10">
+      <section className="location px-6 sm:px-12 md:px-20 lg:px-40 py-5 mb-10">
         <div className="loaction-heading text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-10 text-center ">
           Our Location
         </div>

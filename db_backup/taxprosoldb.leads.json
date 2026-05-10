@@ -1,0 +1,88 @@
+[{
+  "_id": {
+    "$oid": "69b92b479dfeb7f87a47dba1"
+  },
+  "serviceID": "SERVICE_170326_6261162740_10001",
+  "clientName": "just ",
+  "clientEmail": "ab@gmai.com",
+  "clientPhone": "6261162740",
+  "interestedService": "Private Limited Company",
+  "selectedPackage": "N/A",
+  "state": "Madhya Pradesh",
+  "leadStages": [
+    {
+      "stageName": "new",
+      "updatedby": {
+        "$oid": "699debac908e3b797025ea1c"
+      },
+      "updatedAt": {
+        "$date": "2026-03-17T10:21:59.092Z"
+      },
+      "_id": {
+        "$oid": "69b92b479dfeb7f87a47dba2"
+      }
+    }
+  ],
+  "assignedTo": {
+    "$oid": "699debac908e3b797025ea1c"
+  },
+  "closeRemarks": "",
+  "leadID": "SERVICE_170326_6261162740_10001",
+  "createdAt": {
+    "$date": "2026-03-17T10:21:59.105Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-17T10:21:59.105Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69cf945b9dfeb7f87a4839ff"
+  },
+  "serviceID": "SERVICE_030426_9713012144_10001",
+  "clientName": "Lokesh",
+  "clientEmail": "ldeshmukhdsf27@iifm.edu.in",
+  "clientPhone": "9713012144",
+  "interestedService": "Annual Compliance for Partnership Firm",
+  "selectedPackage": "N/A",
+  "state": "Jharkhand",
+  "leadStages": [
+    {
+      "stageName": "new",
+      "updatedby": {
+        "$oid": "699debac908e3b797025ea1c"
+      },
+      "updatedAt": {
+        "$date": "2026-04-03T10:20:11.006Z"
+      },
+      "_id": {
+        "$oid": "69cf945b9dfeb7f87a483a00"
+      }
+    },
+    {
+      "stageName": "new",
+      "updatedby": {
+        "$oid": "699debac908e3b797025ea1c"
+      },
+      "updatedAt": {
+        "$date": "2026-04-03T10:20:41.523Z"
+      },
+      "_id": {
+        "$oid": "69cf94799dfeb7f87a483a16"
+      }
+    }
+  ],
+  "assignedTo": {
+    "$oid": "69aaa3a0b808002c64877f2c"
+  },
+  "closeRemarks": "",
+  "leadID": "SERVICE_030426_9713012144_10001",
+  "createdAt": {
+    "$date": "2026-04-03T10:20:11.009Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-03T10:20:41.524Z"
+  },
+  "__v": 0
+}]

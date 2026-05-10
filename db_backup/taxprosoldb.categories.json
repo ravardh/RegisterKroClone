@@ -1,0 +1,96 @@
+[{
+  "_id": {
+    "$oid": "699e0d2a9f6279a30e34843d"
+  },
+  "name": "Business Formation",
+  "shortDescription": "",
+  "headerOrder": "1",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-02-24T20:42:18.353Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-26T08:52:37.573Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "name": "Taxation",
+  "shortDescription": "",
+  "headerOrder": "2",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-02T10:34:10.534Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-03T18:18:17.584Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "name": "Trademark & IPRs",
+  "shortDescription": "",
+  "headerOrder": "3",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-02T10:35:02.820Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-10T08:02:01.158Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a568045baf0c47e667ed1f"
+  },
+  "name": "Accounting & Payroll",
+  "shortDescription": "qwerty",
+  "headerOrder": "4",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-02T10:35:48.775Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-20T18:46:10.548Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69b01ea5eb8ac78ccd376d95"
+  },
+  "name": "Misc. Services",
+  "shortDescription": "",
+  "headerOrder": "6",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-10T13:37:41.448Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-10T13:40:55.295Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "name": "Compliance & Filings",
+  "shortDescription": "",
+  "headerOrder": "5",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:01:03.272Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:01:03.272Z"
+  },
+  "__v": 0
+}]

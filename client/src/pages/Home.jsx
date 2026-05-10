@@ -66,16 +66,28 @@ const Home = () => {
   }, [reviewsData, isDataLoaded]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const servicesPerPage = 3;
-  const maxIndex = Math.ceil(categories.length / servicesPerPage) - 1;
+  const [servicesPerPage, setServicesPerPage] = useState(3);
+  const maxIndex = categories.length > 0 ? Math.ceil(categories.length / servicesPerPage) - 1 : 0;
 
   const [featuredIndex, setFeaturedIndex] = useState(0);
-  const featuredPerPage = 3;
-  const maxFeaturedIndex = Math.ceil(featuredServices.length / featuredPerPage) - 1;
+  const [featuredPerPage, setFeaturedPerPage] = useState(3);
+  const maxFeaturedIndex = featuredServices.length > 0 ? Math.ceil(featuredServices.length / featuredPerPage) - 1 : 0;
 
   const [reviewIndex, setReviewIndex] = useState(0);
-  const reviewsPerPage = 3;
-  const maxReviewIndex = Math.ceil(reviews.length / reviewsPerPage) - 1;
+  const [reviewsPerPage, setReviewsPerPage] = useState(3);
+  const maxReviewIndex = reviews.length > 0 ? Math.ceil(reviews.length / reviewsPerPage) - 1 : 0;
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      setServicesPerPage(isMobile ? 1 : 3);
+      setFeaturedPerPage(isMobile ? 1 : 3);
+      setReviewsPerPage(isMobile ? 1 : 3);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -134,7 +146,7 @@ const Home = () => {
         structuredData={homeSchemaData}
       />
       <section className="hero-section flex flex-col items-center justify-center h-screen -mt-20 bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
-        <div className="hero-content text-white px-6 sm:px-20 md:px-50 py-10 text-center">
+        <div className="hero-content text-white px-6 sm:px-20 md:px-32 lg:px-48 py-10 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
             Get Your Business Registered in 7 Days
           </h1>
@@ -251,7 +263,7 @@ const Home = () => {
       </section>
 
       <section className="process-section py-10 md:py-20 bg-[url('/process-bg.jpg')] bg-cover bg-center">
-        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-50">
+        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-32">
           <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Grow Your Business in Just a Few Clicks
           </h2>

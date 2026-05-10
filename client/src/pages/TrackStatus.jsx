@@ -100,7 +100,7 @@ const TrackStatus = () => {
         structuredData={trackStatusSchema}
       />
       <div className="bg-[url('/hero.webp')] bg-cover bg-center bg-fixed min-h-screen -mt-20">
-      <div className="w-full px-4 md:px-8 lg:px-10 flex flex-col py-18">
+      <div className="w-full px-4 md:px-8 lg:px-10 flex flex-col py-16 md:py-20">
         <div className="w-full grow">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 mb-8 lg:mb-12">
@@ -211,11 +211,11 @@ const TrackStatus = () => {
                   {/* Vertical Progress Path */}
                   <div className="relative max-w-2xl mx-auto">
                     {/* Background vertical line */}
-                    <div className="absolute left-4.5 md:left-5.5 top-12 bottom-0 w-1 bg-linear-to-b from-gray-300 to-gray-200"></div>
+                    <div className="absolute left-[18px] md:left-[22px] top-12 bottom-0 w-1 bg-linear-to-b from-gray-300 to-gray-200"></div>
 
                     {/* Progress filled line */}
                     <div
-                      className="absolute left-4.5 md:left-5.5 top-12 w-1 bg-linear-to-b from-green-500 to-blue-500 transition-all duration-500"
+                      className="absolute left-[18px] md:left-[22px] top-12 w-1 bg-linear-to-b from-green-500 to-blue-500 transition-all duration-500"
                       style={{
                         height: `${(getCurrentStageIndex() / stageOrder.length) * 100}%`,
                         maxHeight: `calc(100% - 3rem)`,

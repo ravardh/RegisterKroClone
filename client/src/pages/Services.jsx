@@ -174,7 +174,7 @@ const Services = () => {
         </div>
 
         {/* Service Categories Section */}
-        <section className="px-4 sm:px-8 md:px-12 lg:px-20 py-8 md:py-16">
+        <section className="py-8 md:py-16">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-(--primary) mb-4 sm:mb-8">

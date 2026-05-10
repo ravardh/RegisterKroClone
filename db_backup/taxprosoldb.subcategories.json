@@ -1,0 +1,468 @@
+[{
+  "_id": {
+    "$oid": "699e0d529f6279a30e348452"
+  },
+  "name": "Company Registration",
+  "category": {
+    "$oid": "699e0d2a9f6279a30e34843d"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-02-24T20:42:58.310Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-13T12:01:07.530Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a57ba0a6644238ceaab583"
+  },
+  "name": "GST Services",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-02T11:59:28.654Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-26T08:57:10.034Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a57be3a6644238ceaab5ba"
+  },
+  "name": "Income Tax",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-02T12:00:35.642Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-02T12:00:35.642Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69a721fea6644238ceaaba11"
+  },
+  "name": "Government Registrations",
+  "category": {
+    "$oid": "699e0d2a9f6279a30e34843d"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-03T18:01:34.363Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-03T18:01:34.363Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69afeeadeb8ac78ccd375cd5"
+  },
+  "name": "Licenses",
+  "category": {
+    "$oid": "699e0d2a9f6279a30e34843d"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-10T10:13:01.097Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-10T10:13:01.097Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69afeec2eb8ac78ccd375cde"
+  },
+  "name": "NOC & Certifications",
+  "category": {
+    "$oid": "699e0d2a9f6279a30e34843d"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-10T10:13:22.287Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-10T10:14:58.992Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69afefbbeb8ac78ccd375d3d"
+  },
+  "name": "Trademark Registration",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-10T10:17:31.454Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-10T10:17:31.454Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69b01ef7eb8ac78ccd376e64"
+  },
+  "name": "Misc. Services",
+  "category": {
+    "$oid": "69b01ea5eb8ac78ccd376d95"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-10T13:39:03.384Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-13T11:58:28.427Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69c4fc4b9dfeb7f87a47f6fc"
+  },
+  "name": "GST Return Filing",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-26T09:28:43.894Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-26T09:28:43.894Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69c4fc5d9dfeb7f87a47f705"
+  },
+  "name": "Amendment & Cancellation",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-26T09:29:01.450Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-26T09:29:01.450Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69c4fc6e9dfeb7f87a47f70e"
+  },
+  "name": "GST Notices & Compliance",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-26T09:29:18.390Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-26T09:29:18.390Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69c4fcdf9dfeb7f87a47f750"
+  },
+  "name": "TDS & TAN Services",
+  "category": {
+    "$oid": "69a567a25baf0c47e667ecdb"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-03-26T09:31:11.478Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T08:20:48.837Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce3e8b9dfeb7f87a481a5a"
+  },
+  "name": "Annual Compliance",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:01:47.159Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:01:47.159Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce44d39dfeb7f87a4820e4"
+  },
+  "name": "Company / LLP Changes",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:28:35.537Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:28:35.537Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce45149dfeb7f87a4820ed"
+  },
+  "name": "Director / Partner Services",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:29:40.335Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:29:40.335Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce45389dfeb7f87a4820f6"
+  },
+  "name": "ROC Filings",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:30:16.199Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:30:16.199Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce45d59dfeb7f87a48211a"
+  },
+  "name": "Capital & Share Services",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:32:53.136Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:32:53.136Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce45f29dfeb7f87a482123"
+  },
+  "name": "Closure & Conversion",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:33:22.728Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:33:22.728Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69ce463c9dfeb7f87a48212c"
+  },
+  "name": "Business Plan Preparation",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-02T10:34:36.953Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-02T10:34:36.953Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69cf83d69dfeb7f87a4833bc"
+  },
+  "name": "abhi tast",
+  "category": {
+    "$oid": "69ce3e5f9dfeb7f87a481a53"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-03T09:09:42.332Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-03T09:09:42.332Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a6029dfeb7f87a4843b3"
+  },
+  "name": "IP Legal & Dispute Services",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:47:46.784Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:47:46.784Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a6119dfeb7f87a4843bc"
+  },
+  "name": "Design Services",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:48:01.729Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:48:01.729Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a61f9dfeb7f87a4843c5"
+  },
+  "name": "Patent Services",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:48:15.443Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:48:15.443Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a6309dfeb7f87a4843ce"
+  },
+  "name": "Copyright Services",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:48:32.812Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:48:32.812Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a63e9dfeb7f87a4843d7"
+  },
+  "name": "Legal Protection",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:48:46.737Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:48:46.737Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69d0a6509dfeb7f87a4843e2"
+  },
+  "name": "Post Registration Services",
+  "category": {
+    "$oid": "69a567d65baf0c47e667ecf7"
+  },
+  "shortDescription": "",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-04T05:49:04.913Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-04T05:49:04.913Z"
+  },
+  "__v": 0
+}]

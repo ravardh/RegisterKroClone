@@ -18,6 +18,10 @@ const subCategorySchema = mongoose.Schema(
       required: false,
       trim: true,
     },
+    sequence: {
+      type: Number,
+      required: false,
+    },
     isActive: {
       type: Boolean,
       default: true,
