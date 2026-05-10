@@ -39,6 +39,8 @@ const AddServiceModal = ({
   const [activeDescTab, setActiveDescTab] = useState(0);
   const [previewDoc, setPreviewDoc] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imgSettings, setImgSettings] = useState(null); // { img, x, y }
 
   const quillRefs = useRef([]);
   const quillInstances = useRef([]);
@@ -50,6 +52,43 @@ const AddServiceModal = ({
     const base = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
     const path = url.startsWith("/") ? url : `/${url}`;
     return `${base}${path}`;
+  };
+
+  const handleImageUpload = async (editor) => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const payload = new FormData();
+      payload.append("image", file);
+      setIsUploadingImage(true);
+
+      try {
+        const res = await axios.post("/services/upload-blog-image", payload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const relativeUrl = res?.data?.data?.url;
+        if (!relativeUrl) {
+          throw new Error("Upload did not return an image URL");
+        }
+
+        const imageUrl = getDocumentUrl(relativeUrl);
+        const range = editor.getSelection(true) || { index: editor.getLength() };
+        editor.insertEmbed(range.index, "image", imageUrl, "user");
+        editor.setSelection(range.index + 1, 0);
+        toast.success("Image uploaded");
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        toast.error(error.response?.data?.message || "Image upload failed");
+      } finally {
+        setIsUploadingImage(false);
+      }
+    };
   };
 
   const getFileExtension = (name = "") => {
@@ -141,6 +180,29 @@ const AddServiceModal = ({
         top: 0 !important;
         z-index: 10 !important;
       }
+      .ql-editor img {
+        cursor: move;
+        transition: outline 0.2s;
+        max-width: 100%;
+        height: auto;
+        display: inline-block;
+      }
+      .ql-editor img:hover {
+        outline: 2px solid #3b82f6;
+      }
+      .ql-editor img.ql-align-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .ql-editor img.ql-align-right {
+        display: block;
+        margin-left: auto;
+      }
+      .ql-editor img.ql-align-left {
+        display: block;
+        margin-right: auto;
+      }
     `;
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
@@ -165,23 +227,23 @@ const AddServiceModal = ({
             : [""],
           description: editingService.description?.length
             ? editingService.description.map((d) => ({
-                tabs: d.tabs || "",
-                content: d.content || "",
-              }))
+              tabs: d.tabs || "",
+              content: d.content || "",
+            }))
             : [{ ...EMPTY_DESCRIPTION_TAB }],
           faqs: editingService.faqs?.length
             ? editingService.faqs
             : [{ question: "", answer: "" }],
           packages: editingService.packages?.length
             ? editingService.packages.map((pkg) => ({
-                name: pkg.name || "",
-                price: pkg.price || "",
-                description: pkg.description || "",
-                includedFeatures: pkg.includedFeatures?.length
-                  ? pkg.includedFeatures
-                  : [""],
-                isMostPopular: pkg.isMostPopular || false,
-              }))
+              name: pkg.name || "",
+              price: pkg.price || "",
+              description: pkg.description || "",
+              includedFeatures: pkg.includedFeatures?.length
+                ? pkg.includedFeatures
+                : [""],
+              isMostPopular: pkg.isMostPopular || false,
+            }))
             : [{ ...EMPTY_PACKAGE }],
           Featured: {
             isFeatured: editingService.Featured?.isFeatured || false,
@@ -222,6 +284,7 @@ const AddServiceModal = ({
       // Skip if already initialized and properly set
       if (quillInstances.current[index]) {
         // Update content if it changed (for edit mode)
+        // We check against root.innerHTML to avoid infinite loops during typing
         if (quillInstances.current[index].root.innerHTML !== desc.content) {
           quillInstances.current[index].root.innerHTML = desc.content || "";
         }
@@ -238,17 +301,44 @@ const AddServiceModal = ({
             [{ header: [1, 2, 3, false] }],
             ["bold", "italic", "underline"],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
+            [{ align: [] }],
+            ["link", "image"],
+            ["clean"],
           ],
         },
+      });
+
+      const toolbar = q.getModule("toolbar");
+      toolbar.addHandler("image", () => {
+        handleImageUpload(q);
       });
 
       q.on("text-change", () => {
         setFormData((prev) => {
           const updated = [...prev.description];
-          updated[index] = { ...updated[index], content: q.root.innerHTML };
-          return { ...prev, description: updated };
+          // Only update if content actually changed to help prevent loops
+          if (updated[index].content !== q.root.innerHTML) {
+            updated[index] = { ...updated[index], content: q.root.innerHTML };
+            return { ...prev, description: updated };
+          }
+          return prev;
         });
+      });
+
+      // Add click listener for image settings (Floating menu)
+      q.root.addEventListener("click", (e) => {
+        if (e.target.tagName === "IMG") {
+          const img = e.target;
+          const rect = img.getBoundingClientRect();
+          setImgSettings({
+            img,
+            index,
+            top: rect.top,
+            left: rect.left + rect.width / 2,
+          });
+        } else {
+          setImgSettings(null);
+        }
       });
 
       // Set initial content - use setTimeout to ensure Quill is fully ready
@@ -261,7 +351,7 @@ const AddServiceModal = ({
       q.enable(!!formData.subCategory);
       quillInstances.current[index] = q;
     });
-  }, [isOpen, editingService?._id, formData.description.length]);
+  }, [isOpen, editingService?._id, formData.description]);
 
   // Enable/disable Quill editors based on subCategory selection
   useEffect(() => {
@@ -269,6 +359,61 @@ const AddServiceModal = ({
       if (q) q.enable(!!formData.subCategory);
     });
   }, [formData.subCategory]);
+
+  const updateImgWidth = (width) => {
+    if (!imgSettings) return;
+    imgSettings.img.style.width = width;
+    setFormData((prev) => {
+      const updated = [...prev.description];
+      updated[imgSettings.index] = {
+        ...updated[imgSettings.index],
+        content: quillInstances.current[imgSettings.index].root.innerHTML,
+      };
+      return { ...prev, description: updated };
+    });
+    setImgSettings(null);
+  };
+
+  const moveImg = (direction) => {
+    if (!imgSettings) return;
+    const q = quillInstances.current[imgSettings.index];
+    const img = imgSettings.img;
+    const blot = Quill.find(img);
+    if (!blot || !q) return;
+
+    const currentOffset = q.getIndex(blot);
+    const imageUrl = img.src;
+
+    // Use Quill API to move content to ensure internal state stays in sync
+    q.deleteText(currentOffset, 1);
+
+    let newIndex = 0;
+    if (direction === "top") {
+      newIndex = 0;
+    } else if (direction === "bottom") {
+      newIndex = q.getLength();
+    } else if (direction === "up") {
+      // Move back by finding the previous block or character
+      newIndex = Math.max(0, currentOffset - 2);
+    } else {
+      // Move forward
+      newIndex = Math.min(q.getLength(), currentOffset + 2);
+    }
+
+    q.insertEmbed(newIndex, "image", imageUrl);
+
+    // Update formData immediately
+    setFormData((prev) => {
+      const updated = [...prev.description];
+      updated[imgSettings.index] = {
+        ...updated[imgSettings.index],
+        content: q.root.innerHTML,
+      };
+      return { ...prev, description: updated };
+    });
+
+    setImgSettings(null);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -514,11 +659,11 @@ const AddServiceModal = ({
 
       const res = editingService
         ? await axios.put(`/services/${editingService._id}`, formPayload, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
+          headers: { "Content-Type": "multipart/form-data" },
+        })
         : await axios.post("/services", formPayload, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
       if (res.data.data) {
         toast.success(`Service ${editingService ? 'updated' : 'added'} successfully!`);
@@ -612,11 +757,10 @@ const AddServiceModal = ({
                       isVisible: !prev.isVisible,
                     }))
                   }
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-                    formData.isVisible
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold ${formData.isVisible
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-700"
+                    }`}
                 >
                   {formData.isVisible ? "Visible" : "Not Visible"}
                 </button>
@@ -1104,11 +1248,10 @@ const AddServiceModal = ({
                     key={index}
                     type="button"
                     onClick={() => setActiveDescTab(index)}
-                    className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                      activeDescTab === index
-                        ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeDescTab === index
+                      ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     {desc.tabs?.trim() || `Tab ${index + 1}`}
                   </button>
@@ -1133,9 +1276,8 @@ const AddServiceModal = ({
               {formData.description.map((desc, index) => (
                 <div
                   key={index}
-                  className={`space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50 ${
-                    activeDescTab === index ? "" : "hidden"
-                  }`}
+                  className={`space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50 ${activeDescTab === index ? "" : "hidden"
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -1258,13 +1400,15 @@ const AddServiceModal = ({
             <button
               type="submit"
               className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300"
-              disabled={loading || !formData.subCategory}
+              disabled={loading || isUploadingImage || !formData.subCategory}
             >
-              {loading
-                ? "Saving..."
-                : editingService
-                ? "Update Service"
-                : "Create Service"}
+              {isUploadingImage
+                ? "Uploading Image..."
+                : loading
+                  ? "Saving..."
+                  : editingService
+                    ? "Update Service"
+                    : "Create Service"}
             </button>
           </div>
         </form>
@@ -1310,6 +1454,71 @@ const AddServiceModal = ({
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {imgSettings && (
+          <div
+            className="fixed z-[70] bg-white border border-gray-200 shadow-xl rounded-lg p-1 flex gap-1 transform -translate-x-1/2 -translate-y-full mb-2 animate-in fade-in zoom-in duration-200"
+            style={{ top: imgSettings.top, left: imgSettings.left }}
+          >
+            {[
+              { label: "25%", value: "25%" },
+              { label: "50%", value: "50%" },
+              { label: "75%", value: "75%" },
+              { label: "Full", value: "100%" },
+              { label: "Auto", value: "auto" },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => updateImgWidth(opt.value)}
+                className="px-2 py-1 text-[10px] font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded transition duration-200 uppercase"
+              >
+                {opt.label}
+              </button>
+            ))}
+            <div className="w-px bg-gray-200 mx-1" />
+            <button
+              type="button"
+              onClick={() => moveImg("top")}
+              className="px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-100 rounded transition duration-200 uppercase"
+              title="Jump to Top"
+            >
+              Top
+            </button>
+            <button
+              type="button"
+              onClick={() => moveImg("up")}
+              className="px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-100 rounded transition duration-200 uppercase"
+              title="Move Up"
+            >
+              Up
+            </button>
+            <button
+              type="button"
+              onClick={() => moveImg("down")}
+              className="px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-100 rounded transition duration-200 uppercase"
+              title="Move Down"
+            >
+              Down
+            </button>
+            <button
+              type="button"
+              onClick={() => moveImg("bottom")}
+              className="px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-100 rounded transition duration-200 uppercase"
+              title="Jump to Bottom"
+            >
+              Bottom
+            </button>
+            <div className="w-px bg-gray-200 mx-1" />
+            <button
+              type="button"
+              onClick={() => setImgSettings(null)}
+              className="px-2 py-1 text-[10px] font-bold text-red-500 hover:bg-red-50 rounded transition duration-200 uppercase"
+            >
+              Close
+            </button>
           </div>
         )}
       </div>
