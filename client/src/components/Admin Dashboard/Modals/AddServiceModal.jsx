@@ -39,6 +39,7 @@ const AddServiceModal = ({
   const [activeDescTab, setActiveDescTab] = useState(0);
   const [previewDoc, setPreviewDoc] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const quillRefs = useRef([]);
   const quillInstances = useRef([]);
@@ -50,6 +51,43 @@ const AddServiceModal = ({
     const base = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
     const path = url.startsWith("/") ? url : `/${url}`;
     return `${base}${path}`;
+  };
+
+  const handleImageUpload = async (editor) => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const payload = new FormData();
+      payload.append("image", file);
+      setIsUploadingImage(true);
+
+      try {
+        const res = await axios.post("/services/upload-blog-image", payload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const relativeUrl = res?.data?.data?.url;
+        if (!relativeUrl) {
+          throw new Error("Upload did not return an image URL");
+        }
+
+        const imageUrl = getDocumentUrl(relativeUrl);
+        const range = editor.getSelection(true) || { index: editor.getLength() };
+        editor.insertEmbed(range.index, "image", imageUrl, "user");
+        editor.setSelection(range.index + 1, 0);
+        toast.success("Image uploaded");
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        toast.error(error.response?.data?.message || "Image upload failed");
+      } finally {
+        setIsUploadingImage(false);
+      }
+    };
   };
 
   const getFileExtension = (name = "") => {
@@ -238,9 +276,16 @@ const AddServiceModal = ({
             [{ header: [1, 2, 3, false] }],
             ["bold", "italic", "underline"],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
+            [{ align: [] }],
+            ["link", "image"],
+            ["clean"],
           ],
         },
+      });
+
+      const toolbar = q.getModule("toolbar");
+      toolbar.addHandler("image", () => {
+        handleImageUpload(q);
       });
 
       q.on("text-change", () => {
@@ -1258,9 +1303,11 @@ const AddServiceModal = ({
             <button
               type="submit"
               className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300"
-              disabled={loading || !formData.subCategory}
+              disabled={loading || isUploadingImage || !formData.subCategory}
             >
-              {loading
+              {isUploadingImage
+                ? "Uploading Image..."
+                : loading
                 ? "Saving..."
                 : editingService
                 ? "Update Service"
