@@ -3,6 +3,9 @@ import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { FaEdit, FaCheckCircle, FaDownload } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { useTable } from "../../hooks/useTable";
+import { SortableHeader, TablePagination, SearchBar } from "./TableComponents";
+import clsx from "clsx";
 
 const stages = [
   "new",
@@ -40,6 +43,20 @@ const LeadsManage = () => {
   const [exportStartDate, setExportStartDate] = useState("");
   const [exportEndDate, setExportEndDate] = useState("");
   const [exportStage, setExportStage] = useState("all");
+
+  const {
+    data: displayedLeads,
+    totalItems,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    handleRowsPerPageChange,
+    searchTerm,
+    handleSearch,
+    sortConfig,
+    requestSort,
+  } = useTable(leads, ["clientName", "clientEmail", "clientPhone", "interestedService", "state"], { key: "createdAt", direction: "desc" });
 
   useEffect(() => {
     fetchLeads();
@@ -116,7 +133,7 @@ const LeadsManage = () => {
     }
   };
 
-  const filteredLeads = leads.filter(
+  const finalFilteredLeads = displayedLeads.filter(
     (lead) => filterStage === "all" || getCurrentStage(lead) === filterStage
   );
 
@@ -176,122 +193,136 @@ const LeadsManage = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-4">
-      {/* Header */}
-      <div className="flex justify-between items-center gap-3 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Leads</h2>
-        <div className="flex items-center gap-2">
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Leads Management</h1>
+          <p className="text-gray-500 mt-1">Track client interest, assign RMs, and monitor conversion stages</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <SearchBar 
+            value={searchTerm} 
+            onChange={handleSearch} 
+            placeholder="Search leads..." 
+          />
           <select
             value={filterStage}
             onChange={(e) => setFilterStage(e.target.value)}
-            className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-(--primary)"
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all"
           >
             <option value="all">All Stages</option>
             {stages.map((stage) => (
-              <option key={stage} value={stage}>
-                {stage}
-              </option>
+              <option key={stage} value={stage}>{stage}</option>
             ))}
           </select>
           <button
             onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg active:scale-95"
           >
-            <FaDownload size={12} />
-            Export Excel
+            <FaDownload size={12} /> Export
           </button>
         </div>
       </div>
 
-      <div className="space-y-2">
-        {filteredLeads.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-400 text-sm">No leads found</p>
-          </div>
-        ) : (
-          filteredLeads.map((lead) => {
-            const currentStage = getCurrentStage(lead);
-            return (
-              <div
-                key={lead._id}
-                className="border border-gray-100 rounded-lg p-3 hover:border-gray-300 hover:bg-gray-50 transition duration-150"
-              >
-                <div className="flex justify-between items-start gap-3 flex-wrap md:flex-nowrap">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {lead.clientName}
-                      </h3>
-                      <span className="text-xs text-gray-400 shrink-0">
-                        #{lead.serviceID || lead.leadID}
-                      </span>
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse text-sm">
+            <thead className="bg-gray-50 text-left text-gray-700">
+              <tr>
+                <SortableHeader label="Client Details" sortKey="clientName" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Service & State" sortKey="interestedService" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Current Stage" sortKey="leadStages.length" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Assigned To" sortKey="assignedTo.fullName" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Created At" sortKey="createdAt" currentSort={sortConfig} onSort={requestSort} />
+                <th className="px-4 py-4 font-bold text-xs uppercase tracking-wider text-center text-gray-500 border-b-2 border-gray-100">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-700 divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-500 font-medium">Loading leads...</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 truncate">
-                      {lead.clientEmail}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5 truncate">
-                      {lead.clientPhone}
-                    </p>
-                  </div>
-                  <div className="space-y-2 flex-shrink-0">
-                    <div className="grid grid-cols-2 gap-1">
-                      <span className="text-xs text-gray-600">Current Stage:</span>
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded text-center ${
-                          stageColors[currentStage] ||
-                          "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {currentStage || "No Stage"}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <span className="text-xs text-gray-600">Service:</span>
-                      <span className="text-xs">{lead.interestedService}</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <span className="text-xs text-gray-600">State:</span>
-                      <span className="text-xs font-semibold text-blue-600">{lead.state || "N/A"}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end flex-shrink-0">
-                    <button
-                      onClick={() => handleAssignLead(lead)}
-                      className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1 whitespace-nowrap"
-                    >
-                      <FaEdit size={12} />
-                      Manage
-                    </button>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {lead.assignedTo?.fullName || "Not assigned"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Stage History */}
-                {lead.leadStages && lead.leadStages.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
-                    <p className="text-xs text-gray-500 font-medium mb-1">
-                      Stage History:
-                    </p>
-                    <div className="flex items-center gap-1 flex-wrap">
-                      {lead.leadStages.map((stage, idx) => (
-                        <div key={idx} className="flex items-center gap-0.5">
-                          <FaCheckCircle size={10} className="text-green-600" />
-                          <span className="text-xs text-gray-600">
-                            {stage.stageName}
-                          </span>
-                          {idx < lead.leadStages.length - 1 && (
-                            <span className="text-gray-300 mx-0.5">→</span>
-                          )}
+                  </td>
+                </tr>
+              ) : finalFilteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-gray-500 italic">
+                    {leads.length === 0 ? "No leads found." : "No leads match your criteria."}
+                  </td>
+                </tr>
+              ) : (
+                finalFilteredLeads.map((lead) => {
+                  const currentStage = getCurrentStage(lead);
+                  return (
+                    <tr key={lead._id} className="hover:bg-blue-50/50 transition-colors group">
+                      <td className="px-4 py-4 border-r border-gray-50">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-900">{lead.clientName}</span>
+                          <span className="text-xs text-blue-600 font-medium">#{lead.serviceID || lead.leadID}</span>
+                          <div className="flex flex-col mt-1 text-[11px] text-gray-500">
+                            <span>{lead.clientEmail}</span>
+                            <span>{lead.clientPhone}</span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
+                      </td>
+                      <td className="px-4 py-4 border-r border-gray-50">
+                        <div className="flex flex-col gap-1">
+                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[11px] font-bold border border-indigo-100 self-start">
+                            {lead.interestedService}
+                          </span>
+                          <span className="text-xs font-semibold text-gray-600">
+                            State: <span className="text-blue-600">{lead.state || "N/A"}</span>
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 border-r border-gray-50 text-center">
+                        <span
+                          className={clsx(
+                            "text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider",
+                            stageColors[currentStage] || "bg-gray-100 text-gray-700 border border-gray-200"
+                          )}
+                        >
+                          {currentStage || "No Stage"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 border-r border-gray-50 text-center">
+                        <span className="text-sm font-medium text-gray-700">
+                          {lead.assignedTo?.fullName || (
+                            <span className="text-gray-400 italic">Not Assigned</span>
+                          )}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 border-r border-gray-50 text-gray-500 font-medium">
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <button
+                          onClick={() => handleAssignLead(lead)}
+                          className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-1 mx-auto"
+                        >
+                          <FaEdit size={12} /> Manage
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        {!loading && leads.length > 0 && (
+          <TablePagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            totalItems={totalItems}
+            showingCount={finalFilteredLeads.length}
+          />
         )}
       </div>
 

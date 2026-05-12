@@ -5,6 +5,8 @@ import EditRmModal from './Modals/EditRmModel'
 import axios from '../../config/api'
 import toast from 'react-hot-toast'
 import { confirmDialog } from '../../utils/confirmDialog'
+import { useTable } from "../../hooks/useTable";
+import { SortableHeader, TablePagination, SearchBar } from "./TableComponents";
 
 const RelationshipManagers = () => {
   const [managers, setManagers] = useState([])
@@ -12,6 +14,20 @@ const RelationshipManagers = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedManager, setSelectedManager] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  const {
+    data: displayedManagers,
+    totalItems,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    handleRowsPerPageChange,
+    searchTerm,
+    handleSearch,
+    sortConfig,
+    requestSort,
+  } = useTable(managers, ["fullName", "email", "phone"], { key: "createdAt", direction: "desc" });
 
   const fetchRm = async () => {
     try {
@@ -32,12 +48,12 @@ const RelationshipManagers = () => {
     fetchRm()
   }, [])
 
-  const handleAddManager = (newManager) => {
+  const handleAddManager = () => {
     fetchRm()
     setIsModalOpen(false)
   }
 
-  const handleUpdateManager = (updatedManager) => {
+  const handleUpdateManager = () => {
     fetchRm()
     setIsEditModalOpen(false)
     setSelectedManager(null)
@@ -68,79 +84,119 @@ const RelationshipManagers = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-700 mb-2">Relationship Managers</h1>
-        <p className="text-gray-600">Manage your team of relationship managers</p>
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Relationship Managers</h1>
+          <p className="text-gray-500 mt-1">Manage your team of relationship managers and their access</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <SearchBar 
+            value={searchTerm} 
+            onChange={handleSearch} 
+            placeholder="Search managers..." 
+          />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium shadow-md hover:shadow-lg active:scale-95"
+          >
+            <MdAdd className="w-5 h-5" /> Add Manager
+          </button>
+        </div>
       </div>
 
-      <div className="mb-6">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className=" bg-(--primary) hover:bg-(--primary-hover) text-white px-6 py-3 rounded-lg font-semibold shadow-md transition duration-200 flex items-center gap-2"
-        >
-          <MdAdd className="w-5 h-5" />
-          Add Relationship Manager
-        </button>
-      </div>
-
-      <div className="grid gap-4">
-        {loading ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <p className="text-gray-500">Loading...</p>
-          </div>
-        ) : managers.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <MdPeople className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Relationship Managers Yet</h3>
-            <p className="text-gray-500">Click the "Add Relationship Manager" button to get started</p>
-          </div>
-        ) : (
-          managers.map((manager) => (
-            <div key={manager._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-bold text-lg">
-                        {manager.fullName.charAt(0).toUpperCase()}
-                      </span>
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse text-sm">
+            <thead className="bg-gray-50 text-left text-gray-700">
+              <tr>
+                <SortableHeader label="Manager Name" sortKey="fullName" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Email Address" sortKey="email" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Phone Number" sortKey="phone" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Added Date" sortKey="createdAt" currentSort={sortConfig} onSort={requestSort} />
+                <th className="px-4 py-4 font-bold text-xs uppercase tracking-wider text-center text-gray-500 border-b-2 border-gray-100">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-700 divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-500 font-medium">Loading managers...</span>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-800">{manager.fullName}</h3>
-                      <p className="text-sm text-gray-500">Added on {new Date(manager.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <MdEmail className="w-5 h-5 text-gray-400" />
-                      <span className="text-sm">{manager.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <MdPhone className="w-5 h-5 text-gray-400" />
-                      <span className="text-sm">{manager.phone}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  <button
-                    onClick={() => handleEdit(manager)}
-                    className="text-blue-500 hover:text-blue-700 transition duration-200"
-                    title="Edit Manager"
-                  >
-                    <MdEdit className="w-6 h-6" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(manager._id)}
-                    className="text-red-500 hover:text-red-700 transition duration-200"
-                    title="Delete Manager"
-                  >
-                    <MdDelete className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
+                  </td>
+                </tr>
+              ) : displayedManagers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-10 text-center text-gray-500 italic">
+                    {managers.length === 0 ? "No relationship managers found." : "No managers match your search."}
+                  </td>
+                </tr>
+              ) : (
+                displayedManagers.map((manager) => (
+                  <tr key={manager._id} className="hover:bg-blue-50/50 transition-colors group">
+                    <td className="px-4 py-4 font-semibold text-gray-900 border-r border-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+                          {manager.fullName.charAt(0).toUpperCase()}
+                        </div>
+                        {manager.fullName}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MdEmail className="w-4 h-4 text-blue-500" />
+                        <a href={`mailto:${manager.email}`} className="hover:text-blue-600 transition-colors">
+                          {manager.email}
+                        </a>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MdPhone className="w-4 h-4 text-indigo-500" />
+                        <a href={`tel:${manager.phone}`} className="hover:text-blue-600 transition-colors">
+                          {manager.phone}
+                        </a>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50 text-gray-500 font-medium">
+                      {new Date(manager.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(manager)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                          title="Edit Manager"
+                        >
+                          <MdEdit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(manager._id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Delete Manager"
+                        >
+                          <MdDelete className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {!loading && managers.length > 0 && (
+          <TablePagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            totalItems={totalItems}
+            showingCount={displayedManagers.length}
+          />
         )}
       </div>
 

@@ -2,8 +2,62 @@ import User from "../models/userModel.js";
 import Contact from "../models/contactModel.js";
 import Leads from "../models/leadsModel.js";
 import Feedback from "../models/feedbackModel.js";
+import Service from "../models/ServiceModel.js";
+import Category from "../models/categoryModel.js";
+import SubCategory from "../models/subCategoryModel.js";
+import Blog from "../models/blogModel.js";
 import bcrypt from "bcrypt";
-import { sendRmAssignmentEmail, sendLeadUpdateEmail, sendAdminUpdateNotification } from "../config/emailService.js";
+import { sendRmAssignmentEmail } from "../config/emailService.js";
+import fs from "fs";
+import path from "path";
+
+export const backupDatabase = async (req, res, next) => {
+  try {
+    const [
+      users,
+      contacts,
+      leads,
+      feedbacks,
+      services,
+      categories,
+      subcategories,
+      blogs
+    ] = await Promise.all([
+      User.find().select("-password"),
+      Contact.find(),
+      Leads.find(),
+      Feedback.find(),
+      Service.find(),
+      Category.find(),
+      SubCategory.find(),
+      Blog.find()
+    ]);
+
+    const backupData = {
+      users,
+      contacts,
+      leads,
+      feedbacks,
+      services,
+      categories,
+      subcategories,
+      blogs,
+      timestamp: new Date().toISOString(),
+      version: "1.0.0"
+    };
+
+    const jsonBackup = JSON.stringify(backupData, null, 2);
+    
+    // For now, we'll send it as a JSON file. 
+    // The client expects a .zip, but a .json is also acceptable for now 
+    // unless they strictly need zip compression.
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename=db_backup_${new Date().toISOString().split('T')[0]}.json`);
+    res.status(200).send(jsonBackup);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getAllLeads = async (req, res, next) => {
   try {

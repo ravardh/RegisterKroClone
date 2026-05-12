@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../config/api';
 import toast from 'react-hot-toast';
-import { FaLeaf, FaUsers, FaBox, FaClipboardCheck, FaTrash } from 'react-icons/fa';
+import { FaLeaf, FaUsers, FaBox, FaClipboardCheck, FaTrash, FaDatabase } from 'react-icons/fa';
+import clsx from 'clsx';
 
 const stages = [
   "new",
@@ -15,14 +16,14 @@ const stages = [
 ];
 
 const stageColors = {
-  new: "bg-gray-100 text-gray-700",
-  contacted: "bg-blue-100 text-blue-700",
-  "proposal sent": "bg-purple-100 text-purple-700",
-  negotiation: "bg-orange-100 text-orange-700",
-  "document collected": "bg-yellow-100 text-yellow-700",
-  "Application done": "bg-indigo-100 text-indigo-700",
-  "In Progress": "bg-cyan-100 text-cyan-700",
-  Completed: "bg-green-100 text-green-700",
+  new: "bg-gray-50 text-gray-600 border-gray-100",
+  contacted: "bg-blue-50 text-blue-600 border-blue-100",
+  "proposal sent": "bg-purple-50 text-purple-600 border-purple-100",
+  negotiation: "bg-orange-50 text-orange-600 border-orange-100",
+  "document collected": "bg-yellow-50 text-yellow-600 border-yellow-100",
+  "Application done": "bg-indigo-50 text-indigo-600 border-indigo-100",
+  "In Progress": "bg-cyan-50 text-cyan-600 border-cyan-100",
+  Completed: "bg-green-50 text-green-600 border-green-100",
 };
 
 const Overview = () => {
@@ -38,6 +39,7 @@ const Overview = () => {
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purging, setPurging] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -63,7 +65,6 @@ const Overview = () => {
       const rms = rmsRes.data.data || [];
       const services = servicesRes.data.data || [];
 
-      // Calculate stats based on stages
       const stageCounts = {};
       stages.forEach(stage => {
         stageCounts[stage] = leads.filter(l => getCurrentStage(l) === stage).length;
@@ -83,8 +84,7 @@ const Overview = () => {
         stageCounts,
       });
 
-      // Get recent 5 leads
-      setRecentLeads(leads.slice(0, 5));
+      setRecentLeads(leads.slice(0, 6));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
@@ -93,131 +93,207 @@ const Overview = () => {
     }
   };
 
+  const handleBackup = async () => {
+    try {
+      setBackingUp(true);
+      toast.loading('Generating backup...', { id: 'backup-toast' });
+      
+      const response = await axios.get('/admin/backup-db', {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `registerkro_backup_${date}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Backup downloaded successfully!', { id: 'backup-toast' });
+    } catch (error) {
+      console.error('Backup failed:', error);
+      toast.error('Failed to generate backup. Make sure server is configured.', { id: 'backup-toast' });
+    } finally {
+      setBackingUp(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--primary) mx-auto mb-4"></div>
-          <p className="text-gray-600 text-sm">Loading dashboard...</p>
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 font-medium italic">Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
-  const StatCard = ({ icon: Icon, label, value, bgColor }) => (
-    <div className="border border-gray-100 rounded-lg p-3 sm:p-4 hover:border-gray-300 transition duration-150">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-gray-500 uppercase font-medium tracking-wide">{label}</p>
-          <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{value}</p>
+  const StatCard = ({ icon: Icon, label, value, colorClass, trend }) => (
+    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer group">
+      <div className="flex items-center justify-between mb-4">
+        <div className={clsx("p-3 rounded-xl text-white shadow-sm group-hover:scale-110 transition-transform", colorClass)}>
+          <Icon size={20} />
         </div>
-        <div className={`p-2 sm:p-3 rounded-lg ${bgColor}`}>
-          <Icon size={20} className="text-white sm:w-6 sm:h-6" />
-        </div>
+        {trend && <span className="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+{trend}%</span>}
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+        <h3 className="text-2xl font-bold text-gray-800">{value}</h3>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-xs sm:text-sm text-gray-500 mt-1">Welcome back! Here's your business summary.</p>
+    <div className="space-y-6">
+      {/* Refined Header */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Overview</h1>
+          <p className="text-gray-500 font-medium mt-1">Welcome back! Here's your business performance today.</p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={handleBackup}
+            disabled={backingUp}
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-100 rounded-xl hover:bg-purple-100 transition-all font-semibold active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            <FaDatabase className={clsx(backingUp && "animate-pulse")} />
+            {backingUp ? "Generating..." : "Backup DB"}
+          </button>
+          <button
+            onClick={fetchDashboardData}
+            className="px-5 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold active:scale-95 cursor-pointer"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={FaLeaf}
           label="Total Leads"
           value={stats.totalLeads}
-          bgColor="bg-blue-500"
+          colorClass="bg-blue-600"
+          trend="12"
         />
         <StatCard
           icon={FaClipboardCheck}
           label="Completed"
           value={stats.completedLeads}
-          bgColor="bg-green-500"
+          colorClass="bg-green-600"
+          trend="8"
         />
         <StatCard
           icon={FaUsers}
-          label="Relationship Managers"
+          label="Team Members"
           value={stats.totalRMs}
-          bgColor="bg-purple-500"
+          colorClass="bg-purple-600"
         />
         <StatCard
           icon={FaBox}
-          label="Total Services"
+          label="Active Services"
           value={stats.totalServices}
-          bgColor="bg-orange-500"
+          colorClass="bg-orange-600"
         />
       </div>
 
-      {/* Lead Stage Distribution */}
-      <div className="border border-gray-100 rounded-lg p-3 sm:p-4">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Lead Stage Distribution</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {stages.map(stage => (
-            <div key={stage} className={`text-center p-2 sm:p-3 rounded-lg border ${stageColors[stage]}`}>
-              <p className="text-xl sm:text-2xl font-bold">{stats.stageCounts[stage] || 0}</p>
-              <p className="text-xs mt-1 line-clamp-2">{stage}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lead Stages */}
+        <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">Lead Stage Distribution</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {stages.map(stage => (
+              <div 
+                key={stage} 
+                className={clsx(
+                  "flex flex-col items-center justify-center p-5 rounded-2xl border transition-all hover:border-gray-300",
+                  stageColors[stage] || 'bg-gray-50 border-gray-100'
+                )}
+              >
+                <span className="text-2xl font-bold mb-1">{stats.stageCounts[stage] || 0}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-center opacity-70">{stage}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Analytics Quick Peek */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-6">
+          <h2 className="text-xl font-bold text-gray-800">Quick Analytics</h2>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Completion Rate</p>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-gray-800">
+                  {stats.totalLeads > 0 ? ((stats.completedLeads / stats.totalLeads) * 100).toFixed(1) : 0}%
+                </span>
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-600 rounded-full" 
+                    style={{ width: `${stats.totalLeads > 0 ? (stats.completedLeads / stats.totalLeads) * 100 : 0}%` }}
+                  ></div>
+                </div>
+              </div>
             </div>
-          ))}
-          <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-xl sm:text-2xl font-bold text-gray-600">{stats.noStageLeads}</p>
-            <p className="text-xs text-gray-600 mt-1">No Stage</p>
+
+            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">System Action</p>
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Run maintenance?')) return;
+                  try {
+                    setPurging(true);
+                    await axios.delete('/services/maintenance/purge-orphaned-documents');
+                    toast.success('System cleaned!');
+                  } catch {
+                    toast.error('Failed');
+                  } finally {
+                    setPurging(false);
+                  }
+                }}
+                disabled={purging}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-red-50 text-red-600 border border-red-100 rounded-xl hover:bg-red-100 transition-all font-semibold active:scale-95 disabled:opacity-50 cursor-pointer text-sm"
+              >
+                <FaTrash size={12} />
+                {purging ? 'Running...' : 'Run Maintenance'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Leads */}
-      <div className="border border-gray-100 rounded-lg p-3 sm:p-4">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Recent Leads</h2>
-        <div className="space-y-2">
+      {/* Activity Feed */}
+      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Recent Activity</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {recentLeads.length === 0 ? (
-            <p className="text-xs sm:text-sm text-gray-500 text-center py-4">No leads yet</p>
+            <p className="col-span-full text-center py-8 text-gray-400 italic">No recent activity</p>
           ) : (
             recentLeads.map((lead) => {
               const currentStage = getCurrentStage(lead);
               return (
                 <div
                   key={lead._id}
-                  className="border border-gray-100 rounded-lg p-2 sm:p-3 hover:border-gray-300 transition duration-150"
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-gray-50 hover:bg-gray-50 transition-all cursor-default"
                 >
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3">
-                    <div className="flex-1 min-w-0 w-full">
-                      <div className="flex items-baseline gap-2 flex-wrap">
-                        <h3 className="text-xs sm:text-sm font-medium text-gray-900 break-words">
-                          {lead.clientName}
-                        </h3>
-                          <span className="text-xs text-gray-400 flex-shrink-0">
-                            #{lead.serviceID || lead.leadID}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-0.5 break-all">
-                        {lead.clientEmail}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded break-words">
-                          {lead.interestedService}
-                        </span>
-                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-semibold break-words">
-                          {lead.state || "N/A"}
-                        </span>
-                        <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap ${
-                            stageColors[currentStage] || 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {currentStage || 'No Stage'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto">
-                      <p className="text-xs text-gray-500">
-                        {lead.assignedTo?.fullName || '—'}
-                      </p>
+                  <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center font-bold text-sm">
+                    {lead.clientName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-gray-800 truncate text-sm">{lead.clientName}</h4>
+                    <div className="flex gap-2 mt-1">
+                      <span className={clsx(
+                        "text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border",
+                        stageColors[currentStage] || 'bg-gray-50 border-gray-200 text-gray-500'
+                      )}>
+                        {currentStage || 'NEW'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -226,64 +302,8 @@ const Overview = () => {
           )}
         </div>
       </div>
-
-      {/* Quick Stats */}
-      <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-xs text-gray-500 uppercase font-medium">Completion Rate</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {stats.totalLeads > 0
-                ? ((stats.completedLeads / stats.totalLeads) * 100).toFixed(1)
-                : 0}
-              %
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase font-medium">Avg Leads per RM</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {stats.totalRMs > 0 ? (stats.totalLeads / stats.totalRMs).toFixed(1) : 0}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase font-medium">In Progress</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {stats.inProgressLeads}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Maintenance */}
-      <div className="border border-red-100 rounded-lg p-4 bg-red-50">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">Storage Maintenance</h2>
-        <p className="text-xs text-gray-500 mb-4">
-          Remove files in the uploads folder that are no longer linked to any service document.
-        </p>
-        <button
-          onClick={async () => {
-            if (!window.confirm('This will permanently delete all orphaned files from the server uploads folder. Continue?')) return;
-            try {
-              setPurging(true);
-              const res = await axios.delete('/services/maintenance/purge-orphaned-documents');
-              const { message, deleted } = res.data;
-              toast.success(`${message}${deleted.length ? ' (' + deleted.join(', ') + ')' : ''}`);
-            } catch (err) {
-              toast.error(err?.response?.data?.message || 'Purge failed');
-            } finally {
-              setPurging(false);
-            }
-          }}
-          disabled={purging}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors"
-        >
-          <FaTrash className="w-3.5 h-3.5" />
-          {purging ? 'Purging...' : 'Purge Orphaned Files'}
-        </button>
-      </div>
     </div>
   );
 };
 
-export default Overview;
+export default Overview;

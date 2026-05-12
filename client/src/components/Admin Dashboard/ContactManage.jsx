@@ -4,11 +4,26 @@ import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../../utils/confirmDialog";
 import ViewContactDetailsModal from "./Modals/ViewContactDetailsModal";
+import { useTable } from "../../hooks/useTable";
+import { SortableHeader, TablePagination, SearchBar } from "./TableComponents";
 const ContactManage = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
+
+  const {
+    data: displayedContacts,
+    totalItems,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    handleRowsPerPageChange,
+    searchTerm,
+    handleSearch,
+    sortConfig,
+    requestSort,
+  } = useTable(contacts, ["fullName", "email", "phone", "message"], { key: "createdAt", direction: "desc" });
 
   useEffect(() => {
     fetchContacts();
@@ -47,17 +62,6 @@ const ContactManage = () => {
     );
   };
 
-  const filtered = contacts.filter((c) => {
-    if (!searchTerm) return true;
-    const q = searchTerm.toLowerCase();
-    return (
-      (c.fullName || "").toLowerCase().includes(q) ||
-      (c.email || "").toLowerCase().includes(q) ||
-      (c.phone || "").toLowerCase().includes(q) ||
-      (c.message || "").toLowerCase().includes(q)
-    );
-  });
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -70,103 +74,95 @@ const ContactManage = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Contact Submissions</h1>
-          <p className="text-sm text-gray-500">
-            View and manage contact form submissions
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Contact Submissions</h1>
+          <p className="text-gray-500 mt-1">View and manage contact form submissions</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <MdSearch className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search contacts..."
-              className="pl-8 pr-3 py-2 border rounded w-64"
-            />
-          </div>
+        <div className="w-full md:w-auto">
+          <SearchBar 
+            value={searchTerm} 
+            onChange={handleSearch} 
+            placeholder="Search contacts..." 
+          />
         </div>
       </div>
 
-      <div className="bg-white rounded shadow">
-        {loading ? (
-          <div className="p-6 text-center text-gray-500">Loading...</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            No contact submissions found
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead className="bg-gray-50 text-left">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse text-sm">
+            <thead className="bg-gray-50 text-left text-gray-700">
+              <tr>
+                <SortableHeader label="Name" sortKey="fullName" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Email" sortKey="email" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Phone" sortKey="phone" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Message" sortKey="message" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Submitted At" sortKey="createdAt" currentSort={sortConfig} onSort={requestSort} />
+                <th className="px-4 py-4 font-bold text-xs uppercase tracking-wider text-center text-gray-500 border-b-2 border-gray-100">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-700 divide-y divide-gray-100">
+              {loading ? (
                 <tr>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Email</th>
-                  <th className="px-4 py-3">Phone</th>
-                  <th className="px-4 py-3">Message</th>
-                  <th className="px-4 py-3">Submitted At</th>
-                  <th className="px-4 py-3">Actions</th>
+                  <td colSpan={6} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-500 font-medium">Loading submissions...</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map((contact) => (
-                  <tr 
-                    key={contact._id} 
-                    className="border-t hover:bg-gray-50"
-                  >
-                    <td className="px-4 py-3 align-top">
+              ) : displayedContacts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-gray-500 italic">
+                    {contacts.length === 0 ? "No submissions found." : "No submissions match your search."}
+                  </td>
+                </tr>
+              ) : (
+                displayedContacts.map((contact) => (
+                  <tr key={contact._id} className="hover:bg-blue-50/50 transition-colors group">
+                    <td className="px-4 py-4 font-semibold text-gray-900">
                       <div className="flex items-center gap-2">
-                        <MdPerson className="text-gray-400" />
+                        <MdPerson className="text-blue-500" />
                         {contact.fullName}
                       </div>
                     </td>
-                    <td className="px-4 py-3 align-top">
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <MdEmail className="text-gray-400" />
-                        <a
-                          href={`mailto:${contact.email}`}
-                          className="text-blue-600 hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">
                           {contact.email}
                         </a>
                       </div>
                     </td>
-                    <td className="px-4 py-3 align-top">
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <MdPhone className="text-gray-400" />
-                        <a
-                          href={`tel:${contact.phone}`}
-                          className="text-blue-600 hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline">
                           {contact.phone}
                         </a>
                       </div>
                     </td>
-                    <td className="px-4 py-3 align-top max-w-xs">
-                      <p className="text-sm text-gray-700 line-clamp-3">
+                    <td className="px-4 py-4 max-w-xs">
+                      <p className="text-sm text-gray-700 line-clamp-2" title={contact.message}>
                         {contact.message}
                       </p>
                     </td>
-                    <td className="px-4 py-3 align-top text-sm text-gray-600">
+                    <td className="px-4 py-4 text-gray-500 font-medium">
                       {formatDate(contact.createdAt)}
                     </td>
-                    <td className="px-4 py-3 align-top">
-                      <div className="flex items-center gap-2">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => setSelectedContact(contact)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <MdVisibility size={20} />
                         </button>
                         <button
                           onClick={() => handleDelete(contact._id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                           title="Delete"
                         >
                           <MdDelete size={20} />
@@ -174,18 +170,23 @@ const ContactManage = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {!loading && contacts.length > 0 && (
+          <TablePagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            totalItems={totalItems}
+            showingCount={displayedContacts.length}
+          />
         )}
       </div>
-
-      {!loading && filtered.length > 0 && (
-        <div className="mt-4 text-sm text-gray-600">
-          Showing {filtered.length} of {contacts.length} contact submissions
-        </div>
-      )}
 
       <ViewContactDetailsModal 
         contact={selectedContact}
