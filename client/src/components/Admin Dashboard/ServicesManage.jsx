@@ -12,16 +12,31 @@ import toast from "react-hot-toast";
 import { confirmDialog } from "../../utils/confirmDialog";
 import AddServiceModal from "./Modals/AddServiceModal";
 import ViewServiceModal from "./Modals/ViewServiceModal";
+import { useTable } from "../../hooks/useTable";
+import { SortableHeader, TablePagination, SearchBar } from "./TableComponents";
+import clsx from "clsx";
 
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+
+  const {
+    data: displayedServices,
+    totalItems,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    handleRowsPerPageChange,
+    searchTerm,
+    handleSearch,
+    sortConfig,
+    requestSort,
+  } = useTable(services, ["serviceName", "shortDescription", "category.name", "subCategory.name"], { key: "serviceName", direction: "asc" });
+
   const getDisplayName = (entity) => {
     if (!entity) return "";
     if (typeof entity === "string") return entity;
@@ -31,10 +46,6 @@ const Services = () => {
   useEffect(() => {
     fetchServices();
   }, []);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, services.length]);
 
   const fetchServices = async () => {
     try {
@@ -109,193 +120,145 @@ const Services = () => {
     }
   };
 
-  const filtered = services.filter((s) => {
-    if (!searchTerm) return true;
-    const q = searchTerm.toLowerCase();
-    return (
-      (s.serviceName || "").toLowerCase().includes(q) ||
-      (s.shortDescription || "").toLowerCase().includes(q) ||
-      getDisplayName(s.category).toLowerCase().includes(q) ||
-      getDisplayName(s.subCategory).toLowerCase().includes(q)
-    );
-  });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const pageStartIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedServices = filtered.slice(
-    pageStartIndex,
-    pageStartIndex + itemsPerPage,
-  );
-  const showingStart = filtered.length === 0 ? 0 : pageStartIndex + 1;
-  const showingEnd = Math.min(pageStartIndex + itemsPerPage, filtered.length);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(Math.min(Math.max(page, 1), totalPages));
-  };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Services</h1>
-          <p className="text-sm text-gray-500">
-            Create, edit and delete services
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Services</h1>
+          <p className="text-gray-500 mt-1">Manage your platform services, categories, and visibility</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <MdSearch className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search services..."
-              className="pl-8 pr-3 py-2 border rounded w-64"
-            />
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <SearchBar 
+            value={searchTerm} 
+            onChange={handleSearch} 
+            placeholder="Search services..." 
+          />
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2 bg-blue-600 text-white rounded flex items-center gap-2"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium shadow-md hover:shadow-lg active:scale-95"
           >
-            <MdAdd /> Add Service
+            <MdAdd className="w-5 h-5" /> Add Service
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded shadow overflow-auto border border-gray-200">
-        <table className="w-full table-auto border-collapse text-sm">
-          <thead className="bg-gray-100 text-left text-gray-700">
-            <tr>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-               Service Name
-              </th>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-                Category
-              </th>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-                Sub-Category
-              </th>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-                Visibility
-              </th>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-                Featured
-              </th>
-              <th className="border border-gray-200 px-4 py-3 font-semibold">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700">
-            {loading ? (
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse text-sm">
+            <thead className="bg-gray-50 text-left text-gray-700">
               <tr>
-                <td
-                  colSpan={6}
-                  className="border border-gray-200 p-6 text-center text-gray-500"
-                >
-                  Loading...
-                </td>
+                <SortableHeader label="Service Name" sortKey="serviceName" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Category" sortKey="category.name" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Sub-Category" sortKey="subCategory.name" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Visibility" sortKey="isVisible" currentSort={sortConfig} onSort={requestSort} />
+                <SortableHeader label="Featured" sortKey="Featured.isFeatured" currentSort={sortConfig} onSort={requestSort} />
+                <th className="px-4 py-4 font-bold text-xs uppercase tracking-wider text-center text-gray-500 border-b-2 border-gray-100">Actions</th>
               </tr>
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="border border-gray-200 p-6 text-center text-gray-500"
-                >
-                  No services found
-                </td>
-              </tr>
-            ) : (
-              paginatedServices.map((svc) => (
-                <tr key={svc._id} className="hover:bg-blue-50/40">
-                  <td className="border border-gray-200 px-4 py-3 align-top font-medium text-gray-900">
-                    {svc.serviceName}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-3 align-top">
-                    {getDisplayName(svc.category)}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-3 align-top">
-                    {getDisplayName(svc.subCategory)}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-3 align-top">
-                    {svc.isVisible ? (
-                      <span className="text-green-600 font-semibold">Yes</span>
-                    ) : (
-                      <span className="text-gray-400">No</span>
-                    )}{" "}
-                    | {" "}
-                    <button
-                      onClick={() => handleVisibilityToggle(svc)}
-                      className="text-indigo-600 mr-3"
-                      title={
-                        svc.isVisible ? "Mark Not Visible" : "Mark Visible"
-                      }
-                    >
-                      {svc.isVisible ? "Hide" : "Show"}
-                    </button>
-                  </td>
-                  <td className="border border-gray-200 px-4 py-3 align-top">
-                    {svc.Featured?.isFeatured ? (
-                      <span className="flex items-center gap-1 text-yellow-600 font-semibold">
-                        <MdStar className="w-4 h-4" /> Yes
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">No</span>
-                    )}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-3 align-top">
-                    <button
-                      onClick={() => setSelectedService(svc)}
-                      className="text-blue-600 mr-3"
-                      title="View Details"
-                    >
-                      <MdVisibility />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(svc)}
-                      className="text-blue-600 mr-3"
-                      title="Edit Service"
-                    >
-                      <MdEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(svc._id)}
-                      className="text-red-600"
-                      title="Delete Service"
-                    >
-                      <MdDelete />
-                    </button>
+            </thead>
+            <tbody className="text-gray-700 divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-500 font-medium">Loading services...</span>
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-3 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          Showing {showingStart} to {showingEnd} of {filtered.length} services
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="rounded border border-gray-300 px-3 py-1.5 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="rounded border border-gray-200 bg-gray-50 px-3 py-1.5 font-medium text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            type="button"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="rounded border border-gray-300 px-3 py-1.5 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next
-          </button>
+              ) : displayedServices.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-gray-500 italic">
+                    {services.length === 0 ? "No services found." : "No services match your search."}
+                  </td>
+                </tr>
+              ) : (
+                displayedServices.map((svc) => (
+                  <tr key={svc._id} className="hover:bg-blue-50/50 transition-colors group">
+                    <td className="px-4 py-4 font-semibold text-gray-900 border-r border-gray-50">
+                      {svc.serviceName}
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">
+                        {getDisplayName(svc.category)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">
+                        {getDisplayName(svc.subCategory)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className={clsx(
+                          "w-2 h-2 rounded-full",
+                          svc.isVisible ? "bg-green-500" : "bg-gray-300"
+                        )}></span>
+                        <span className={clsx(
+                          "font-medium",
+                          svc.isVisible ? "text-green-700" : "text-gray-400"
+                        )}>
+                          {svc.isVisible ? "Visible" : "Hidden"}
+                        </span>
+                        <button
+                          onClick={() => handleVisibilityToggle(svc)}
+                          className="ml-auto text-blue-600 hover:underline text-xs font-bold"
+                        >
+                          Toggle
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 border-r border-gray-50">
+                      {svc.Featured?.isFeatured ? (
+                        <span className="flex items-center gap-1 text-yellow-600 font-bold bg-yellow-50 px-3 py-1 rounded-full text-xs border border-yellow-100">
+                          <MdStar className="w-4 h-4" /> Featured
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Standard</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setSelectedService(svc)}
+                          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="View Details"
+                        >
+                          <MdVisibility className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(svc)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                          title="Edit Service"
+                        >
+                          <MdEdit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(svc._id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Delete Service"
+                        >
+                          <MdDelete className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
+        {!loading && services.length > 0 && (
+          <TablePagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            totalItems={totalItems}
+            showingCount={displayedServices.length}
+          />
+        )}
       </div>
 
       <AddServiceModal

@@ -11,6 +11,7 @@ import {
   getAllFeedbacks,
   approveFeedback,
   rejectFeedback,
+  backupDatabase,
 } from "../controllers/adminController.js";
 import {
   createBlog,
@@ -46,6 +47,9 @@ router.get("/blogs", getAdminBlogs);
 router.post("/blogs", createBlog);
 router.put("/blogs/:id", updateBlog);
 router.patch("/blogs/:id/visibility", updateBlogVisibility);
+
+// Database Backup
+router.get("/backup-db", backupDatabase);
 
 // Service routes
 // service/category/subcategory routes moved to serviceRoutes
