@@ -30,7 +30,7 @@ const About = () => {
             We simplify the complex, so you can focus on growing your business.
           </p>
           <button className="bg-(--primary) text-white px-6 py-3 rounded-2xl hover:bg-(--primary-hover) transition">
-            Learn More
+            Know More
           </button>
         </div>
       </section>
