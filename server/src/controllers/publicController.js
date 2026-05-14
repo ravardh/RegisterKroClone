@@ -5,6 +5,8 @@ import Service from "../models/ServiceModel.js";
 import Feedback from "../models/feedbackModel.js";
 import Leads from "../models/leadsModel.js";
 import User from "../models/userModel.js";
+import Visitor from "../models/Visitor.js";
+import Career from "../models/Career.js";
 import { sendContactFormEmail, sendLeadCreationEmail } from "../config/emailService.js";
 
 const formatDatePart = (date = new Date()) => {
@@ -475,5 +477,67 @@ export const getAllServicesGrouped = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getVisitorCount = async (req, res, next) => {
+  try {
+    let visitor = await Visitor.findOne();
+    if (!visitor) {
+      visitor = await Visitor.create({ count: 0 });
+    }
+    res.status(200).json({
+      message: "Visitor count fetched successfully",
+      count: visitor.count,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const incrementVisitorCount = async (req, res, next) => {
+  try {
+    let visitor = await Visitor.findOne();
+    if (!visitor) {
+      visitor = await Visitor.create({ count: 1 });
+    } else {
+      visitor.count += 1;
+      await visitor.save();
+    }
+    res.status(200).json({
+      message: "Visitor count incremented successfully",
+      count: visitor.count,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Career Application
+export const applyForJob = async (req, res) => {
+  try {
+    const { fullName, mobile, designation } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Resume file is required" });
+    }
+
+    const newApplication = new Career({
+      fullName,
+      mobile,
+      designation,
+      resume: req.file.filename,
+    });
+
+    await newApplication.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Application submitted successfully!",
+      data: newApplication,
+    });
+  } catch (error) {
+    console.error("Career Application Error:", error);
+    res.status(500).json({ success: false, message: "Error submitting application" });
   }
 };

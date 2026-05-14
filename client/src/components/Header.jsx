@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
-import { IoChevronDownCircleOutline } from "react-icons/io5";
-import { FaArrowAltCircleRight } from "react-icons/fa";
+import { IoMenuSharp, IoClose, IoSearch, IoChevronForward, IoChevronDownCircleOutline } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
@@ -221,18 +219,16 @@ const Header = () => {
     <>
       <header
         ref={headerRef}
-        className={`sticky z-50 ${
-          isDashboard
-            ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-0"
-            : "bg-white top-2 rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
-        }`}
+        className={`sticky z-50 ${isDashboard
+          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px]"
+          : "bg-white top-[34px] sm:top-[42px] rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
+          }`}
       >
         <div
-          className={`relative ${
-            isDashboard
-              ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
-              : "px-3 sm:px-4 md:px-6 lg:px-8"
-          }`}
+          className={`relative ${isDashboard
+            ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
+            : "px-3 sm:px-4 md:px-6 lg:px-8"
+            }`}
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo */}
@@ -257,7 +253,7 @@ const Header = () => {
                         type="button"
                         onClick={() => handleDesktopCategoryClick(category)}
                         aria-expanded={activeTab === category.name}
-                        className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
+                        className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl cursor-pointer ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
                       >
                         {category.name}
                       </button>
@@ -277,17 +273,16 @@ const Header = () => {
                                     aria-expanded={
                                       selectedSubcategory?._id === subCat._id
                                     }
-                                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 ${
-                                      selectedSubcategory?._id === subCat._id
-                                        ? "text-(--primary) bg-blue-50"
-                                        : ""
-                                    }`}
+                                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 cursor-pointer ${selectedSubcategory?._id === subCat._id
+                                      ? "text-(--primary) bg-blue-50"
+                                      : ""
+                                      }`}
                                   >
                                     <span className="flex items-center gap-3">
                                       <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
                                       <div className="flex items-center justify-between w-full">
                                         {subCat.name}{" "}
-                                        <FaArrowAltCircleRight className="inline-block text-(--primary)" />
+                                        <IoChevronForward className="inline-block text-(--primary) text-xs" />
                                       </div>
                                       {/* {subCat.name} */}
                                     </span>
@@ -321,7 +316,7 @@ const Header = () => {
                                             onClick={() =>
                                               handleServiceClick(service._id)
                                             }
-                                            className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200"
+                                            className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 cursor-pointer"
                                           >
                                             <span className="flex items-center gap-2">
                                               <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
@@ -346,9 +341,8 @@ const Header = () => {
                 <div className="relative">
                   <button
                     type="button"
-                    className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl ${
-                      isOtherServicesOpen ? "bg-(--primary)/10 rounded-xl" : ""
-                    }`}
+                    className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl cursor-pointer ${isOtherServicesOpen ? "bg-(--primary)/10 rounded-xl" : ""
+                      }`}
                     onClick={handleOtherServicesClick}
                     aria-expanded={isOtherServicesOpen}
                   >
@@ -368,13 +362,13 @@ const Header = () => {
                               setIsModalOpen(true);
                               setIsOtherServicesOpen(false);
                             }}
-                            className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1"
+                            className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 cursor-pointer"
                           >
                             <span className="flex items-center gap-3">
                               <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
                               <div className="flex items-center justify-between w-full">
                                 {category.name}{" "}
-                                <FaArrowAltCircleRight className="inline-block text-(--primary)" />
+                                <IoChevronForward className="inline-block text-(--primary) text-xs" />
                               </div>
                             </span>
                           </button>
@@ -508,7 +502,7 @@ const Header = () => {
                   <Link to="/trackStatus" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Track Status</Link>
                   <Link to="/login" onClick={() => setIsMenuOpen(false)} className="text-(--primary) hover:bg-gray-50 font-bold px-3 py-2 rounded-md text-sm">Login / Account</Link>
                 </div>
-                
+
                 {/* Mobile Tabs */}
                 {mainCategories.map((category) => (
                   <div key={category._id} className="flex flex-col">

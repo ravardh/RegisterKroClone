@@ -45,7 +45,7 @@ const TopHeader = () => {
 
   return (
     <>
-      <div className="bg-(--primary) ">
+      <div className="bg-(--primary) sticky top-0 z-[60]">
         <div className="max-w-7xl mx-auto px-3 sm:px-5">
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 py-2 sm:py-2.5 justify-between items-center">
             <div className="flex flex-wrap gap-2 sm:gap-3 items-center justify-center text-white text-xs sm:text-sm font-medium">

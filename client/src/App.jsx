@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
+import Careers from "./pages/Careers";
 import CommonData from './assets/common.json'
 import WhatsAppIcon from './assets/whatsapp.png'
 import { DataProvider } from "./context/DataContext";
@@ -100,6 +101,7 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/careers" element={<Careers />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

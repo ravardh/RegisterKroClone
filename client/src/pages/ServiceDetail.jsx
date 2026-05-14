@@ -9,6 +9,18 @@ import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
 import { useAppData } from "../context/DataContext";
 import CircularText from "../components/CircularText";
+import { motion, AnimatePresence } from "motion/react";
+import { HiOutlineDocumentText, HiOutlineShare, HiOutlinePrinter } from "react-icons/hi";
+import {
+  IoShieldCheckmarkOutline,
+  IoInformationCircleOutline,
+  IoPersonOutline,
+  IoDocumentAttachOutline,
+  IoStarOutline,
+  IoSettingsOutline,
+  IoRibbonOutline,
+  IoCashOutline
+} from "react-icons/io5";
 
 // Format price in Indian currency format with commas and .00
 const formatIndianPrice = (price) => {
@@ -27,13 +39,22 @@ const formatIndianPrice = (price) => {
   // Indian numbering system: group last 3 digits, then groups of 2
   let result = integerPart.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
   if (integerPart.length > 3) {
-    result =
-      integerPart.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ",") +
-      "," +
-      integerPart.slice(-3);
+    result = integerPart.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + integerPart.slice(-3);
   }
 
   return `${result}.${decimalPart}`;
+};
+
+const getTabIcon = (tabName) => {
+  const name = tabName?.toLowerCase() || "";
+  if (name.includes("overview")) return <IoInformationCircleOutline size={18} />;
+  if (name.includes("eligibility")) return <IoPersonOutline size={18} />;
+  if (name.includes("document")) return <IoDocumentAttachOutline size={18} />;
+  if (name.includes("choose") || name.includes("benefit")) return <IoStarOutline size={18} />;
+  if (name.includes("process") || name.includes("step")) return <IoSettingsOutline size={18} />;
+  if (name.includes("certificate") || name.includes("award")) return <IoRibbonOutline size={18} />;
+  if (name.includes("fee") || name.includes("price") || name.includes("penalty")) return <IoCashOutline size={18} />;
+  return <HiOutlineDocumentText size={18} />;
 };
 
 const getDocumentUrl = (url) => {
@@ -404,7 +425,7 @@ const ServiceDetail = () => {
         description={
           serviceData
             ? serviceData.shortDescription ||
-              "Get expert assistance with our professional business services"
+            "Get expert assistance with our professional business services"
             : "Professional business services"
         }
         keywords={
@@ -670,11 +691,10 @@ const ServiceDetail = () => {
                 return (
                   <div
                     key={index}
-                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${
-                      isPopular
-                        ? "border-2 border-(--primary) md:scale-105"
-                        : "border border-gray-200"
-                    }`}
+                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${isPopular
+                      ? "border-2 border-(--primary) md:scale-105"
+                      : "border border-gray-200"
+                      }`}
                   >
                     {/* Popular badge */}
                     {isPopular && (
@@ -738,11 +758,10 @@ const ServiceDetail = () => {
                             block: "center",
                           });
                         }}
-                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${
-                          isPopular
-                            ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
-                            : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
-                        }`}
+                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${isPopular
+                          ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
+                          : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
+                          }`}
                       >
                         Get Started
                       </button>
@@ -790,69 +809,114 @@ const ServiceDetail = () => {
         {/* Description Tabs Section */}
         {descriptionTabs.length > 0 && (
           <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
+            <div className="flex flex-col lg:flex-row gap-8 items-stretch">
               {/* Description Tabs */}
-              <div className="flex-1 bg-white rounded-lg shadow-sm min-w-0">
+              <div className="w-full lg:w-[70%] bg-white rounded-xl shadow-lg min-w-0 border border-gray-100 flex flex-col h-[500px] sm:h-[600px] lg:h-[650px]">
                 {/* Tab Navigation */}
-                <div className="border-b sticky top-16 bg-white z-10 rounded-t-lg">
-                  <div className="relative flex items-center">
+                <div className="border-b border-gray-100 sticky top-[90px] lg:top-[106px] bg-gray-50/80 backdrop-blur-md z-10 rounded-t-xl overflow-hidden">
+                  <div className="relative flex items-center h-14 sm:h-16">
                     <button
                       onClick={() => scrollTabs(-1)}
-                      className="shrink-0 px-2 py-3 text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-colors border-r border-gray-100"
+                      className="shrink-0 h-full px-4 text-gray-400 hover:text-(--primary) hover:bg-white transition-all border-r border-gray-100"
                       aria-label="Scroll tabs left"
                     >
-                      <FaChevronLeft size={14} />
+                      <FaChevronLeft size={16} />
                     </button>
-                    <div ref={tabScrollRef} className="flex overflow-x-auto scrollbar-hide flex-1">
+                    <div ref={tabScrollRef} className="flex overflow-x-auto no-scrollbar flex-1">
                       {descriptionTabs.map((tab, index) => (
                         <button
                           key={index}
                           onClick={() => handleDescriptionTabClick(index)}
-                          className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold capitalize whitespace-nowrap ${
-                            activeTab === index
-                              ? "border-b-2 border-blue-600 text-blue-600"
-                              : "text-gray-600 hover:text-blue-600"
-                          }`}
+                          className={`px-6 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group ${activeTab === index
+                            ? "text-(--primary) bg-white shadow-sm"
+                            : "text-gray-400 hover:text-(--primary) hover:bg-white/40"
+                            }`}
                         >
-                          {tab.tabs || `Tab ${index + 1}`}
+                          <span className={`${activeTab === index ? "text-(--primary)" : "text-gray-400 group-hover:text-(--primary)"} transition-colors`}>
+                            {getTabIcon(tab.tabs)}
+                          </span>
+                          <span className="relative z-10">{tab.tabs || `Tab ${index + 1}`}</span>
+                          {activeTab === index && (
+                            <motion.div
+                              layoutId="activeTabIndicator"
+                              className="absolute bottom-0 left-0 right-0 h-1 bg-(--primary) rounded-t-full shadow-[0_-2px_10px_rgba(79,70,229,0.4)]"
+                            />
+                          )}
                         </button>
                       ))}
                     </div>
                     <button
                       onClick={() => scrollTabs(1)}
-                      className="shrink-0 px-2 py-3 text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-colors border-l border-gray-100"
+                      className="shrink-0 h-full px-4 text-gray-400 hover:text-(--primary) hover:bg-white transition-all border-l border-gray-100"
                       aria-label="Scroll tabs right"
                     >
-                      <FaChevronRight size={14} />
+                      <FaChevronRight size={16} />
                     </button>
                   </div>
                 </div>
 
-                {/* Active Tab Content */}
-                <div className="p-4 sm:p-6 md:p-8 overflow-x-auto">
-                  <div
-                    className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
-                    prose-headings:text-gray-900 
-                    prose-h2:text-xl prose-h2:sm:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-6
-                    prose-h3:text-lg prose-h3:sm:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
-                    prose-p:text-gray-700 prose-p:mb-3
-                    prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4
-                    prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4
-                    prose-li:text-gray-700 prose-li:mb-1
-                    prose-table:w-full prose-table:border-collapse prose-table:my-4
-                    prose-th:bg-gray-100 prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                    prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2
-                    prose-strong:font-semibold prose-strong:text-gray-900"
-                    dangerouslySetInnerHTML={{
-                      __html: descriptionTabs[activeTab]?.content || "",
-                    }}
-                  />
+                <div className="p-1 bg-gray-50/30 flex-1 flex flex-col min-h-0">
+                  {/* Active Tab Header */}
+                  <div className="px-6 sm:px-10 pt-8 pb-6 flex items-center gap-4 border-b border-gray-50 bg-white">
+                    <div className="w-10 h-10 rounded-xl bg-(--primary)/10 flex items-center justify-center text-(--primary) shrink-0">
+                      {getTabIcon(descriptionTabs[activeTab]?.tabs)}
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+                        {descriptionTabs[activeTab]?.tabs || "Service Details"}
+                      </h2>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <IoShieldCheckmarkOutline className="text-green-500" size={14} />
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400">Verified Professional Resource</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Active Tab Content */}
+                  <div className="px-6 sm:px-10 pb-10 overflow-y-auto flex-1 no-scrollbar bg-white">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <div
+                          className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
+                        prose-headings:text-gray-900 prose-headings:font-black prose-headings:tracking-tight
+                        prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mb-6 prose-h2:mt-10 prose-h2:pb-4 prose-h2:border-b-2 prose-h2:border-gray-50
+                        prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mb-4 prose-h3:mt-8
+                        prose-p:text-gray-600 prose-p:mb-6 prose-p:leading-8
+                        
+                        [&_ol]:list-none [&_ol]:p-0 [&_ol]:m-0 [&_ol]:space-y-6 [&_ol]:[counter-reset:section]
+                        [&_ol_li]:relative [&_ol_li]:pl-12 [&_ol_li]:[counter-increment:section]
+                        [&_ol_li]:before:content-[counter(section)] [&_ol_li]:before:absolute [&_ol_li]:before:left-0 [&_ol_li]:before:top-0 [&_ol_li]:before:w-8 [&_ol_li]:before:h-8 [&_ol_li]:before:bg-(--primary) [&_ol_li]:before:text-white [&_ol_li]:before:rounded-lg [&_ol_li]:before:flex [&_ol_li]:before:items-center [&_ol_li]:before:justify-center [&_ol_li]:before:text-sm [&_ol_li]:before:font-black [&_ol_li]:before:shadow-lg [&_ol_li]:before:shadow-blue-500/30
+                        
+                        [&_ul]:list-none [&_ul]:p-0 [&_ul]:m-0 [&_ul]:space-y-4
+                        [&_ul_li]:relative [&_ul_li]:pl-8 [&_ul_li]:flex [&_ul_li]:items-start
+                        [&_ul_li]:before:content-[''] [&_ul_li]:before:absolute [&_ul_li]:before:left-0 [&_ul_li]:before:top-2 [&_ul_li]:before:w-3 [&_ul_li]:before:h-3 [&_ul_li]:before:bg-(--primary)/20 [&_ul_li]:before:border-2 [&_ul_li]:before:border-(--primary) [&_ul_li]:before:rounded-full [&_ul_li]:before:shrink-0
+                        
+                        prose-table:w-full prose-table:border-collapse prose-table:my-10 prose-table:rounded-2xl prose-table:overflow-hidden prose-table:shadow-xl prose-table:border-hidden
+                        prose-th:bg-gray-900 prose-th:px-6 prose-th:py-4 prose-th:text-left prose-th:font-black prose-th:text-white prose-th:uppercase prose-th:text-xs prose-th:tracking-widest
+                        prose-td:border-t prose-td:border-gray-100 prose-td:px-6 prose-td:py-4 prose-td:text-gray-600
+                        prose-img:rounded-3xl prose-img:shadow-2xl prose-img:my-12
+                        prose-blockquote:border-l-8 prose-blockquote:border-(--primary) prose-blockquote:bg-blue-50/50 prose-blockquote:rounded-r-2xl prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:italic prose-blockquote:text-lg prose-blockquote:text-blue-900
+                        
+                        [&_strong]:text-(--primary) [&_strong]:font-bold [&_strong]:block [&_strong]:mt-8 [&_strong]:mb-3 [&_strong]:text-lg [&_strong]:tracking-tight"
+                          dangerouslySetInnerHTML={{
+                            __html: descriptionTabs[activeTab]?.content || "",
+                          }}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
 
-              {/* Always-visible Get Started Form - desktop sidebar */}
-              <div className="hidden lg:block lg:w-80 xl:w-96 shrink-0">
-                <div className="sticky top-20 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+              {/* Get Started Form - sidebar on desktop, bottom on mobile */}
+              <div className="w-full lg:w-[30%] shrink-0 flex flex-col h-auto lg:h-[650px]">
+                <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col h-full overflow-y-auto no-scrollbar">
                   <h3 className="text-xl font-bold mb-2 text-(--primary)">
                     Get Started
                   </h3>
@@ -934,12 +998,31 @@ const ServiceDetail = () => {
                         </select>
                       </div>
                     )}
+                    <div className="py-4 space-y-4">
+                      <div className="flex items-center gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-200">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+                          <IoShieldCheckmarkOutline size={18} />
+                        </div>
+                        <p>Your data is encrypted and handled by certified professionals only.</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-2 rounded-lg bg-blue-50 border border-blue-100">
+                          <p className="text-[10px] text-blue-600 font-bold uppercase">Response Time</p>
+                          <p className="text-sm font-black text-blue-900">30 Mins</p>
+                        </div>
+                        <div className="text-center p-2 rounded-lg bg-indigo-50 border border-indigo-100">
+                          <p className="text-[10px] text-indigo-600 font-bold uppercase">Expert Advice</p>
+                          <p className="text-sm font-black text-indigo-900">Free</p>
+                        </div>
+                      </div>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-(--primary) text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70 text-sm"
+                      className="w-full bg-(--primary) text-white px-6 py-4 rounded-xl font-black hover:bg-(--primary-hover) shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 disabled:opacity-70 text-base mt-auto"
                     >
-                      {isSubmitting ? "Submitting..." : "Submit Request"}
+                      {isSubmitting ? "Submitting..." : "Submit Request Now"}
                     </button>
                   </form>
                 </div>
@@ -1083,11 +1166,10 @@ const ServiceDetail = () => {
                           <button
                             key={idx}
                             onClick={() => setReviewIndex(idx)}
-                            className={`w-3 h-3 rounded-full transition ${
-                              reviewIndex === idx
-                                ? "bg-(--primary)"
-                                : "bg-gray-300"
-                            }`}
+                            className={`w-3 h-3 rounded-full transition ${reviewIndex === idx
+                              ? "bg-(--primary)"
+                              : "bg-gray-300"
+                              }`}
                             aria-label={`Go to page ${idx + 1}`}
                           />
                         ),
