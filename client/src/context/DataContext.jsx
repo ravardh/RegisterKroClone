@@ -10,12 +10,12 @@ export const DataProvider = ({ children }) => {
   const [allServices, setAllServices] = useState([]);
   const [featuredServices, setFeaturedServices] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
     const initializeData = async () => {
       try {
-        // Fetch core data in parallel
         const [categoriesRes, subCategoriesRes, servicesRes] =
           await Promise.all([
             axiosInstance.get("/public/categories"),
@@ -26,6 +26,14 @@ export const DataProvider = ({ children }) => {
         setCategories(categoriesRes.data.data || []);
         setSubCategories(subCategoriesRes.data.data || {});
         setServices(servicesRes.data.data || {});
+
+        try {
+          const teamRes = await axiosInstance.get("/public/team");
+          setTeamMembers(teamRes.data.data || []);
+        } catch (teamErr) {
+          console.error("Failed to fetch team:", teamErr);
+        }
+
         setIsDataLoaded(true);
       } catch (error) {
         console.error("Error initializing app data:", error);
@@ -85,6 +93,7 @@ export const DataProvider = ({ children }) => {
     allServices,
     featuredServices,
     reviews,
+    teamMembers,
     isDataLoaded,
   };
 

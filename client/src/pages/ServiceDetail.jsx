@@ -888,15 +888,10 @@ const ServiceDetail = () => {
                         prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mb-6 prose-h2:mt-10 prose-h2:pb-4 prose-h2:border-b-2 prose-h2:border-gray-50
                         prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mb-4 prose-h3:mt-8
                         prose-p:text-gray-600 prose-p:mb-6 prose-p:leading-8
-                        
-                        [&_ol]:list-none [&_ol]:p-0 [&_ol]:m-0 [&_ol]:space-y-6 [&_ol]:[counter-reset:section]
-                        [&_ol_li]:relative [&_ol_li]:pl-12 [&_ol_li]:[counter-increment:section]
-                        [&_ol_li]:before:content-[counter(section)] [&_ol_li]:before:absolute [&_ol_li]:before:left-0 [&_ol_li]:before:top-0 [&_ol_li]:before:w-8 [&_ol_li]:before:h-8 [&_ol_li]:before:bg-(--primary) [&_ol_li]:before:text-white [&_ol_li]:before:rounded-lg [&_ol_li]:before:flex [&_ol_li]:before:items-center [&_ol_li]:before:justify-center [&_ol_li]:before:text-sm [&_ol_li]:before:font-black [&_ol_li]:before:shadow-lg [&_ol_li]:before:shadow-blue-500/30
-                        
-                        [&_ul]:list-none [&_ul]:p-0 [&_ul]:m-0 [&_ul]:space-y-4
-                        [&_ul_li]:relative [&_ul_li]:pl-8 [&_ul_li]:flex [&_ul_li]:items-start
-                        [&_ul_li]:before:content-[''] [&_ul_li]:before:absolute [&_ul_li]:before:left-0 [&_ul_li]:before:top-2 [&_ul_li]:before:w-3 [&_ul_li]:before:h-3 [&_ul_li]:before:bg-(--primary)/20 [&_ul_li]:before:border-2 [&_ul_li]:before:border-(--primary) [&_ul_li]:before:rounded-full [&_ul_li]:before:shrink-0
-                        
+
+                        [&_ul]:my-3 [&_ul]:space-y-1 [&_ol]:my-3 [&_ol]:space-y-1
+                        [&_li>p]:mb-1 [&_li>p:last-child]:mb-0
+
                         prose-table:w-full prose-table:border-collapse prose-table:my-10 prose-table:rounded-2xl prose-table:overflow-hidden prose-table:shadow-xl prose-table:border-hidden
                         prose-th:bg-gray-900 prose-th:px-6 prose-th:py-4 prose-th:text-left prose-th:font-black prose-th:text-white prose-th:uppercase prose-th:text-xs prose-th:tracking-widest
                         prose-td:border-t prose-td:border-gray-100 prose-td:px-6 prose-td:py-4 prose-td:text-gray-600
@@ -1193,7 +1188,7 @@ const ServiceDetail = () => {
         {/* Modal - triggers only when FAQ section is scrolled into view */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl max-w-md w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto no-scrollbar">
               <button
                 onClick={handleCloseModal}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"

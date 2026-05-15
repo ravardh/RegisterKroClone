@@ -232,12 +232,13 @@ const ContactForm = () => {
         <div className="loaction-heading text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-10 text-center ">
           Our Location
         </div>
-        <div className="location-map">
+        <div className="location-map w-full overflow-hidden rounded-xl sm:rounded-2xl ring-1 ring-gray-200">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d28018.57321108115!2d77.31823025881644!3d28.620120427859174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5456ef36d9f%3A0x3b7191b1286136c8!2sSector%2062%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1767250519672!5m2!1sen!2sin"
-            className="border-0 w-full"
+            className="border-0 w-full aspect-[4/3] min-h-[220px] sm:min-h-[280px] md:aspect-video md:min-h-[320px]"
             width="100%"
             height="300"
+            title="TaxProSolution office location"
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

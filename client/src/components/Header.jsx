@@ -219,9 +219,9 @@ const Header = () => {
     <>
       <header
         ref={headerRef}
-        className={`sticky z-50 ${isDashboard
-          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px]"
-          : "bg-white top-[34px] sm:top-[42px] rounded-2xl mb-4 shadow-md w-[90%] mx-auto"
+        className={`sticky z-50 max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
+          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px] w-full max-w-none"
+          : "bg-white top-[34px] sm:top-[42px] rounded-2xl mb-4 shadow-md w-full"
           }`}
       >
         <div
@@ -397,7 +397,7 @@ const Header = () => {
                       setIsSearchDropdownOpen(true);
                     }
                   }}
-                  className="bg-gray-100 outline-none text-xs w-20 md:w-25 lg:w-30 text-(--text)"
+                  className="bg-gray-100 outline-none text-xs w-24 md:w-32 lg:w-40 min-w-0 text-(--text)"
                 />
               </div>
 
@@ -447,8 +447,10 @@ const Header = () => {
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-              <div className="flex flex-col p-4 space-y-2">
+            <div
+              className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[min(85dvh,calc(100svh-9rem))] overflow-y-auto overscroll-y-contain scroll-touch touch-pan-y"
+            >
+              <div className="flex flex-col p-4 space-y-2 pb-6">
                 {/* Mobile Search */}
                 <div className="relative mb-2">
                   <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">

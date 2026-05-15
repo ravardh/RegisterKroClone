@@ -68,7 +68,7 @@ const Layout = () => {
       <TopHeader />
       <Header />
 
-      <main>
+      <main className="w-full max-w-[100vw] overflow-x-clip">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -120,9 +120,11 @@ const App = () => {
         <a
           href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
           target="_blank"
-          className="fixed bottom-5 left-5 z-50"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 left-4 z-50 max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:left-[max(1rem,env(safe-area-inset-left))] sm:bottom-5 sm:left-5"
+          aria-label="Chat on WhatsApp"
         >
-          <img src={WhatsAppIcon} alt="" className="h-12 w-12 hover:scale-110 duration-300" />
+          <img src={WhatsAppIcon} alt="" className="h-11 w-11 sm:h-12 sm:w-12 hover:scale-110 duration-300" />
         </a>
       </BrowserRouter>
     </DataProvider>

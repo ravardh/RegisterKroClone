@@ -4,6 +4,7 @@ import multer from "multer";
 
 const uploadDir = path.join(process.cwd(), "uploads", "service-documents");
 const blogImagesDir = path.join(process.cwd(), "uploads", "blog-images");
+const teamImagesDir = path.join(process.cwd(), "uploads", "team-images");
 const resumesDir = path.join(process.cwd(), "uploads", "resumes");
 
 if (!fs.existsSync(uploadDir)) {
@@ -11,6 +12,9 @@ if (!fs.existsSync(uploadDir)) {
 }
 if (!fs.existsSync(blogImagesDir)) {
   fs.mkdirSync(blogImagesDir, { recursive: true });
+}
+if (!fs.existsSync(teamImagesDir)) {
+  fs.mkdirSync(teamImagesDir, { recursive: true });
 }
 if (!fs.existsSync(resumesDir)) {
   fs.mkdirSync(resumesDir, { recursive: true });
@@ -85,6 +89,29 @@ const imageUpload = multer({
 });
 
 export const uploadBlogImage = imageUpload.single("image");
+
+const teamImageStorage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, teamImagesDir),
+  filename: (_, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path
+      .basename(file.originalname, ext)
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9-_]/g, "");
+    cb(null, `${Date.now()}-${base || "team"}${ext}`);
+  },
+});
+
+const teamImageUpload = multer({
+  storage: teamImageStorage,
+  fileFilter: imageFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+  },
+});
+
+export const uploadTeamImage = teamImageUpload.single("image");
 
 const resumeStorage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, resumesDir),
