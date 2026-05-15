@@ -61,12 +61,12 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
       {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-40
-        w-64 lg:w-1/5 h-full shadow-2xl flex flex-col overflow-y-auto scrollbar-hide 
+        w-64 lg:w-1/5 h-full shadow-2xl flex flex-col overflow-y-auto no-scrollbar 
         bg-[url('/hero.webp')] bg-cover
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto no-scrollbar">
           <div className="mb-6 sm:mb-8 mt-4">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
               Admin Dashboard

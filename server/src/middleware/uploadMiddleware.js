@@ -4,12 +4,16 @@ import multer from "multer";
 
 const uploadDir = path.join(process.cwd(), "uploads", "service-documents");
 const blogImagesDir = path.join(process.cwd(), "uploads", "blog-images");
+const resumesDir = path.join(process.cwd(), "uploads", "resumes");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 if (!fs.existsSync(blogImagesDir)) {
   fs.mkdirSync(blogImagesDir, { recursive: true });
+}
+if (!fs.existsSync(resumesDir)) {
+  fs.mkdirSync(resumesDir, { recursive: true });
 }
 
 const allowedExtensions = new Set([
@@ -81,3 +85,33 @@ const imageUpload = multer({
 });
 
 export const uploadBlogImage = imageUpload.single("image");
+
+const resumeStorage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, resumesDir),
+  filename: (_, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path.basename(file.originalname, ext).replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-_]/g, "");
+    cb(null, `resume-${Date.now()}-${base}${ext}`);
+  },
+});
+
+const allowedResumeExtensions = new Set([".pdf", ".doc", ".docx"]);
+
+const resumeFileFilter = (_, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!allowedResumeExtensions.has(ext)) {
+    return cb(new Error("Unsupported file type. Allowed: PDF, DOC, DOCX"));
+  }
+  cb(null, true);
+};
+
+const resumeUpload = multer({
+  storage: resumeStorage,
+  fileFilter: resumeFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+  },
+});
+
+export const uploadResume = resumeUpload.single("resume");

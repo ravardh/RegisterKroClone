@@ -14,7 +14,11 @@ import {
   getFeaturedServices,
   getAllSubCategoriesGrouped,
   getAllServicesGrouped,
+  getVisitorCount,
+  incrementVisitorCount,
+  applyForJob,
 } from "../controllers/publicController.js";
+import { uploadResume } from "../middleware/uploadMiddleware.js";
 import { getPublishedBlogBySlug, getPublishedBlogs } from "../controllers/blogController.js";
 
 const router = express.Router();
@@ -35,5 +39,8 @@ router.get("/services/featured", getFeaturedServices);
 router.get("/service/:serviceId", getServiceById);
 router.get("/blogs", getPublishedBlogs);
 router.get("/blogs/:slug", getPublishedBlogBySlug);
+router.get("/visitor-count", getVisitorCount);
+router.post("/visitor-count/increment", incrementVisitorCount);
+router.post("/apply-career", uploadResume, applyForJob);
 
 export default router;

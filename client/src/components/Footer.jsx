@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaTwitter, FaLinkedin, FaEye } from "react-icons/fa";
 import CommonData from "../assets/common.json";
 import { useAuth } from "../context/AuthContext.jsx";
 import ServiceModal from "./ServiceModal.jsx";
 import { useAppData } from "../context/DataContext";
+import axiosInstance from "../config/api";
 
 const Footer = () => {
   const { isLoggedIn } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [popularCategories, setPopularCategories] = useState([]);
+  const [visitorCount, setVisitorCount] = useState(0);
   const { categories: allCategories } = useAppData();
 
   // Filter categories by headerOrder 1-5
@@ -25,6 +27,25 @@ const Footer = () => {
       setPopularCategories(mainCategories);
     }
   }, [allCategories]);
+
+  useEffect(() => {
+    const fetchVisitorCount = async () => {
+      try {
+        const hasVisited = sessionStorage.getItem("hasVisited");
+        if (!hasVisited) {
+          const res = await axiosInstance.post("/public/visitor-count/increment");
+          setVisitorCount(res.data.count);
+          sessionStorage.setItem("hasVisited", "true");
+        } else {
+          const res = await axiosInstance.get("/public/visitor-count");
+          setVisitorCount(res.data.count);
+        }
+      } catch (error) {
+        console.error("Error fetching visitor count:", error);
+      }
+    };
+    fetchVisitorCount();
+  }, []);
 
   const handleServiceClick = (categoryName) => {
     setSelectedCategoryName(categoryName);
@@ -96,6 +117,11 @@ const Footer = () => {
                 <li>
                   <Link to="/services" className="hover:text-white break-words">
                     Services
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/careers" className="hover:text-white break-words">
+                    Careers
                   </Link>
                 </li>
               </ul>
@@ -185,13 +211,21 @@ const Footer = () => {
               </a>
               ,{" "}
               <a
+                href="https://www.linkedin.com/in/amit-mulmule-5266011b2/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-white break-words"
+              >
+                Amit S Mulmule
+              </a>,{" "}
+              <a
                 href="https://www.linkedin.com/in/loveleshrathore/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-white break-words"
               >
                 Lovelesh Rathore
-              </a>{" "}
+              </a>,{" "}
               and{" "}
               <a
                 href="https://www.linkedin.com/in/porwalaastha/"
@@ -202,6 +236,16 @@ const Footer = () => {
                 Aastha Porwal
               </a>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-4 text-center border-t border-gray-800 pt-4 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1 bg-gray-800/40 rounded-full border border-gray-700/50 text-[10px] sm:text-xs text-gray-400">
+            <FaEye className="text-indigo-400" />
+            <span>Total Visitors:</span>
+            <span className="text-white font-semibold tracking-wider">
+              {visitorCount.toLocaleString()}
+            </span>
           </div>
         </div>
       </footer>
