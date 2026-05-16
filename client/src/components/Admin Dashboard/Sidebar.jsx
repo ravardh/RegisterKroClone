@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTachometerAlt, FaUsers, FaLeaf, FaSignOutAlt, FaBox, FaTag, FaEnvelope, FaBars, FaTimes, FaStar, FaBlog } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaLeaf, FaSignOutAlt, FaBox, FaTag, FaEnvelope, FaBars, FaTimes, FaStar, FaBlog, FaUserFriends } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/api";
@@ -17,6 +17,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
     { id: "contact", label: "Contact", icon: FaEnvelope },
     { id: "feedbacks", label: "Feedbacks", icon: FaStar },
     { id: "blogs", label: "Blogs", icon: FaBlog },
+    { id: "ourTeam", label: "Our Team", icon: FaUserFriends },
   ];
 
     const handleLogout = async () => {

@@ -20,8 +20,8 @@ const About = () => {
         canonicalUrl="https://taxprosolution.co.in/about"
         structuredData={aboutSchema}
       />
-      <section className="hero-section -mt-20 flex flex-col items-center justify-center h-screen bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
-        <div className="hero-content px-6 sm:px-20 md:px-32 lg:px-48 py-10 text-center">
+      <section className="hero-section -mt-20 flex flex-col items-center justify-center min-h-[100svh] pt-24 pb-12 sm:pt-28 sm:pb-16 bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
+        <div className="hero-content px-4 sm:px-12 md:px-20 lg:px-32 xl:px-48 py-6 sm:py-10 text-center max-w-5xl w-full mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-semibold mb-4">
             About Us
           </h1>

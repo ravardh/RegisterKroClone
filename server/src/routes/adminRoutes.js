@@ -19,6 +19,13 @@ import {
   updateBlog,
   updateBlogVisibility,
 } from "../controllers/blogController.js";
+import {
+  getAdminTeamMembers,
+  createTeamMember,
+  updateTeamMember,
+  deleteTeamMember,
+} from "../controllers/teamController.js";
+import { uploadTeamImage } from "../middleware/uploadMiddleware.js";
 import { adminProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -47,6 +54,12 @@ router.get("/blogs", getAdminBlogs);
 router.post("/blogs", createBlog);
 router.put("/blogs/:id", updateBlog);
 router.patch("/blogs/:id/visibility", updateBlogVisibility);
+
+// Our Team
+router.get("/team", getAdminTeamMembers);
+router.post("/team", uploadTeamImage, createTeamMember);
+router.put("/team/:id", uploadTeamImage, updateTeamMember);
+router.delete("/team/:id", deleteTeamMember);
 
 // Database Backup
 router.get("/backup-db", backupDatabase);

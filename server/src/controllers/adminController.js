@@ -6,6 +6,7 @@ import Service from "../models/ServiceModel.js";
 import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
 import Blog from "../models/blogModel.js";
+import TeamMember from "../models/teamMemberModel.js";
 import bcrypt from "bcrypt";
 import { sendRmAssignmentEmail } from "../config/emailService.js";
 import fs from "fs";
@@ -21,7 +22,8 @@ export const backupDatabase = async (req, res, next) => {
       services,
       categories,
       subcategories,
-      blogs
+      blogs,
+      teamMembers,
     ] = await Promise.all([
       User.find().select("-password"),
       Contact.find(),
@@ -30,7 +32,8 @@ export const backupDatabase = async (req, res, next) => {
       Service.find(),
       Category.find(),
       SubCategory.find(),
-      Blog.find()
+      Blog.find(),
+      TeamMember.find(),
     ]);
 
     const backupData = {
@@ -42,6 +45,7 @@ export const backupDatabase = async (req, res, next) => {
       categories,
       subcategories,
       blogs,
+      teamMembers,
       timestamp: new Date().toISOString(),
       version: "1.0.0"
     };
