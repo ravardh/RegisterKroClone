@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Refund from "./pages/Refund";
 import Sitemap from "./pages/Sitemap";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
@@ -81,6 +82,7 @@ const Layout = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/refund" element={<Refund />} />
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogDetail />} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaPhoneAlt } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoMdStar } from "react-icons/io";
 import { Link } from "react-router-dom";
@@ -9,11 +9,8 @@ import Step3 from "../assets/step3.png";
 import Step4 from "../assets/step4.png";
 import commondata from "../assets/common.json";
 import SEOHelmet from "../components/SEOHelmet";
+import WhyChooseUsSection from "../components/WhyChooseUsSection";
 import { useAppData } from "../context/DataContext";
-
-const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
-const teamPhotoUrl = (path) =>
-  path ? `${backendBase}${path.startsWith("/") ? path : `/${path}`}` : "";
 
 const Home = () => {
   const homeSchemaData = {
@@ -45,10 +42,7 @@ const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
 
-  const [teamMembers, setTeamMembers] = useState([]);
-  const [isLoadingTeam, setIsLoadingTeam] = useState(true);
-
-  const { categories: allCategoriesData, featuredServices: featuredData, reviews: reviewsData, teamMembers: teamData, isDataLoaded } = useAppData();
+  const { categories: allCategoriesData, featuredServices: featuredData, reviews: reviewsData, isDataLoaded } = useAppData();
 
   // Sync from DataContext
   useEffect(() => {
@@ -71,13 +65,6 @@ const Home = () => {
     }
   }, [reviewsData, isDataLoaded]);
 
-  useEffect(() => {
-    if (isDataLoaded) {
-      setTeamMembers(teamData);
-      setIsLoadingTeam(false);
-    }
-  }, [teamData, isDataLoaded]);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [servicesPerPage, setServicesPerPage] = useState(3);
   const maxIndex = categories.length > 0 ? Math.ceil(categories.length / servicesPerPage) - 1 : 0;
@@ -90,11 +77,6 @@ const Home = () => {
   const [reviewsPerPage, setReviewsPerPage] = useState(3);
   const maxReviewIndex = reviews.length > 0 ? Math.ceil(reviews.length / reviewsPerPage) - 1 : 0;
 
-  const [teamIndex, setTeamIndex] = useState(0);
-  const [teamPerPage, setTeamPerPage] = useState(3);
-  const [teamCarouselPaused, setTeamCarouselPaused] = useState(false);
-  const maxTeamIndex = teamMembers.length > 0 ? Math.ceil(teamMembers.length / teamPerPage) - 1 : 0;
-
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
@@ -102,8 +84,6 @@ const Home = () => {
       setServicesPerPage(perPage);
       setFeaturedPerPage(perPage);
       setReviewsPerPage(perPage);
-      const teamPage = w < 640 ? 1 : 3;
-      setTeamPerPage(teamPage);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -123,28 +103,12 @@ const Home = () => {
   }, [maxIndex]);
 
   useEffect(() => {
-    setTeamIndex((prev) => Math.min(prev, maxTeamIndex));
-  }, [maxTeamIndex]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setReviewIndex((prev) => (prev >= maxReviewIndex ? 0 : prev + 1));
     }, 3000); // Auto-slide every 3 seconds
 
     return () => clearInterval(interval);
   }, [maxReviewIndex]);
-
-  useEffect(() => {
-    if (maxTeamIndex < 1) return;
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-    if (teamCarouselPaused) return;
-    const interval = setInterval(() => {
-      setTeamIndex((prev) => (prev >= maxTeamIndex ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [maxTeamIndex, teamCarouselPaused]);
 
   const handleReviewNext = () => {
     setReviewIndex((prev) => (prev >= maxReviewIndex ? 0 : prev + 1));
@@ -175,14 +139,6 @@ const Home = () => {
     setFeaturedIndex((prev) => (prev > 0 ? prev - 1 : maxFeaturedIndex));
   };
 
-  const handleTeamNext = () => {
-    setTeamIndex((prev) => (prev >= maxTeamIndex ? 0 : prev + 1));
-  };
-
-  const handleTeamPrev = () => {
-    setTeamIndex((prev) => (prev <= 0 ? maxTeamIndex : prev - 1));
-  };
-
   const visibleCategories = categories.slice(
     currentIndex * servicesPerPage,
     (currentIndex + 1) * servicesPerPage
@@ -191,11 +147,6 @@ const Home = () => {
   const visibleFeaturedServices = featuredServices.slice(
     featuredIndex * featuredPerPage,
     (featuredIndex + 1) * featuredPerPage
-  );
-
-  const visibleTeamMembers = teamMembers.slice(
-    teamIndex * teamPerPage,
-    (teamIndex + 1) * teamPerPage
   );
 
   return (
@@ -484,10 +435,16 @@ const Home = () => {
               you anytime.
             </p>
           </div>
-          <div className="md:ml-8">
-            <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl text-base md:text-lg font-medium hover:bg-(--primary-hover) transition whitespace-nowrap">
-              <a href={`tel:${commondata.phones.primary}`}>Call us Now</a>
-            </button>
+          <div className="shrink-0 md:ml-6">
+            <a
+              href={`tel:${commondata.phones.primary}`}
+              className="call-cta-btn group inline-flex items-center gap-2.5 bg-white text-(--primary) px-4 py-2 rounded-full text-sm font-semibold shadow-md shadow-black/10 ring-2 ring-white/40 transition duration-300 hover:bg-(--primary) hover:text-white hover:shadow-lg hover:scale-105 active:scale-95"
+            >
+              <span className="call-cta-icon-wrap relative flex h-7 w-7 items-center justify-center rounded-full bg-(--primary)/10 text-(--primary) transition-colors group-hover:bg-white/20 group-hover:text-white">
+                <FaPhoneAlt className="call-cta-phone h-3.5 w-3.5" />
+              </span>
+              Call Us Now
+            </a>
           </div>
         </div>
       </section>
@@ -588,151 +545,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="our-team-section relative py-10 md:py-20 overflow-hidden bg-linear-to-b from-slate-50/80 via-white to-indigo-50/30">
-        <div
-          className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-indigo-400/10 blur-3xl md:h-96 md:w-96"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-16 left-10 h-56 w-56 rounded-full bg-violet-400/10 blur-3xl md:h-72 md:w-72"
-          aria-hidden
-        />
-
-        <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 tracking-tight">
-            Our Team
-          </h2>
-          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-14 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
-            Meet the specialists who guide your registration, compliance, and business growth.
-          </p>
-
-          {isLoadingTeam ? (
-            <div className="text-center py-12">
-              <p className="text-(--secondary) text-lg animate-pulse">Loading team...</p>
-            </div>
-          ) : teamMembers.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-(--secondary) text-lg">Team profiles coming soon.</p>
-            </div>
-          ) : (
-            <div
-              className="relative mx-auto max-w-[1100px]"
-              onMouseEnter={() => setTeamCarouselPaused(true)}
-              onMouseLeave={() => setTeamCarouselPaused(false)}
-            >
-              <div className="rounded-[1.75rem] border border-indigo-100/90 bg-linear-to-b from-white via-indigo-50/25 to-white p-4 sm:p-6 md:p-8 shadow-[0_22px_55px_-14px_rgba(79,70,229,0.2)] ring-1 ring-slate-900/5">
-                <div className="flex items-stretch gap-2 sm:gap-4 md:gap-5">
-                  {maxTeamIndex > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleTeamPrev}
-                      className="inline-flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center self-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/45 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
-                      aria-label="Previous team members"
-                    >
-                      <FaChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
-                    </button>
-                  )}
-
-                  <div className="min-w-0 flex-1 overflow-hidden py-1 sm:py-2">
-                    <div
-                      key={teamIndex}
-                      className={`home-team-carousel-pane grid items-stretch gap-4 sm:gap-5 md:gap-6 ${
-                        teamPerPage === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-3"
-                      }`}
-                    >
-                      {visibleTeamMembers.map((member, index) => (
-                        <article
-                          key={member._id}
-                          className="home-team-card home-team-card--in-carousel group relative flex h-full min-h-[260px] flex-col items-center rounded-2xl border border-indigo-100/90 bg-white/90 p-5 pb-6 text-center shadow-md shadow-indigo-100/50 backdrop-blur-sm transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-200/40 sm:min-h-[280px] sm:p-6 sm:pb-7"
-                          style={{
-                            animationDelay: `${Math.min(index, 2) * 60}ms`,
-                          }}
-                        >
-                          <div
-                            className="pointer-events-none absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-500/[0.05] via-transparent to-violet-500/[0.07] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                            aria-hidden
-                          />
-                          <div
-                            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-300/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                            aria-hidden
-                          />
-
-                          <div className="relative mb-4 shrink-0 sm:mb-5">
-                            <div
-                              className="absolute -inset-1 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-indigo-600 opacity-70 blur-md transition-all duration-500 group-hover:opacity-100 group-hover:blur-lg"
-                              aria-hidden
-                            />
-                            <div className="relative rounded-full bg-linear-to-br from-indigo-400 to-violet-600 p-[3px] shadow-md transition-transform duration-500 ease-out group-hover:scale-[1.04] group-hover:shadow-indigo-400/25">
-                              <div className="h-24 w-24 overflow-hidden rounded-full border-[3px] border-white bg-indigo-50 ring-2 ring-indigo-100/80 sm:h-28 sm:w-28">
-                                {member.image ? (
-                                  <img
-                                    src={teamPhotoUrl(member.image)}
-                                    alt={member.fullName || "Team member"}
-                                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                                  />
-                                ) : (
-                                  <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-(--primary) to-indigo-700 text-2xl font-bold text-white transition-transform duration-500 group-hover:scale-105 sm:text-3xl">
-                                    {(member.fullName || "?").charAt(0)}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <h3 className="relative text-lg font-bold text-(--text) transition-colors duration-300 group-hover:text-indigo-950 sm:text-xl">
-                            {member.fullName}
-                          </h3>
-                          <p className="relative mb-2 inline-block max-w-full rounded-full bg-indigo-50 px-3 py-1 text-[10px] font-bold uppercase leading-tight tracking-wide text-indigo-700 ring-1 ring-indigo-100 transition-all duration-300 group-hover:bg-indigo-100 group-hover:ring-indigo-200 sm:mb-3 sm:text-xs">
-                            {member.designation}
-                          </p>
-                          {member.bio ? (
-                            <p className="relative text-(--secondary) flex-1 text-xs leading-relaxed line-clamp-4 transition-colors duration-300 group-hover:text-gray-600 sm:text-sm">
-                              {member.bio}
-                            </p>
-                          ) : null}
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  {maxTeamIndex > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleTeamNext}
-                      className="inline-flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center self-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/45 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
-                      aria-label="Next team members"
-                    >
-                      <FaChevronRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {maxTeamIndex > 0 && (
-                <div className="mt-6 space-y-3 sm:mt-8">
-                  <div className="flex flex-wrap justify-center gap-2 px-2">
-                    {Array.from({ length: maxTeamIndex + 1 }).map((_, index) => (
-                      <button
-                        key={`team-slide-${index}`}
-                        type="button"
-                        onClick={() => setTeamIndex(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          teamIndex === index
-                            ? "w-10 bg-linear-to-r from-indigo-600 to-violet-600"
-                            : "w-2 bg-gray-300 hover:bg-indigo-300"
-                        }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                        aria-current={teamIndex === index ? true : undefined}
-                      />
-                    ))}
-                  </div>
-                 
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+      <WhyChooseUsSection />
     </>
   );
 };

@@ -827,7 +827,7 @@ const ServiceDetail = () => {
                         <button
                           key={index}
                           onClick={() => handleDescriptionTabClick(index)}
-                          className={`px-6 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group ${activeTab === index
+                          className={`px-6 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group cursor-pointer ${activeTab === index
                             ? "text-(--primary) bg-white shadow-sm"
                             : "text-gray-400 hover:text-(--primary) hover:bg-white/40"
                             }`}
@@ -839,7 +839,7 @@ const ServiceDetail = () => {
                           {activeTab === index && (
                             <motion.div
                               layoutId="activeTabIndicator"
-                              className="absolute bottom-0 left-0 right-0 h-1 bg-(--primary) rounded-t-full shadow-[0_-2px_10px_rgba(79,70,229,0.4)]"
+                              className="absolute bottom-0 left-0 right-0 h-px bg-(--primary)"
                             />
                           )}
                         </button>
@@ -862,7 +862,7 @@ const ServiceDetail = () => {
                       {getTabIcon(descriptionTabs[activeTab]?.tabs)}
                     </div>
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+                      <h2 className="text-xl sm:text-lg font-bold text-gray-900 tracking-tight">
                         {descriptionTabs[activeTab]?.tabs || "Service Details"}
                       </h2>
                       <div className="flex items-center gap-2 mt-0.5">

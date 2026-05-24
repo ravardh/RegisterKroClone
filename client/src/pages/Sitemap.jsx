@@ -50,6 +50,7 @@ const Sitemap = () => {
   const legalPages = [
     { name: "Privacy Policy", path: "/privacy", icon: <FaShieldAlt /> },
     { name: "Terms & Conditions", path: "/terms", icon: <FaFileContract /> },
+    { name: "Refund Policy", path: "/refund", icon: <FaFileContract /> },
   ];
 
   return (

@@ -117,7 +117,60 @@ iframe {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Our Team (Home) — entrance + hover; respects reduced motion */
+/* Our Team section — entrance + hover; respects reduced motion */
+@keyframes our-team-header-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes our-team-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes our-team-avatar-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+.our-team-header {
+  animation: our-team-header-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.our-team-blob {
+  animation: our-team-float 9s ease-in-out infinite;
+}
+
+.our-team-blob--delay {
+  animation-delay: -4s;
+}
+
+.our-team-avatar-glow {
+  animation: our-team-avatar-pulse 3s ease-in-out infinite;
+}
+
+.group:hover .our-team-avatar-glow {
+  animation-play-state: paused;
+}
+
 @keyframes home-team-rise {
   from {
     opacity: 0;
@@ -154,6 +207,12 @@ iframe {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .our-team-header,
+  .our-team-blob,
+  .our-team-avatar-glow {
+    animation: none;
+  }
+
   .home-team-card {
     animation: none;
     opacity: 1;
@@ -161,6 +220,296 @@ iframe {
   }
 
   .home-team-carousel-pane {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Why Choose Us (Home) — card entrance */
+@keyframes why-choose-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.why-choose-card {
+  animation: why-choose-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-choose-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Home CTA — Call Us Now button */
+@keyframes call-cta-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes call-cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(79, 70, 229, 0);
+  }
+}
+
+@keyframes call-cta-phone-ring {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+.call-cta-btn {
+  animation: call-cta-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.call-cta-icon-wrap {
+  animation: call-cta-pulse 2.2s ease-in-out infinite;
+}
+
+.call-cta-phone {
+  animation: call-cta-phone-ring 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.call-cta-btn:hover .call-cta-icon-wrap,
+.call-cta-btn:hover .call-cta-phone {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .call-cta-btn,
+  .call-cta-icon-wrap,
+  .call-cta-phone {
+    animation: none;
+  }
+}
+
+/* About page — creative sections */
+@keyframes about-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes about-hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@keyframes about-scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes about-float-card {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes about-image-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes about-timeline-grow {
+  from {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+.about-animate-in {
+  animation: about-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-animate-in--delay-1 {
+  animation-delay: 0.1s;
+}
+
+.about-animate-in--delay-2 {
+  animation-delay: 0.2s;
+}
+
+.about-animate-in--delay-3 {
+  animation-delay: 0.3s;
+}
+
+.about-card {
+  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-service-card {
+  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-timeline-item {
+  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-hero-blob {
+  animation: about-hero-float 10s ease-in-out infinite;
+}
+
+.about-hero-blob--delay {
+  animation-delay: -5s;
+}
+
+.about-hero-icon {
+  animation: about-hero-float 7s ease-in-out infinite;
+}
+
+.about-hero-icon--1 {
+  animation-delay: 0s;
+}
+
+.about-hero-icon--2 {
+  animation-delay: -2s;
+}
+
+.about-hero-icon--3 {
+  animation-delay: -4s;
+}
+
+.about-scroll-hint svg {
+  animation: about-scroll-bounce 1.8s ease-in-out infinite;
+}
+
+.about-float-card {
+  animation: about-float-card 4s ease-in-out infinite;
+}
+
+.about-image-glow {
+  animation: about-image-glow 5s ease-in-out infinite;
+}
+
+.about-timeline-line {
+  animation: about-timeline-grow 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-badge-story {
+  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-badge-journey {
+  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.about-timeline-shine {
+  animation: about-timeline-grow 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-timeline-node {
+  animation: about-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-story-card {
+  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-story-reel-card {
+  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about-story-section .about-timeline-item:nth-child(1) .about-timeline-node {
+  animation-delay: 0.15s;
+}
+
+.about-story-section .about-timeline-item:nth-child(2) .about-timeline-node {
+  animation-delay: 0.25s;
+}
+
+.about-story-section .about-timeline-item:nth-child(3) .about-timeline-node {
+  animation-delay: 0.35s;
+}
+
+.about-story-section .about-timeline-item:nth-child(4) .about-timeline-node {
+  animation-delay: 0.45s;
+}
+
+.about-stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -12px rgba(79, 70, 229, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-animate-in,
+  .about-animate-in--delay-1,
+  .about-animate-in--delay-2,
+  .about-animate-in--delay-3,
+  .about-card,
+  .about-service-card,
+  .about-timeline-item,
+  .about-hero-blob,
+  .about-hero-icon,
+  .about-scroll-hint svg,
+  .about-float-card,
+  .about-image-glow,
+  .about-timeline-line,
+  .about-badge-story,
+  .about-badge-journey,
+  .about-timeline-shine,
+  .about-timeline-node,
+  .about-story-card,
+  .about-story-reel-card {
     animation: none;
     opacity: 1;
     transform: none;
