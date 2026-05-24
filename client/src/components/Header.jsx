@@ -278,13 +278,9 @@ const Header = () => {
                                       : ""
                                       }`}
                                   >
-                                    <span className="flex items-center gap-3">
-                                      <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                                      <div className="flex items-center justify-between w-full">
-                                        {subCat.name}{" "}
-                                        <IoChevronForward className="inline-block text-(--primary) text-xs" />
-                                      </div>
-                                      {/* {subCat.name} */}
+                                    <span className="flex items-center justify-between w-full">
+                                      {subCat.name}{" "}
+                                      <IoChevronForward className="inline-block text-(--primary) text-xs" />
                                     </span>
                                   </button>
                                 </div>
@@ -318,10 +314,7 @@ const Header = () => {
                                             }
                                             className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 cursor-pointer"
                                           >
-                                            <span className="flex items-center gap-2">
-                                              <span className="w-1.5 h-1.5 rounded-full bg-(--primary)"></span>
-                                              {service.serviceName}
-                                            </span>
+                                            {service.serviceName}
                                           </button>
                                         ))}
                                       </div>
@@ -364,12 +357,9 @@ const Header = () => {
                             }}
                             className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 cursor-pointer"
                           >
-                            <span className="flex items-center gap-3">
-                              <span className="w-2 h-2 rounded-full bg-(--primary)"></span>
-                              <div className="flex items-center justify-between w-full">
-                                {category.name}{" "}
-                                <IoChevronForward className="inline-block text-(--primary) text-xs" />
-                              </div>
+                            <span className="flex items-center justify-between w-full">
+                              {category.name}{" "}
+                              <IoChevronForward className="inline-block text-(--primary) text-xs" />
                             </span>
                           </button>
                         ))}
