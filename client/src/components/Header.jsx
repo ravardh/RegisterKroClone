@@ -232,12 +232,13 @@ const Header = () => {
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo */}
-            <div className="shrink-0">
-              <Link
-                to="/"
-                className="text-sm sm:text-md md:text-lg lg:text-xl font-bold text-(--primary)"
-              >
-                {CommonData.companyName}
+            <div className="shrink-0 min-w-0">
+              <Link to="/" className="inline-flex items-center">
+                <img
+                  src="/taxpro-logo.png"
+                  alt={CommonData.companyName}
+                  className="site-logo"
+                />
               </Link>
             </div>
 

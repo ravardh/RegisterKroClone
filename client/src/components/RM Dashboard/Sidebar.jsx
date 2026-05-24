@@ -71,7 +71,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
                 onClick={() => handleTabClick(item.id)}
                 className={`flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm rounded-xl transition-all duration-200 group relative overflow-hidden ${
                   activeTab === item.id
-                    ? "bg-white text-[#4F46E5] shadow-lg shadow-white/20 scale-105 font-semibold"
+                    ? "bg-white text-(--primary) shadow-lg shadow-white/20 scale-105 font-semibold"
                     : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1"
                 }`}
               >
