@@ -107,13 +107,12 @@ const Footer = () => {
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 xl:gap-16">
           {/* Left sidebar */}
           <aside className="lg:w-[280px] xl:w-[300px] shrink-0">
-            <Link to="/" className="inline-flex items-center gap-3">
-              <div className="w-11 h-11 bg-(--primary) rounded flex items-center justify-center font-bold text-white shrink-0">
-                TP
-              </div>
-              <span className="text-lg font-semibold text-white">
-                {CommonData.companyName}
-              </span>
+            <Link to="/" className="inline-flex items-center">
+              <img
+                src="/taxpro-logo.png"
+                alt={CommonData.companyName}
+                className="site-logo site-logo--footer"
+              />
             </Link>
 
             <p className="mt-5 text-sm leading-relaxed text-gray-400">

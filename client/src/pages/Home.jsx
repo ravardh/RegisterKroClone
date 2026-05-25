@@ -175,15 +175,30 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="featured-services py-10 md:py-20 bg-white">
-        <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-          <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2">
-            Featured Services
-          </h2>
-          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-1/2 mx-auto px-4">
-            Explore our most popular and trusted services chosen by thousands of
-            businesses.
-          </p>
+      <section className="featured-services relative overflow-hidden py-12 md:py-24 bg-linear-to-b from-[color-mix(in_srgb,var(--brand-pale)_40%,white)] via-white to-[color-mix(in_srgb,var(--brand-pale)_25%,white)]">
+        <div
+          className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-(--primary)/10 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-16 left-0 h-64 w-64 rounded-full bg-(--secondary)/10 blur-3xl"
+          aria-hidden
+        />
+
+        <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
+          <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-(--primary)/20 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-(--primary) shadow-sm backdrop-blur-sm">
+              <IoMdStar className="text-sm" />
+              Popular Picks
+            </span>
+            <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-4">
+              Featured Services
+            </h2>
+            <p className="text-(--secondary) text-base sm:text-lg md:text-xl leading-relaxed">
+              Explore our most popular and trusted services chosen by thousands of
+              businesses.
+            </p>
+          </div>
 
           {isLoadingFeatured ? (
             <div className="text-center py-12">
@@ -199,8 +214,8 @@ const Home = () => {
             </div>
           ) : (
             <div className="relative">
-              <div className="featured-services-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 transition-all duration-500 ease-in-out">
-                {visibleFeaturedServices.map((service) => (
+              <div className="featured-services-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+                {visibleFeaturedServices.map((service, index) => (
                   <div
                     key={service._id}
                     className="featured-service-card bg-linear-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg border-2 border-indigo-100 hover:shadow-xl hover:border-indigo-300 transition min-h-[18rem] sm:min-h-[20rem] xl:h-80 flex flex-col"
