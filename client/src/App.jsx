@@ -20,8 +20,10 @@ import Sitemap from "./pages/Sitemap";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import SuperAdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
+import BloggerDashboard from "./pages/dashboards/BloggerDashboard";
+import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
@@ -32,7 +34,7 @@ const isDashboard = location.pathname.includes("Dashboard");
 
 const Layout = () => {
   const location = useLocation();
-  const isDashboard = ["/adminDashboard", "/rmDashboard"].includes(
+  const isDashboard = ["/superAdminDashboard", "/adminDashboard", "/rmDashboard", "/bloggerDashboard", "/managerDashboard"].includes(
     location.pathname,
   );
   //console.log("App Started");
@@ -92,7 +94,31 @@ const Layout = () => {
             path="/adminDashboard"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superAdminDashboard"
+            element={
+              <ProtectedRoute requiredRole="superAdmin">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/managerDashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ManagerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bloggerDashboard"
+            element={
+              <ProtectedRoute requiredRole="blogger">
+                <BloggerDashboard />
               </ProtectedRoute>
             }
           />

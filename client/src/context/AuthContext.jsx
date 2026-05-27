@@ -1,6 +1,6 @@
 import React from "react";
 
-const isAdminRole = (role) => ["admin", "SuperAdmin"].includes(role);
+const isAdminRole = (role) => ["admin", "superAdmin"].includes(role);
 
 export const AuthContext = React.createContext();
 
@@ -10,13 +10,16 @@ export const AuthProvider = ({ children }) => {
   );
   const [isLoggedIn, setIsLoggedIn] = React.useState(!!user);
   const [isAdmin, setIsAdmin] = React.useState(isAdminRole(user?.role));
+  const [isSuperAdmin, setIsSuperAdmin] = React.useState(user?.role === "superAdmin");
   const [isRM, setIsRM] = React.useState(user?.role === "rm");
+  const [isBlogger, setIsBlogger] = React.useState(user?.role === "bloger");
 
   React.useEffect(() => {
-    // Fetch user authentication status from the server or local storage
     setIsLoggedIn(!!user);
     setIsAdmin(isAdminRole(user?.role));
+    setIsSuperAdmin(user?.role === "superAdmin");
     setIsRM(user?.role === "rm");
+    setIsBlogger(user?.role === "bloger");
   }, [user]);
 
   const authState = {
@@ -26,8 +29,12 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn,
     isAdmin,
     setIsAdmin,
+    isSuperAdmin,
+    setIsSuperAdmin,
     isRM,
     setIsRM,
+    isBlogger,
+    setIsBlogger,
   };
 
   return (

@@ -10,19 +10,24 @@ const TopHeader = () => {
     user,
     isLoggedIn,
     isAdmin,
+    isSuperAdmin,
     isRM,
+    isBlogger,
     setUser,
     setIsLoggedIn,
     setIsAdmin,
     setIsRM,
+    setIsBlogger,
   } = useAuth();
   const navigate = useNavigate();
   const email = CommonData.emails.support;
 
   const getDashboardLink = () => {
-    if (isAdmin) return "/adminDashboard";
+    if (isSuperAdmin) return "/superAdminDashboard";
+    if (isAdmin) return "/managerDashboard";
+    if (isBlogger) return "/bloggerDashboard";
     if (isRM) return "/rmDashboard";
-    return "/dashboard";
+    return "/";
   };
 
   const location = useLocation().pathname;
@@ -35,6 +40,7 @@ const TopHeader = () => {
       setIsLoggedIn(false);
       setIsAdmin(false);
       setIsRM(false);
+      setIsBlogger(false);
       toast.success("Logged out successfully!");
       navigate("/");
     } catch (error) {

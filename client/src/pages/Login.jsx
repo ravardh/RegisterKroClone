@@ -37,18 +37,27 @@ const Login = () => {
       setUser(res.data.data);
       sessionStorage.setItem("user", JSON.stringify(res.data.data));
       setIsLoggedIn(true);
-      if (res.data.data.role === "SuperAdmin") {
-        navigate("/adminDashboard");
+      const role = res.data.data.role;
+      if (role === "superAdmin") {
         setIsAdmin(true);
         setIsRM(false);
-      } else if (res.data.data.role === "rm") {
+        navigate("/superAdminDashboard");
+      } else if (role === "admin") {
+        setIsAdmin(true);
+        setIsRM(false);
+        navigate("/managerDashboard");
+      } else if (role === "bloger") {
+        setIsAdmin(false);
+        setIsRM(false);
+        navigate("/bloggerDashboard");
+      } else if (role === "rm") {
         setIsAdmin(false);
         setIsRM(true);
         navigate("/rmDashboard");
       } else {
         setIsAdmin(false);
         setIsRM(false);
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error during login:", error);

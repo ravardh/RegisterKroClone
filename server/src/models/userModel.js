@@ -22,13 +22,13 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["rm", "SuperAdmin", "admin"],
+      enum: ["rm", "superAdmin", "admin", "bloger"],
       default: "rm",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 const User = mongoose.model("User", userSchema);
 export default User;

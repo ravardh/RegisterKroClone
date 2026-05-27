@@ -13,6 +13,7 @@ import AdminRoutes from "./src/routes/adminRoutes.js";
 import PublicRoutes from "./src/routes/publicRoutes.js";
 import RmRoutes from "./src/routes/rmRoutes.js";
 import ServiceRoutes from "./src/routes/serviceRoutes.js";
+import BloggerRoutes from "./src/routes/bloggerRoutes.js";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/admin", AdminRoutes);
 app.use("/services", ServiceRoutes);
 app.use("/public", PublicRoutes);
 app.use("/rm", RmRoutes);
+app.use("/blogger", BloggerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

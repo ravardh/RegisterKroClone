@@ -1,16 +1,15 @@
 import React from "react";
-import { FaTachometerAlt, FaUsers, FaLeaf, FaSignOutAlt, FaBox, FaTag, FaEnvelope, FaBars, FaTimes, FaStar, FaBlog, FaUserFriends } from "react-icons/fa";
+import { FaTachometerAlt, FaLeaf, FaSignOutAlt, FaBox, FaTag, FaEnvelope, FaBars, FaTimes, FaStar, FaBlog, FaUserFriends } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 
-const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
+const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
   const navigate = useNavigate();
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM, setIsBlogger } = useAuth();
   const sidebarItems = [
     { id: "overview", label: "Overview", icon: FaTachometerAlt },
-    { id: "employees", label: "Emp Manage", icon: FaUsers },
     { id: "leads", label: "Leads", icon: FaLeaf },
     { id: "category", label: "Category", icon: FaTag },
     { id: "services", label: "Services", icon: FaBox },
@@ -71,7 +70,7 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
         <div className="p-4 pt-1 sm:p-6 sm:pt-2 flex-1 overflow-y-auto no-scrollbar">
           <div className="mb-2 sm:mb-3">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
-              Super Admin
+              Admin Dashboard
             </h1>
           </div>
           <nav className="space-y-1">
@@ -85,7 +84,6 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
                     : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1"
                 }`}
               >
-                
                 <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 transition-transform duration-200 ${
                   activeTab === item.id ? "scale-110" : "group-hover:scale-110"
                 }`} />
@@ -109,4 +107,4 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

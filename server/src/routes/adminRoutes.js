@@ -5,6 +5,10 @@ import {
   createRm,
   deleteRm,
   updateRm,
+  getEmployees,
+  createEmployee,
+  deleteEmployee,
+  updateEmployee,
   getAllContacts,
   deleteContact,
   assignLeadToRM,
@@ -26,11 +30,11 @@ import {
   deleteTeamMember,
 } from "../controllers/teamController.js";
 import { uploadTeamImage } from "../middleware/uploadMiddleware.js";
-import { adminProtect } from "../middleware/authMiddleware.js";
+import { adminProtect, superAdminProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Apply admin protection to all routes
+// Apply admin protection to all routes (admin + superAdmin)
 router.use(adminProtect);
 
 router.get("/leads", getAllLeads);
@@ -64,7 +68,10 @@ router.delete("/team/:id", deleteTeamMember);
 // Database Backup
 router.get("/backup-db", backupDatabase);
 
-// Service routes
-// service/category/subcategory routes moved to serviceRoutes
+// Employee Management - SuperAdmin only
+router.get("/employees", superAdminProtect, getEmployees);
+router.post("/create-employee", superAdminProtect, createEmployee);
+router.put("/update-employee/:id", superAdminProtect, updateEmployee);
+router.delete("/delete-employee/:id", superAdminProtect, deleteEmployee);
 
 export default router;

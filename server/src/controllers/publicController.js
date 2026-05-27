@@ -119,9 +119,9 @@ export const LeadCapture = async (req, res, next) => {
       return next(error);
     }
 
-    // Get the first admin user (SuperAdmin or admin)
+    // Get the first admin user (superAdmin or admin)
     const admin = await User.findOne({
-      role: { $in: ["SuperAdmin", "admin"] }
+      role: { $in: ["superAdmin", "admin"] }
     });
 
     if (!admin) {

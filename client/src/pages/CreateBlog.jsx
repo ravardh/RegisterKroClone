@@ -7,7 +7,7 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import axios from "../config/api";
 
-const CreateBlog = ({ blog = null, isAdminEmbedded = false, onCancel, onSuccess }) => {
+const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin", onCancel, onSuccess }) => {
   const navigate = useNavigate();
   const isEditMode = Boolean(blog?._id);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,9 +160,9 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, onCancel, onSuccess 
       };
 
       if (isEditMode) {
-        await axios.put(`/admin/blogs/${blog._id}`, payload);
+        await axios.put(`${apiPrefix}/blogs/${blog._id}`, payload);
       } else {
-        await axios.post("/admin/blogs", payload);
+        await axios.post(`${apiPrefix}/blogs`, payload);
       }
 
       window.dispatchEvent(new Event("blogPostsUpdated"));

@@ -213,6 +213,154 @@ export const getRm = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get all employees (rm, admin, bloger) - SuperAdmin only
+export const getEmployees = async (req, res, next) => {
+  try {
+    const employees = await User.find({ role: { $ne: "superAdmin" } }).select("-password");
+    res.status(200).json({
+      message: "Employees fetched successfully",
+      data: employees,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Create employee with role - SuperAdmin only
+export const createEmployee = async (req, res, next) => {
+  try {
+    const { fullName, email, phone, password, role } = req.body;
+
+    if (!fullName || !email || !phone || !password || !role) {
+      const error = new Error("All fields are required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const validRoles = ["rm", "admin", "bloger"];
+    if (!validRoles.includes(role)) {
+      const error = new Error("Invalid role. Must be one of: rm, admin, bloger");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error("User with this email already exists");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newEmployee = await User.create({
+      fullName,
+      email,
+      phone,
+      password: hashedPassword,
+      role,
+    });
+
+    res.status(201).json({
+      message: `${role === 'rm' ? 'RM' : role === 'admin' ? 'Admin' : 'Blogger'} created successfully`,
+      data: newEmployee,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Delete employee - SuperAdmin only
+export const deleteEmployee = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("Employee ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const employee = await User.findById(id);
+    if (!employee) {
+      const error = new Error("Employee not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (employee.role === "superAdmin") {
+      const error = new Error("Cannot delete a Super Admin");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: "Employee deleted successfully",
+      data: employee,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update employee - SuperAdmin only
+export const updateEmployee = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { fullName, email, phone, password, role } = req.body;
+
+    if (!id) {
+      const error = new Error("Employee ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      const error = new Error("Employee not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (existingUser.role === "superAdmin") {
+      const error = new Error("Cannot modify a Super Admin");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    existingUser.fullName = fullName || existingUser.fullName;
+    existingUser.email = email || existingUser.email;
+    existingUser.phone = phone || existingUser.phone;
+
+    if (role) {
+      const validRoles = ["rm", "admin", "bloger"];
+      if (!validRoles.includes(role)) {
+        const error = new Error("Invalid role. Must be one of: rm, admin, bloger");
+        error.statusCode = 400;
+        return next(error);
+      }
+      existingUser.role = role;
+    }
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      existingUser.password = hashedPassword;
+    }
+
+    await existingUser.save();
+
+    res.status(200).json({
+      message: "Employee updated successfully",
+      data: existingUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createRm = async (req, res, next) => {
   try {
     const { fullName, email, phone, password } = req.body;
