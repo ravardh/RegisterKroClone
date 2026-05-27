@@ -27,8 +27,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -47,8 +47,14 @@ app.get("/", (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error("Error occurred:", err);
-  res.status(err.statusCode || 500).json({
-    message: err.message || "Internal Server Error",
+  const statusCode = err.statusCode || err.status || (err.type === "entity.too.large" ? 413 : 500);
+  const message =
+    err.type === "entity.too.large"
+      ? "Request payload is too large. Please reduce content/file size."
+      : err.message || "Internal Server Error";
+
+  res.status(statusCode).json({
+    message,
     stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
   });
 });

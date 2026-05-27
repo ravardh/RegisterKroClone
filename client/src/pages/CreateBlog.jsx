@@ -46,9 +46,7 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
       setIsUploadingImage(true);
 
       try {
-        const res = await axios.post("/services/upload-blog-image", payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const res = await axios.post("/services/upload-blog-image", payload);
         const relativeUrl = res?.data?.data?.url;
         if (!relativeUrl) {
           throw new Error("Upload did not return an image URL");
