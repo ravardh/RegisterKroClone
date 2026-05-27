@@ -59,9 +59,13 @@ const Footer = () => {
     return [...categories]
       .filter((cat) => {
         const order = parseInt(cat.headerOrder, 10);
-        return !Number.isNaN(order) && order >= 1 && order <= MAX_FOOTER_CATEGORIES;
+        return (
+          !Number.isNaN(order) && order >= 1 && order <= MAX_FOOTER_CATEGORIES
+        );
       })
-      .sort((a, b) => parseInt(a.headerOrder, 10) - parseInt(b.headerOrder, 10));
+      .sort(
+        (a, b) => parseInt(a.headerOrder, 10) - parseInt(b.headerOrder, 10),
+      );
   }, [categories]);
 
   const categorySections = useMemo(() => {
@@ -87,7 +91,9 @@ const Footer = () => {
       try {
         const hasVisited = sessionStorage.getItem("hasVisited");
         if (!hasVisited) {
-          const res = await axiosInstance.post("/public/visitor-count/increment");
+          const res = await axiosInstance.post(
+            "/public/visitor-count/increment",
+          );
           setVisitorCount(res.data.count);
           sessionStorage.setItem("hasVisited", "true");
         } else {
@@ -106,10 +112,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 xl:gap-16">
           {/* Left sidebar */}
-          <aside className="lg:w-[280px] xl:w-[300px] shrink-0">
-            <Link to="/" className="inline-flex items-center">
+          <aside className="lg:w-[280px] xl:w-[280px] shrink-0 ">
+            <Link to="/" className="flex items-center">
               <img
-                src="/taxpro-logo.png"
+                src="/taxpro-logo-rect.webp"
                 alt={CommonData.companyName}
                 className="site-logo site-logo--footer"
               />
@@ -131,9 +137,21 @@ const Footer = () => {
 
             <div className="flex gap-3 mt-6">
               {[
-                { href: CommonData.social.facebook, icon: FaFacebook, label: "Facebook" },
-                { href: CommonData.social.instagram, icon: FaInstagram, label: "Instagram" },
-                { href: CommonData.social.linkedin, icon: FaLinkedin, label: "LinkedIn" },
+                {
+                  href: CommonData.social.facebook,
+                  icon: FaFacebook,
+                  label: "Facebook",
+                },
+                {
+                  href: CommonData.social.instagram,
+                  icon: FaInstagram,
+                  label: "Instagram",
+                },
+                {
+                  href: CommonData.social.linkedin,
+                  icon: FaLinkedin,
+                  label: "LinkedIn",
+                },
               ].map(({ href, icon: Icon, label }) => (
                 <a
                   key={label}
@@ -149,13 +167,22 @@ const Footer = () => {
             </div>
 
             <nav className="mt-6 flex flex-col gap-2 text-sm text-gray-400">
-              <Link to="/about" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/about"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 About Us
               </Link>
-              <Link to="/blog" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/blog"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Blog
               </Link>
-              <Link to="/services" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/services"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Services
               </Link>
             </nav>
@@ -228,7 +255,9 @@ const Footer = () => {
             )}
 
             {isDataLoaded && categorySections.length === 0 && (
-              <p className="text-sm text-gray-500">No services available yet.</p>
+              <p className="text-sm text-gray-500">
+                No services available yet.
+              </p>
             )}
 
             {categorySections.map(
@@ -291,19 +320,31 @@ const Footer = () => {
               reserved.
             </span>
             <div className="flex flex-wrap gap-x-3 gap-y-2 justify-center md:justify-start order-2">
-              <Link to="/terms" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/terms"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Terms & Conditions
               </Link>
               <span className="hidden sm:inline text-gray-600">•</span>
-              <Link to="/privacy" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/privacy"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Privacy Policy
               </Link>
               <span className="hidden sm:inline text-gray-600">•</span>
-              <Link to="/refund" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/refund"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Refund Policy
               </Link>
               <span className="hidden sm:inline text-gray-600">•</span>
-              <Link to="/sitemap" className="hover:text-(--primary-light) transition-colors">
+              <Link
+                to="/sitemap"
+                className="hover:text-(--primary-light) transition-colors"
+              >
                 Sitemap
               </Link>
             </div>

@@ -147,9 +147,9 @@ const Overview = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       {/* Refined Header */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="bg-white rounded-3xl p-3 md:p-4 border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Overview</h1>
           <p className="text-gray-500 font-medium mt-1">Welcome back! Here's your business performance today.</p>

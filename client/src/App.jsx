@@ -25,9 +25,10 @@ import RMDashboard from "./pages/dashboards/RMDashboard";
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
 import Careers from "./pages/Careers";
-import CommonData from './assets/common.json'
-import WhatsAppIcon from './assets/whatsapp.png'
+import CommonData from "./assets/common.json";
+import WhatsAppIcon from "./assets/whatsapp.png";
 import { DataProvider } from "./context/DataContext";
+const isDashboard = location.pathname.includes("Dashboard");
 
 const Layout = () => {
   const location = useLocation();
@@ -49,19 +50,19 @@ const Layout = () => {
         toastOptions={{
           duration: 5000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: "#363636",
+            color: "#fff",
           },
           success: {
             duration: 5000,
             theme: {
-              primary: '#4aed88',
+              primary: "#4aed88",
             },
           },
           error: {
             duration: 5000,
             theme: {
-              primary: '#ff4b4b',
+              primary: "#ff4b4b",
             },
           },
         }}
@@ -119,15 +120,21 @@ const App = () => {
       <BrowserRouter>
         <Layout />
 
-        <a
-          href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 left-4 z-50 max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:left-[max(1rem,env(safe-area-inset-left))] sm:bottom-5 sm:left-5"
-          aria-label="Chat on WhatsApp"
-        >
-          <img src={WhatsAppIcon} alt="" className="h-11 w-11 sm:h-12 sm:w-12 hover:scale-110 duration-300" />
-        </a>
+        {!isDashboard && (
+          <a
+            href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-4 left-4 z-50 max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:left-[max(1rem,env(safe-area-inset-left))] sm:bottom-5 sm:left-5"
+            aria-label="Chat on WhatsApp"
+          >
+            <img
+              src={WhatsAppIcon}
+              alt=""
+              className="h-11 w-11 sm:h-12 sm:w-12 hover:scale-110 duration-300"
+            />
+          </a>
+        )}
       </BrowserRouter>
     </DataProvider>
   );

@@ -60,11 +60,11 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
         transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
-          <div className="mb-6 sm:mb-8 mt-4">
+        <div className="p-4 pt-1 sm:p-6 sm:pt-2 flex-1 overflow-y-auto">
+          <div className="mb-2 sm:mb-3 mt-4">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">RM Dashboard</h1>
           </div>
-          <nav className="space-y-2">
+          <nav className="space-y-1">
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
@@ -86,10 +86,10 @@ const Sidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) =
           </nav>
         </div>
 
-        <div className="p-4 sm:p-6 border-t border-white/20">
+        <div className="p-2 sm:p-3 border-t border-white/20">
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm rounded-xl text-red-100 hover:bg-red-500/20 hover:text-white transition-all duration-200 group border border-red-300/30 hover:border-red-300/50"
+            className="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm rounded-xl text-red-100 hover:bg-red-500/40 hover:text-white transition-all duration-200 group border border-red-300/30 hover:border-red-300/50"
           >
             <FaSignOutAlt className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 transition-transform duration-200 group-hover:translate-x-1" />
             <span className="font-medium">Logout</span>
