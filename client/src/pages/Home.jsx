@@ -290,7 +290,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="process-section py-10 md:py-20 bg-[url('/process-bg.jpg')] bg-cover bg-center">
+      <section className="process-section py-10 md:py-20 bg-[url('/process-bg.webp')] bg-cover bg-center">
         <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-32">
           <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Grow Your Business in Just a Few Clicks

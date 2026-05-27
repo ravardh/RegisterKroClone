@@ -235,7 +235,7 @@ const Header = () => {
             <div className="shrink-0 min-w-0">
               <Link to="/" className="inline-flex items-center">
                 <img
-                  src="/taxpro-logo.png"
+                  src="/taxpro-logo-rect.webp"
                   alt={CommonData.companyName}
                   className="site-logo"
                 />
