@@ -15,12 +15,15 @@ import {
   updateSubCategory,
   deleteSubCategory,
 } from "../controllers/serviceController.js";
-import { adminProtect } from "../middleware/authMiddleware.js";
+import { adminProtect, bloggerProtect } from "../middleware/authMiddleware.js";
 import { uploadBlogImage, uploadServiceDocuments } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Apply admin protection to all routes
+// Blog image upload is used by blogger/admin editors.
+router.post("/upload-blog-image", bloggerProtect, uploadBlogImage, uploadBlogImageFile);
+
+// Apply admin protection to service management routes
 router.use(adminProtect);
 
 // Service routes
@@ -31,7 +34,6 @@ router.delete("/:id", deleteService);
 
 // Maintenance
 router.delete("/maintenance/purge-orphaned-documents", purgeOrphanedDocuments);
-router.post("/upload-blog-image", uploadBlogImage, uploadBlogImageFile);
 
 // Category CRUD routes
 router.get("/categories-list", getAllCategories);
