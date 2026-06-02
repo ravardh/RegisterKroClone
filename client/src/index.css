@@ -106,6 +106,89 @@ iframe {
   margin-bottom: 0.2em;
 }
 
+.service-detail-content table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  margin: 1.25rem 0 !important;
+  border-collapse: collapse !important;
+  border: 1px solid #d8e4f7 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px -18px rgba(13, 77, 184, 0.45) !important;
+  font-size: 0.92rem !important;
+  line-height: 1.35 !important;
+}
+
+.service-detail-content table + p:has(br:only-child) {
+  display: none !important;
+}
+
+.service-detail-content table:has(+ p + table),
+.service-detail-content table:has(+ table) {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.service-detail-content table + table,
+.service-detail-content table + p + table {
+  margin-top: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+.service-detail-content th,
+.service-detail-content td {
+  border: 1px solid #d8e4f7 !important;
+  padding: 0.65rem 0.85rem !important;
+  vertical-align: middle !important;
+}
+
+.service-detail-content th {
+  background: #f1f6ff !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  letter-spacing: 0 !important;
+}
+
+.service-detail-content td {
+  color: #24324a !important;
+  background: #ffffff !important;
+}
+
+.service-detail-content th:first-child,
+.service-detail-content td:first-child {
+  width: 34% !important;
+  text-align: left !important;
+}
+
+.service-detail-content th:not(:first-child),
+.service-detail-content td:not(:first-child) {
+  text-align: center !important;
+}
+
+.service-detail-content td:first-child {
+  font-weight: 600 !important;
+  color: #172033 !important;
+}
+
+.service-detail-content tr:nth-child(even) td {
+  background: #f8fbff !important;
+}
+
+.service-detail-content tr:hover td {
+  background: #fff9eb !important;
+}
+
+.service-detail-content th p,
+.service-detail-content td p {
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+
 :root {
   /* Tax Pro Solution brand tokens */
   --brand-royal: #0d4db8;
