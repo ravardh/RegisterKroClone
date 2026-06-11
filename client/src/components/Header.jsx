@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoMenuSharp, IoClose, IoSearch, IoChevronForward, IoChevronDownCircleOutline } from "react-icons/io5";
+import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CommonData from "../assets/common.json";
 import ServiceModal from "./ServiceModal.jsx";
@@ -115,18 +115,10 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleDesktopCategoryClick = (category) => {
-    const isAlreadyOpen = activeTab === category.name;
-
+  const showDesktopCategoryMenu = (category) => {
     setIsOtherServicesOpen(false);
     setIsSubMenuOpen(false);
     setSelectedSubcategory(null);
-
-    if (isAlreadyOpen) {
-      setActiveTab(null);
-      setSubCategories([]);
-      return;
-    }
 
     setActiveTab(category.name);
     const sortedSubCats = [...(subCategoriesData[category._id] || [])].sort((a, b) => {
@@ -171,6 +163,15 @@ const Header = () => {
     setSelectedSubcategory(null);
     setActiveTab(null);
     setSubCategories([]);
+    setIsOtherServicesOpen(false);
+  };
+
+  const closeDesktopMenus = () => {
+    setActiveTab(null);
+    setSubCategories([]);
+    setIsSubMenuOpen(false);
+    setSelectedSubcategory(null);
+    setSubCategoryServices([]);
     setIsOtherServicesOpen(false);
   };
 
@@ -243,16 +244,23 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-2 lg:space-x-3 items-center">
+            <nav
+              className="hidden md:flex space-x-2 lg:space-x-3 items-center"
+              onMouseLeave={closeDesktopMenus}
+            >
               {/* Main Tabs */}
               {mainCategories.length > 0 ? (
                 <>
-                  {mainCategories.map((category) => (
+                  {mainCategories.map((category, index) => {
+                    const opensToLeft = index >= mainCategories.length - 2;
+
+                    return (
                     <div key={category._id} className="relative">
                       {/* Tab Button */}
                       <button
                         type="button"
-                        onClick={() => handleDesktopCategoryClick(category)}
+                        onMouseEnter={() => showDesktopCategoryMenu(category)}
+                        onFocus={() => showDesktopCategoryMenu(category)}
                         aria-expanded={activeTab === category.name}
                         className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl cursor-pointer ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
                       >
@@ -262,8 +270,8 @@ const Header = () => {
                       {/* Subcategories Dropdown */}
                       {activeTab === category.name &&
                         subCategories.length > 0 && (
-                          <div className="absolute left-0 top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible">
-                            <div className="p-3 overflow-y-auto">
+                          <div className={`absolute ${opensToLeft ? "right-0" : "left-0"} top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible`}>
+                            <div className="p-3 max-h-[calc(100vh-8rem)] overflow-y-auto">
                               {subCategories.map((subCat) => (
                                 <div key={subCat._id} className="relative">
                                   <button
@@ -281,7 +289,9 @@ const Header = () => {
                                   >
                                     <span className="flex items-center justify-between w-full">
                                       {subCat.name}{" "}
-                                      <IoChevronForward className="inline-block text-(--primary) text-xs" />
+                                      <span className="text-(--primary) text-base leading-none">
+                                        {selectedSubcategory?._id === subCat._id ? "-" : "+"}
+                                      </span>
                                     </span>
                                   </button>
                                 </div>
@@ -293,20 +303,20 @@ const Header = () => {
                               selectedSubcategory &&
                               subCategoryServices.length > 0 &&
                               (() => {
-                                const selectedIndex = subCategories.findIndex(
-                                  (cat) => cat._id === selectedSubcategory._id,
-                                );
-                                const topOffset = selectedIndex * 52; // Each item is ~52px
+                                const hasManyServices =
+                                  subCategoryServices.length > 10;
+                                const servicesPanelWidth = hasManyServices
+                                  ? "w-[min(36rem,calc(100vw-2rem))]"
+                                  : "w-80";
                                 return (
                                   <div
-                                    style={{ top: `${topOffset}px` }}
-                                    className="absolute left-full  w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200"
+                                    className={`absolute top-0 ${opensToLeft ? "right-full mr-2" : "left-full ml-2"} ${servicesPanelWidth} bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200`}
                                   >
                                     <div className="p-4">
                                       <h3 className="font-semibold text-sm mb-3 text-(--primary)">
                                         {selectedSubcategory.name}
                                       </h3>
-                                      <div className="max-h-96 overflow-y-auto space-y-2">
+                                      <div className={`${hasManyServices ? "grid grid-cols-2 gap-1" : "space-y-2"} max-h-[calc(100vh-9rem)] overflow-y-auto`}>
                                         {subCategoryServices.map((service) => (
                                           <button
                                             key={service._id}
@@ -326,7 +336,8 @@ const Header = () => {
                           </div>
                         )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </>
               ) : null}
 
@@ -345,7 +356,7 @@ const Header = () => {
 
                   {/* Other Services Dropdown */}
                   {isOtherServicesOpen && (
-                    <div className="absolute left-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 transition-all duration-200 animate-in fade-in">
+                    <div className="absolute right-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 transition-all duration-200 animate-in fade-in">
                       <div className="p-3 max-h-96 overflow-y-auto">
                         {filteredOtherServices.map((category) => (
                           <button
@@ -360,7 +371,7 @@ const Header = () => {
                           >
                             <span className="flex items-center justify-between w-full">
                               {category.name}{" "}
-                              <IoChevronForward className="inline-block text-(--primary) text-xs" />
+                              <span className="text-(--primary) text-base leading-none">+</span>
                             </span>
                           </button>
                         ))}
@@ -507,7 +518,7 @@ const Header = () => {
                       <span
                         className={`transform transition-transform ${mobileExpandedTab === category.name ? "rotate-180" : "text-(--accent)"}`}
                       >
-                        <IoChevronDownCircleOutline />
+                        {mobileExpandedTab === category.name ? "-" : "+"}
                       </span>
                     </button>
 
@@ -527,7 +538,7 @@ const Header = () => {
                                 <span
                                   className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : "text-(--accent)"}`}
                                 >
-                                  <IoChevronDownCircleOutline />
+                                  {mobileExpandedSubcategory === subCat._id ? "-" : "+"}
                                 </span>
                               </button>
 

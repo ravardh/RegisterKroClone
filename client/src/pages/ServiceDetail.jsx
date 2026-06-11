@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaPhoneAlt } from "react-icons/fa";
 import { MdDownload } from "react-icons/md";
 import toast from "react-hot-toast";
 import "quill/dist/quill.snow.css";
@@ -9,6 +9,7 @@ import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
 import { useAppData } from "../context/DataContext";
 import CircularText from "../components/CircularText";
+import CommonData from "../assets/common.json";
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineDocumentText, HiOutlineShare, HiOutlinePrinter } from "react-icons/hi";
 import {
@@ -862,7 +863,7 @@ const ServiceDetail = () => {
                       {getTabIcon(descriptionTabs[activeTab]?.tabs)}
                     </div>
                     <div>
-                      <h2 className="text-xl sm:text-lg font-bold text-gray-900 tracking-tight">
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
                         {descriptionTabs[activeTab]?.tabs || "Service Details"}
                       </h2>
                       <div className="flex items-center gap-2 mt-0.5">
@@ -883,7 +884,7 @@ const ServiceDetail = () => {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       >
                         <div
-                          className="ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
+                          className="service-detail-content ql-editor text-sm sm:text-base text-gray-700 leading-relaxed prose prose-sm sm:prose max-w-none !p-0
                         prose-headings:text-gray-900 prose-headings:font-black prose-headings:tracking-tight
                         prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mb-6 prose-h2:mt-10 prose-h2:pb-4 prose-h2:border-b-2 prose-h2:border-gray-50
                         prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mb-4 prose-h3:mt-8
@@ -892,13 +893,10 @@ const ServiceDetail = () => {
                         [&_ul]:my-3 [&_ul]:space-y-1 [&_ol]:my-3 [&_ol]:space-y-1
                         [&_li>p]:mb-1 [&_li>p:last-child]:mb-0
 
-                        prose-table:w-full prose-table:border-collapse prose-table:my-10 prose-table:rounded-2xl prose-table:overflow-hidden prose-table:shadow-xl prose-table:border-hidden
-                        prose-th:bg-gray-900 prose-th:px-6 prose-th:py-4 prose-th:text-left prose-th:font-black prose-th:text-white prose-th:uppercase prose-th:text-xs prose-th:tracking-widest
-                        prose-td:border-t prose-td:border-gray-100 prose-td:px-6 prose-td:py-4 prose-td:text-gray-600
                         prose-img:rounded-3xl prose-img:shadow-2xl prose-img:my-12
                         prose-blockquote:border-l-8 prose-blockquote:border-(--primary) prose-blockquote:bg-blue-50/50 prose-blockquote:rounded-r-2xl prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:italic prose-blockquote:text-lg prose-blockquote:text-blue-900
                         
-                        [&_strong]:text-(--primary) [&_strong]:font-bold [&_strong]:block [&_strong]:mt-8 [&_strong]:mb-3 [&_strong]:text-lg [&_strong]:tracking-tight"
+                        [&_strong]:text-(--primary) [&_strong]:font-bold [&_strong]:block [&_strong]:mt-6 [&_strong]:mb-2 [&_strong]:text-sm [&_strong]:tracking-tight"
                           dangerouslySetInnerHTML={{
                             __html: descriptionTabs[activeTab]?.content || "",
                           }}
@@ -1055,9 +1053,15 @@ const ServiceDetail = () => {
                 </p>
               </div>
               <div className="md:ml-8 shrink-0">
-                <button className="bg-(--primary) text-white px-6 md:px-8 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold hover:bg-(--primary-hover) shadow-md transition-colors whitespace-nowrap">
+                <a
+                  href={`tel:${CommonData.phones.primary}`}
+                  className="call-cta-btn group inline-flex items-center gap-2.5 bg-white text-(--primary) px-4 py-2 rounded-full text-sm font-semibold shadow-md shadow-black/10 ring-2 ring-white/40 transition duration-300 hover:bg-(--primary) hover:text-white hover:shadow-lg hover:scale-105 active:scale-95"
+                >
+                  <span className="call-cta-icon-wrap relative flex h-7 w-7 items-center justify-center rounded-full bg-(--primary)/10 text-(--primary) transition-colors group-hover:bg-white/20 group-hover:text-white">
+                    <FaPhoneAlt className="call-cta-phone h-3.5 w-3.5" />
+                  </span>
                   Call Us Now
-                </button>
+                </a>
               </div>
             </div>
           </section>

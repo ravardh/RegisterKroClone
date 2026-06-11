@@ -68,7 +68,7 @@ const WhyChooseUsSection = () => {
   const rest = reasons.filter((r) => !r.featured);
 
   return (
-    <section className="why-choose-section relative overflow-hidden py-12 md:py-24 bg-linear-to-b from-white via-indigo-50/40 to-slate-50">
+    <section className="why-choose-section relative overflow-hidden py-8 md:py-14 bg-linear-to-b from-white via-indigo-50/40 to-slate-50">
       <div
         className="pointer-events-none absolute -top-32 left-1/4 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl"
         aria-hidden
@@ -79,7 +79,7 @@ const WhyChooseUsSection = () => {
       />
 
       <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-        <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+        <div className="mx-auto mb-7 max-w-3xl text-center md:mb-9">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-700 shadow-sm backdrop-blur-sm">
             Why Choose Us
           </span>
@@ -155,7 +155,7 @@ const WhyChooseUsSection = () => {
           ))}
         </div>
 
-        <div className="mt-10 md:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-7 md:mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to="/services"
             className="inline-flex items-center gap-2 rounded-2xl bg-(--primary) px-6 py-3.5 text-sm sm:text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-(--primary-hover) hover:shadow-xl hover:shadow-indigo-500/40"

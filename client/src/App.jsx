@@ -16,10 +16,14 @@ import Register from "./pages/Register";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Refund from "./pages/Refund";
+import CookiePolicy from "./pages/CookiePolicy";
+import Disclaimer from "./pages/Disclaimer";
 import Sitemap from "./pages/Sitemap";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
+import EventsWebinars from "./pages/EventsWebinars";
+import MediaPress from "./pages/MediaPress";
 import SuperAdminDashboard from "./pages/dashboards/AdminDashboard";
 import RMDashboard from "./pages/dashboards/RMDashboard";
 import BloggerDashboard from "./pages/dashboards/BloggerDashboard";
@@ -86,10 +90,14 @@ const Layout = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/refund" element={<Refund />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/create-blog" element={<CreateBlog />} />
+          <Route path="/events-webinars" element={<EventsWebinars />} />
+          <Route path="/media-press" element={<MediaPress />} />
           <Route
             path="/adminDashboard"
             element={

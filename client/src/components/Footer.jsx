@@ -174,10 +174,28 @@ const Footer = () => {
                 About Us
               </Link>
               <Link
+                to="/careers"
+                className="hover:text-(--primary-light) transition-colors"
+              >
+                Careers
+              </Link>
+              <Link
                 to="/blog"
                 className="hover:text-(--primary-light) transition-colors"
               >
                 Blog
+              </Link>
+              <Link
+                to="/events-webinars"
+                className="hover:text-(--primary-light) transition-colors"
+              >
+                Events & Webinar
+              </Link>
+              <Link
+                to="/media-press"
+                className="hover:text-(--primary-light) transition-colors"
+              >
+                Media & Press
               </Link>
               <Link
                 to="/services"
@@ -210,6 +228,12 @@ const Footer = () => {
                 >
                   Post Feedback
                 </Link>
+                <Link
+                  to="/login"
+                  className="hover:text-(--primary-light) transition-colors"
+                >
+                  Log in
+                </Link>
               </nav>
             </div>
 
@@ -235,6 +259,18 @@ const Footer = () => {
                   className="hover:text-(--primary-light) transition-colors"
                 >
                   Refund Policy
+                </Link>
+                <Link
+                  to="/cookie-policy"
+                  className="hover:text-(--primary-light) transition-colors"
+                >
+                  Cookie Policy
+                </Link>
+                <Link
+                  to="/disclaimer"
+                  className="hover:text-(--primary-light) transition-colors"
+                >
+                  Disclaimer
                 </Link>
               </nav>
             </div>

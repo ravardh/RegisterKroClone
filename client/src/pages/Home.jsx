@@ -158,8 +158,8 @@ const Home = () => {
         canonicalUrl="https://taxprosolution.co.in/"
         structuredData={homeSchemaData}
       />
-      <section className="hero-section flex flex-col items-center justify-center min-h-[100svh] -mt-20 pt-24 pb-12 sm:pt-28 sm:pb-16 bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
-        <div className="hero-content text-white px-4 sm:px-12 md:px-20 lg:px-32 xl:px-48 py-6 sm:py-10 text-center max-w-5xl w-full mx-auto">
+      <section className="hero-section flex flex-col items-center justify-center min-h-[92svh] -mt-20 pt-24 pb-8 sm:pt-28 sm:pb-10 bg-[url('/hero.webp')] opacity-90 bg-cover bg-center">
+        <div className="hero-content text-white px-4 sm:px-12 md:px-20 lg:px-32 xl:px-48 py-4 sm:py-6 text-center max-w-5xl w-full mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
             Get Your Business Registered in 7 Days
           </h1>
@@ -175,7 +175,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="featured-services relative overflow-hidden py-12 md:py-24 bg-linear-to-b from-[color-mix(in_srgb,var(--brand-pale)_40%,white)] via-white to-[color-mix(in_srgb,var(--brand-pale)_25%,white)]">
+      <section className="featured-services relative overflow-hidden py-8 md:py-14 bg-linear-to-b from-[color-mix(in_srgb,var(--brand-pale)_40%,white)] via-white to-[color-mix(in_srgb,var(--brand-pale)_25%,white)]">
         <div
           className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-(--primary)/10 blur-3xl"
           aria-hidden
@@ -186,7 +186,7 @@ const Home = () => {
         />
 
         <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-          <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+          <div className="mx-auto mb-7 max-w-3xl text-center md:mb-9">
             <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-(--primary)/20 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-(--primary) shadow-sm backdrop-blur-sm">
               <IoMdStar className="text-sm" />
               Popular Picks
@@ -290,17 +290,17 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="process-section py-10 md:py-20 bg-[url('/process-bg.webp')] bg-cover bg-center">
+      <section className="process-section py-8 md:py-12 bg-[url('/process-bg.webp')] bg-cover bg-center">
         <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-32">
           <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Grow Your Business in Just a Few Clicks
           </h2>
-          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-10 md:mb-16 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-7 md:mb-10 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
             Simple, guided, and fully online—from application to completion, we
             handle everything for you.
           </p>
 
-          <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 mb-12 md:mb-20">
+          <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 mb-8 md:mb-12">
             <div className="w-full md:w-1/2">
               <img
                 src={Step1}
@@ -332,7 +332,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-6 md:gap-9 mb-8 md:mb-12">
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
                 <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">
@@ -367,7 +367,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-12 md:mb-20">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-9 mb-8 md:mb-12">
             <div className="w-full md:w-1/2">
               <img
                 src={Step3}
@@ -400,7 +400,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-6 md:gap-9">
             <div className="w-full md:w-1/2">
               <div className="flex md:grid items-center gap-3 md:gap-4 mb-4">
                 <span className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-(--primary) text-white text-xl md:text-2xl font-medium shrink-0">
@@ -438,7 +438,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="cta-section mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-10 md:my-20 py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
+      <section className="cta-section mx-4 sm:mx-8 md:mx-12 lg:mx-20 my-6 md:my-10 py-5 md:py-6 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center">
         <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-20 lg:px-25 gap-4 md:gap-2">
           <div className="flex-1 text-center md:text-left">
             <h2 className="text-white text-xl sm:text-2xl md:text-2xl font-bold mb-2 md:mb-3">
@@ -464,12 +464,12 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="reviews-section py-10 md:py-20 bg-(--background)">
+      <section className="reviews-section py-8 md:py-12 bg-(--background)">
         <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
           <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             What Our Clients Say
           </h2>
-          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
+          <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-6 md:mb-8 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
             Trusted by thousands of businesses across the country. Here's what
             they have to say about our services.
           </p>
