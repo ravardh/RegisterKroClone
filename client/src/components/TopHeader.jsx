@@ -76,17 +76,19 @@ const TopHeader = () => {
 
             <nav className="hidden md:flex gap-3 md:gap-6 lg:gap-8 items-center flex-wrap justify-end shrink-0">
               <Link
+                to="/services"
+                className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
+              >
+                Services
+              </Link>
+              
+              <Link
                 to="/about"
                 className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
               >
                 About
               </Link>
-              <Link
-                to="/contact"
-                className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
-              >
-                Contact
-              </Link>
+              
               <Link
                 to="/blog"
                 className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
@@ -120,21 +122,14 @@ const TopHeader = () => {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="text-white text-xs sm:text-sm font-medium hover:text-yellow-400 transition-colors duration-300"
-                  >
-                    Login
-                  </Link>
+                 
                 </>
               )}
             </nav>
           </div>
         </div>
       </div>
-      <div
-        className={`p-1 ${location === "/service" ? "bg-sky-50" : "bg-[url('/hero.webp')] bg-cover bg-top"}`}
-      />
+      
     </>
   );
 };

@@ -220,16 +220,16 @@ const Header = () => {
     <>
       <header
         ref={headerRef}
-        className={`sticky z-50 max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
+        className={`sticky z-50  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
           ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px] w-full max-w-none"
-          : "bg-white top-[34px] sm:top-[42px] rounded-2xl mb-4 shadow-md w-full"
+          : "bg-white top-[34px] sm:top-[45px] rounded-2xl mb-4 shadow-xl w-full"
           }`}
       >
         <div
           className={`relative ${isDashboard
             ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
             : "px-3 sm:px-4 md:px-6 lg:px-8"
-            }`}
+            } `}
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo */}
@@ -342,7 +342,7 @@ const Header = () => {
               ) : null}
 
               {/* Other Services - Only show if there are categories with headerOrder > 5 */}
-              {filteredOtherServices.length > 0 && (
+              {/* {filteredOtherServices.length > 0 && (
                 <div className="relative">
                   <button
                     type="button"
@@ -354,7 +354,7 @@ const Header = () => {
                     Other Services
                   </button>
 
-                  {/* Other Services Dropdown */}
+                  
                   {isOtherServicesOpen && (
                     <div className="absolute right-0 top-full w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 transition-all duration-200 animate-in fade-in">
                       <div className="p-3 max-h-96 overflow-y-auto">
@@ -379,7 +379,7 @@ const Header = () => {
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
             </nav>
 
             {/* Search Bar */}
@@ -399,7 +399,7 @@ const Header = () => {
                       setIsSearchDropdownOpen(true);
                     }
                   }}
-                  className="bg-gray-100 outline-none text-xs w-24 md:w-32 lg:w-40 min-w-0 text-(--text)"
+                  className="bg-gray-100 outline-none text-xs w-24 md:w-32 lg:w-60 min-w-0 text-(--text)"
                 />
               </div>
 
