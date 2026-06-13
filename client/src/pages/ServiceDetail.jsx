@@ -11,7 +11,13 @@ import { useAppData } from "../context/DataContext";
 import CircularText from "../components/CircularText";
 import CommonData from "../assets/common.json";
 import { motion, AnimatePresence } from "motion/react";
-import { HiOutlineDocumentText, HiOutlineShare, HiOutlinePrinter } from "react-icons/hi";
+import {
+  HiOutlineDocumentText,
+  HiOutlineShare,
+  HiOutlinePrinter,
+} from "react-icons/hi";
+import { FcGoogle } from "react-icons/fc";
+import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import {
   IoShieldCheckmarkOutline,
   IoInformationCircleOutline,
@@ -20,7 +26,7 @@ import {
   IoStarOutline,
   IoSettingsOutline,
   IoRibbonOutline,
-  IoCashOutline
+  IoCashOutline,
 } from "react-icons/io5";
 
 // Format price in Indian currency format with commas and .00
@@ -40,7 +46,10 @@ const formatIndianPrice = (price) => {
   // Indian numbering system: group last 3 digits, then groups of 2
   let result = integerPart.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
   if (integerPart.length > 3) {
-    result = integerPart.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + integerPart.slice(-3);
+    result =
+      integerPart.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ",") +
+      "," +
+      integerPart.slice(-3);
   }
 
   return `${result}.${decimalPart}`;
@@ -48,13 +57,22 @@ const formatIndianPrice = (price) => {
 
 const getTabIcon = (tabName) => {
   const name = tabName?.toLowerCase() || "";
-  if (name.includes("overview")) return <IoInformationCircleOutline size={18} />;
+  if (name.includes("overview"))
+    return <IoInformationCircleOutline size={18} />;
   if (name.includes("eligibility")) return <IoPersonOutline size={18} />;
   if (name.includes("document")) return <IoDocumentAttachOutline size={18} />;
-  if (name.includes("choose") || name.includes("benefit")) return <IoStarOutline size={18} />;
-  if (name.includes("process") || name.includes("step")) return <IoSettingsOutline size={18} />;
-  if (name.includes("certificate") || name.includes("award")) return <IoRibbonOutline size={18} />;
-  if (name.includes("fee") || name.includes("price") || name.includes("penalty")) return <IoCashOutline size={18} />;
+  if (name.includes("choose") || name.includes("benefit"))
+    return <IoStarOutline size={18} />;
+  if (name.includes("process") || name.includes("step"))
+    return <IoSettingsOutline size={18} />;
+  if (name.includes("certificate") || name.includes("award"))
+    return <IoRibbonOutline size={18} />;
+  if (
+    name.includes("fee") ||
+    name.includes("price") ||
+    name.includes("penalty")
+  )
+    return <IoCashOutline size={18} />;
   return <HiOutlineDocumentText size={18} />;
 };
 
@@ -100,7 +118,7 @@ const ServiceDetail = () => {
     if (!formRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsTopFormVisible(entry.isIntersecting),
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     observer.observe(formRef.current);
     return () => observer.disconnect();
@@ -108,7 +126,10 @@ const ServiceDetail = () => {
 
   const scrollTabs = (direction) => {
     if (tabScrollRef.current) {
-      tabScrollRef.current.scrollBy({ left: direction * 150, behavior: "smooth" });
+      tabScrollRef.current.scrollBy({
+        left: direction * 150,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -282,10 +303,16 @@ const ServiceDetail = () => {
         const relativeRight = buttonRect.right - containerRect.left;
         if (relativeLeft < 0) {
           const extraWidth = prevBtn ? prevBtn.offsetWidth : 0;
-          container.scrollBy({ left: relativeLeft - extraWidth, behavior: "smooth" });
+          container.scrollBy({
+            left: relativeLeft - extraWidth,
+            behavior: "smooth",
+          });
         } else if (relativeRight > containerRect.width) {
           const extraWidth = nextBtn ? nextBtn.offsetWidth : 0;
-          container.scrollBy({ left: relativeRight - containerRect.width + extraWidth, behavior: "smooth" });
+          container.scrollBy({
+            left: relativeRight - containerRect.width + extraWidth,
+            behavior: "smooth",
+          });
         }
       }
     }
@@ -426,7 +453,7 @@ const ServiceDetail = () => {
         description={
           serviceData
             ? serviceData.shortDescription ||
-            "Get expert assistance with our professional business services"
+              "Get expert assistance with our professional business services"
             : "Professional business services"
         }
         keywords={
@@ -447,11 +474,11 @@ const ServiceDetail = () => {
           },
         }}
       />
-      <div className="bg-(--background) -mt-20 lg:pb-0 pb-20">
+      <div className="bg-(--background) -mt-20">
         {/* Hero Section - Service Name, One Liner, PriceTag */}
-        <div className="bg-linear-to-r from-amber-50 to-blue-100 text-(--text) pt-16 relative overflow-hidden">
+        <div className="bg-transparent text-(--text) pt-16 relative overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 text-center">
-            {/* Category & Subcategory badges */}
+            {/* Category & Subcategory badges
             <div className="flex flex-wrap gap-2 mb-2 sm:mb-3 justify-center">
               <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
                 {serviceData.category?.name}
@@ -459,7 +486,7 @@ const ServiceDetail = () => {
               <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
                 {serviceData.subCategory?.name}
               </span>
-            </div>
+            </div> */}
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl text-(--primary) font-bold mb-2 sm:mb-3">
               {serviceData.serviceName}
@@ -526,9 +553,9 @@ const ServiceDetail = () => {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-gray-200 shadow-lg rounded-2xl ">
               {/* Left - Short Description & Top Pointers */}
-              <div className="p-5 sm:p-6 md:p-8 lg:border-r border-gray-100">
+              <div className="p-5 sm:p-6 md:p-8 ">
                 {/* <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
                   About This Service
                 </h2> */}
@@ -562,7 +589,10 @@ const ServiceDetail = () => {
               </div>
 
               {/* Right - Lead Generation Form */}
-              <div ref={formRef} className="p-5 sm:p-6 md:p-8 bg-gray-50">
+              <div
+                ref={formRef}
+                className="p-2 sm:p-3 md:p-4 bg-gray-50 rounded-2xl"
+              >
                 <h3 className="text-base sm:text-lg md:text-xl text-center font-bold mb-3 sm:mb-4 text-(--primary)">
                   Get a Free Consultation
                 </h3>
@@ -669,6 +699,34 @@ const ServiceDetail = () => {
                   Our expert will contact you within 24 hours
                 </p>
               </div>
+
+              <div className="col-span-2 m-3 mb-3">
+                <div className="grid grid-cols-4 gap-5">
+                  <div className="border border-gray-200 rounded-xl p-3 flex gap-3 items-center shadow">
+                    <FcGoogle className="text-5xl" />
+                    <div>
+                      <p className="text-sm text-amber-400 flex gap-1">
+                        {" "}
+                        <FaStar />
+                        <FaStar />
+                        <FaStar />
+                        <FaStar />
+                        <FaStarHalfAlt />
+                      </p>
+                      <p className="text-gray-600 text-sm">972 (Verified Reviews)</p>
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-xl p-3 shadow">
+                    Google
+                  </div>
+                  <div className="border border-gray-200 rounded-xl p-3 shadow">
+                    Google
+                  </div>
+                  <div className="border border-gray-200 rounded-xl p-3 shadow">
+                    Google
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -692,10 +750,11 @@ const ServiceDetail = () => {
                 return (
                   <div
                     key={index}
-                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${isPopular
-                      ? "border-2 border-(--primary) md:scale-105"
-                      : "border border-gray-200"
-                      }`}
+                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${
+                      isPopular
+                        ? "border-2 border-(--primary) md:scale-105"
+                        : "border border-gray-200"
+                    }`}
                   >
                     {/* Popular badge */}
                     {isPopular && (
@@ -759,10 +818,11 @@ const ServiceDetail = () => {
                             block: "center",
                           });
                         }}
-                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${isPopular
-                          ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
-                          : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
-                          }`}
+                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${
+                          isPopular
+                            ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
+                            : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
+                        }`}
                       >
                         Get Started
                       </button>
@@ -790,7 +850,9 @@ const ServiceDetail = () => {
                     key={`${doc.url}-${index}`}
                     className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200"
                   >
-                    <p className="text-sm text-gray-700 truncate">{doc.displayName || doc.name}</p>
+                    <p className="text-sm text-gray-700 truncate">
+                      {doc.displayName || doc.name}
+                    </p>
                     <a
                       href={getDocumentUrl(doc.url)}
                       download
@@ -818,25 +880,33 @@ const ServiceDetail = () => {
                   <div className="relative flex items-center h-14 sm:h-16">
                     <button
                       onClick={() => scrollTabs(-1)}
-                      className="shrink-0 h-full px-4 text-gray-400 hover:text-(--primary) hover:bg-white transition-all border-r border-gray-100"
+                      className="shrink-0 h-full px-4 text-gray-600 hover:text-(--primary) hover:bg-white transition-all border-r border-gray-100"
                       aria-label="Scroll tabs left"
                     >
                       <FaChevronLeft size={16} />
                     </button>
-                    <div ref={tabScrollRef} className="flex overflow-x-auto no-scrollbar flex-1">
+                    <div
+                      ref={tabScrollRef}
+                      className="flex overflow-x-auto no-scrollbar flex-1"
+                    >
                       {descriptionTabs.map((tab, index) => (
                         <button
                           key={index}
                           onClick={() => handleDescriptionTabClick(index)}
-                          className={`px-6 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group cursor-pointer ${activeTab === index
-                            ? "text-(--primary) bg-white shadow-sm"
-                            : "text-gray-400 hover:text-(--primary) hover:bg-white/40"
-                            }`}
+                          className={`px-6 py-4 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group cursor-pointer ${
+                            activeTab === index
+                              ? "text-(--primary) bg-white shadow-sm"
+                              : "text-gray-600 hover:text-(--primary) hover:bg-white/40"
+                          }`}
                         >
-                          <span className={`${activeTab === index ? "text-(--primary)" : "text-gray-400 group-hover:text-(--primary)"} transition-colors`}>
+                          <span
+                            className={`${activeTab === index ? "text-(--primary)" : "text-gray-600 group-hover:text-(--primary)"} transition-colors`}
+                          >
                             {getTabIcon(tab.tabs)}
                           </span>
-                          <span className="relative z-10">{tab.tabs || `Tab ${index + 1}`}</span>
+                          <span className="relative z-10">
+                            {tab.tabs || `Tab ${index + 1}`}
+                          </span>
                           {activeTab === index && (
                             <motion.div
                               layoutId="activeTabIndicator"
@@ -856,9 +926,9 @@ const ServiceDetail = () => {
                   </div>
                 </div>
 
-                <div className="p-1 bg-gray-50/30 flex-1 flex flex-col min-h-0">
+                <div className="p-1 pt-3 bg-gray-50/30 flex-1 flex flex-col min-h-0">
                   {/* Active Tab Header */}
-                  <div className="px-6 sm:px-10 pt-8 pb-6 flex items-center gap-4 border-b border-gray-50 bg-white">
+                  {/* <div className="px-6 sm:px-10 pt-8 pb-6 flex items-center gap-4 border-b border-gray-50 bg-white">
                     <div className="w-10 h-10 rounded-xl bg-(--primary)/10 flex items-center justify-center text-(--primary) shrink-0">
                       {getTabIcon(descriptionTabs[activeTab]?.tabs)}
                     </div>
@@ -871,7 +941,7 @@ const ServiceDetail = () => {
                         <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400">Verified Professional Resource</span>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Active Tab Content */}
                   <div className="px-6 sm:px-10 pb-10 overflow-y-auto flex-1 no-scrollbar bg-white">
@@ -914,7 +984,8 @@ const ServiceDetail = () => {
                     Get Started
                   </h3>
                   <p className="text-gray-600 mb-5 text-sm">
-                    Fill in your details and our expert will contact you shortly.
+                    Fill in your details and our expert will contact you
+                    shortly.
                   </p>
                   <form onSubmit={handleFormSubmit} className="space-y-3">
                     <div>
@@ -948,7 +1019,10 @@ const ServiceDetail = () => {
                           const value = e.target.value
                             .replace(/\D/g, "")
                             .slice(0, 10);
-                          setFormData((prev) => ({ ...prev, phoneNumber: value }));
+                          setFormData((prev) => ({
+                            ...prev,
+                            phoneNumber: value,
+                          }));
                         }}
                         placeholder="10 digit phone number"
                         maxLength="10"
@@ -973,39 +1047,51 @@ const ServiceDetail = () => {
                         ))}
                       </select>
                     </div>
-                    {serviceData.packages && serviceData.packages.length > 0 && (
-                      <div>
-                        <select
-                          name="selectedPackage"
-                          value={formData.selectedPackage}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
-                          required
-                        >
-                          <option value="">Select a package</option>
-                          {serviceData.packages.map((pkg, idx) => (
-                            <option key={idx} value={pkg.name}>
-                              {pkg.name} - ₹ {formatIndianPrice(pkg.price)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
+                    {serviceData.packages &&
+                      serviceData.packages.length > 0 && (
+                        <div>
+                          <select
+                            name="selectedPackage"
+                            value={formData.selectedPackage}
+                            onChange={handleFormChange}
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm"
+                            required
+                          >
+                            <option value="">Select a package</option>
+                            {serviceData.packages.map((pkg, idx) => (
+                              <option key={idx} value={pkg.name}>
+                                {pkg.name} - ₹ {formatIndianPrice(pkg.price)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     <div className="py-4 space-y-4">
                       <div className="flex items-center gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-200">
                         <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
                           <IoShieldCheckmarkOutline size={18} />
                         </div>
-                        <p>Your data is encrypted and handled by certified professionals only.</p>
+                        <p>
+                          Your data is encrypted and handled by certified
+                          professionals only.
+                        </p>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="text-center p-2 rounded-lg bg-blue-50 border border-blue-100">
-                          <p className="text-[10px] text-blue-600 font-bold uppercase">Response Time</p>
-                          <p className="text-sm font-black text-blue-900">30 Mins</p>
+                          <p className="text-[10px] text-blue-600 font-bold uppercase">
+                            Response Time
+                          </p>
+                          <p className="text-sm font-black text-blue-900">
+                            30 Mins
+                          </p>
                         </div>
                         <div className="text-center p-2 rounded-lg bg-indigo-50 border border-indigo-100">
-                          <p className="text-[10px] text-indigo-600 font-bold uppercase">Expert Advice</p>
-                          <p className="text-sm font-black text-indigo-900">Free</p>
+                          <p className="text-[10px] text-indigo-600 font-bold uppercase">
+                            Expert Advice
+                          </p>
+                          <p className="text-sm font-black text-indigo-900">
+                            Free
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1028,11 +1114,20 @@ const ServiceDetail = () => {
         {descriptionTabs.length > 0 && !isTopFormVisible && (
           <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-4 py-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs text-gray-500 truncate">Interested in this service?</p>
-              <p className="text-sm font-semibold text-(--primary) truncate">{serviceData?.serviceName}</p>
+              <p className="text-xs text-gray-500 truncate">
+                Interested in this service?
+              </p>
+              <p className="text-sm font-semibold text-(--primary) truncate">
+                {serviceData?.serviceName}
+              </p>
             </div>
             <button
-              onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
+              onClick={() =>
+                formRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                })
+              }
               className="shrink-0 bg-(--primary) text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-(--primary-hover) transition-colors"
             >
               Get Started
@@ -1165,10 +1260,11 @@ const ServiceDetail = () => {
                           <button
                             key={idx}
                             onClick={() => setReviewIndex(idx)}
-                            className={`w-3 h-3 rounded-full transition ${reviewIndex === idx
-                              ? "bg-(--primary)"
-                              : "bg-gray-300"
-                              }`}
+                            className={`w-3 h-3 rounded-full transition ${
+                              reviewIndex === idx
+                                ? "bg-(--primary)"
+                                : "bg-gray-300"
+                            }`}
                             aria-label={`Go to page ${idx + 1}`}
                           />
                         ),
