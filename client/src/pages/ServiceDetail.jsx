@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
-import { FaChevronLeft, FaChevronRight, FaPhoneAlt } from "react-icons/fa";
-import { MdDownload } from "react-icons/md";
+import { FaChevronLeft, FaChevronRight, FaPhoneAlt, FaTrophy, FaUsers, FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { MdDownload, MdOutlineTrackChanges } from "react-icons/md";
 import toast from "react-hot-toast";
 import "quill/dist/quill.snow.css";
 import axiosInstance from "../config/api";
@@ -17,7 +17,6 @@ import {
   HiOutlinePrinter,
 } from "react-icons/hi";
 import { FcGoogle } from "react-icons/fc";
-import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import {
   IoShieldCheckmarkOutline,
   IoInformationCircleOutline,
@@ -84,11 +83,36 @@ const getDocumentUrl = (url) => {
   return `${base}${path}`;
 };
 
+const getCategoryPlaceholder = (categoryName) => {
+  const categoryLower = categoryName?.toLowerCase() || "";
+  const categoryGradients = {
+    registration: { from: "#3b82f6", to: "#2563eb" },
+    compliance: { from: "#a855f7", to: "#9333ea" },
+    taxation: { from: "#22c55e", to: "#16a34a" },
+    business: { from: "#f97316", to: "#ea580c" },
+    legal: { from: "#ef4444", to: "#dc2626" },
+    accounting: { from: "#6366f1", to: "#4f46e5" },
+    audit: { from: "#f59e0b", to: "#d97706" },
+    consultation: { from: "#14b8a6", to: "#0d9488" },
+    startup: { from: "#06b6d4", to: "#0891b2" },
+    finance: { from: "#10b981", to: "#059669" },
+  };
+
+  for (const [key, gradient] of Object.entries(categoryGradients)) {
+    if (categoryLower.includes(key)) {
+      return gradient;
+    }
+  }
+
+  return { from: "#64748b", to: "#475569" };
+};
+
 const ServiceDetail = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [relatedServicesIndex, setRelatedServicesIndex] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewsPerPage, setReviewsPerPage] = useState(3);
   const [serviceData, setServiceData] = useState(null);
@@ -108,6 +132,8 @@ const ServiceDetail = () => {
   const [descriptionTabs, setDescriptionTabs] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [relatedServices, setRelatedServices] = useState([]);
+  const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
   const pageContainerRef = useRef(null);
@@ -236,6 +262,28 @@ const ServiceDetail = () => {
       setIsLoadingReviews(false);
     }
   }, [serviceData?.serviceName, allReviews]);
+
+  // Fetch related services
+  useEffect(() => {
+    if (!serviceId) return;
+
+    const fetchRelatedServices = async () => {
+      try {
+        setIsLoadingRelated(true);
+        const response = await axiosInstance.get(
+          `/public/service/${serviceId}/related`,
+        );
+        setRelatedServices(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching related services:", error);
+        setRelatedServices([]);
+      } finally {
+        setIsLoadingRelated(false);
+      }
+    };
+
+    fetchRelatedServices();
+  }, [serviceId]);
 
   // Intersection Observer for FAQ section - auto show modal (only once)
   useEffect(() => {
@@ -701,7 +749,7 @@ const ServiceDetail = () => {
               </div>
 
               <div className="col-span-2 m-3 mb-3">
-                <div className="grid grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                   <div className="border border-gray-200 rounded-xl p-3 flex gap-3 items-center shadow">
                     <FcGoogle className="text-5xl" />
                     <div>
@@ -716,14 +764,42 @@ const ServiceDetail = () => {
                       <p className="text-gray-600 text-sm">972 (Verified Reviews)</p>
                     </div>
                   </div>
-                  <div className="border border-gray-200 rounded-xl p-3 shadow">
-                    Google
+                  <div className="border border-gray-200 rounded-xl p-4 shadow flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-(--primary)/10 text-(--primary) flex items-center justify-center text-2xl">
+                      <FaTrophy />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">12+ Years Experience</p>
+                      <p className="text-xs text-gray-500">Trusted business expertise</p>
+                    </div>
                   </div>
-                  <div className="border border-gray-200 rounded-xl p-3 shadow">
-                    Google
+                  <div className="border border-gray-200 rounded-xl p-4 shadow flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-(--primary)/10 text-(--primary) flex items-center justify-center text-2xl">
+                      <FaUsers />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">2500+ Customers</p>
+                      <p className="text-xs text-gray-500">Happy clients served</p>
+                    </div>
                   </div>
-                  <div className="border border-gray-200 rounded-xl p-3 shadow">
-                    Google
+                  <div
+                    onClick={() => navigate("/trackStatus")}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        navigate("/trackStatus");
+                      }
+                    }}
+                    className="border border-gray-200 rounded-xl p-4 shadow flex items-center gap-3 cursor-pointer hover:border-(--primary) hover:bg-(--primary)/5 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-(--primary)/10 text-(--primary) flex items-center justify-center text-2xl">
+                      <MdOutlineTrackChanges />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Track Status</p>
+                      <p className="text-xs text-gray-500">Real-time application tracking</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1161,6 +1237,227 @@ const ServiceDetail = () => {
             </div>
           </section>
         </div>
+
+        {/* Related Services Section - Carousel */}
+        {relatedServices.length > 0 && (
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-10 sm:py-12 md:py-16">
+            <div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2">
+                Related Services
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12 max-w-2xl mx-auto">
+                Explore other services in the same category that might help your business
+              </p>
+
+              {isLoadingRelated ? (
+                <div className="flex justify-center pb-2">
+                  <div className="w-full sm:w-[28rem] rounded-[2rem] bg-white shadow-xl overflow-hidden">
+                    <div className="h-72 bg-slate-100 animate-pulse"></div>
+                    <div className="p-6 space-y-4">
+                      <div className="h-5 bg-slate-200 rounded-full animate-pulse"></div>
+                      <div className="h-4 bg-slate-200 rounded-full animate-pulse"></div>
+                      <div className="h-4 bg-slate-200 rounded-full animate-pulse"></div>
+                      <div className="h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="mx-auto max-w-[72rem] px-4 sm:px-6">
+                    <div className="relative flex items-center justify-center py-10">
+                      {relatedServicesIndex > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 18, scale: 0.82 }}
+                          animate={{ opacity: 1, y: -22, scale: 0.82 }}
+                          exit={{ opacity: 0, y: 18, scale: 0.82 }}
+                          transition={{ duration: 0.35, ease: "easeOut" }}
+                          className="hidden md:block absolute left-0 top-[12%] w-52"
+                          style={{ transform: "translateX(-20%)" }}
+                        >
+                          <div className="h-full rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.18)]">
+                            <div
+                              className="relative h-48 overflow-hidden"
+                              style={{
+                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex - 1].category?.name
+                                ).from}, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex - 1].category?.name
+                                ).to})`,
+                              }}
+                            >
+                              <div className="absolute inset-0 bg-black/10" />
+                            </div>
+                            <div className="p-4">
+                              <p className="text-[10px] uppercase tracking-[0.36em] text-slate-500">
+                                {relatedServices[relatedServicesIndex - 1].category?.name || "Service"}
+                              </p>
+                              <h4 className="mt-3 text-base font-semibold text-slate-900 line-clamp-2">
+                                {relatedServices[relatedServicesIndex - 1].serviceName}
+                              </h4>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      <div className="relative z-20 w-full max-w-[18rem] sm:max-w-[20rem] md:max-w-[22rem] lg:max-w-[24rem]">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={relatedServices[relatedServicesIndex]._id}
+                            initial={{ opacity: 0, y: 18, scale: 0.92 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -18, scale: 0.92 }}
+                            transition={{ duration: 0.45, ease: "easeOut" }}
+                            whileHover={{ y: -6, scale: 1.01 }}
+                            className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_36px_90px_-44px_rgba(15,23,42,0.22)]"
+                          >
+                            <div
+                              className="relative h-56 overflow-hidden"
+                              style={{
+                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex].category?.name
+                                ).from}, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex].category?.name
+                                ).to})`,
+                              }}
+                            >
+                              <div className="absolute inset-0 bg-black/10" />
+                              <div className="absolute inset-x-0 top-4 px-5 flex items-center justify-between gap-3">
+                                <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.32em] text-white/85">
+                                  {relatedServices[relatedServicesIndex].category?.name || "Service"}
+                                </span>
+                                {relatedServices[relatedServicesIndex].offer && (
+                                  <span className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-slate-900">
+                                    {relatedServices[relatedServicesIndex].offer}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="absolute inset-x-0 bottom-4 px-5">
+                                <div className="text-[3.4rem] font-light text-white/15">★</div>
+                              </div>
+                            </div>
+
+                            <div className="p-4 space-y-4">
+                              <div className="space-y-1">
+                                <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">
+                                  Related Service
+                                </p>
+                                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight">
+                                  {relatedServices[relatedServicesIndex].serviceName}
+                                </h3>
+                              </div>
+
+                              <p className="text-sm leading-relaxed text-slate-600 line-clamp-3">
+                                {relatedServices[relatedServicesIndex].shortDescription}
+                              </p>
+
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                {relatedServices[relatedServicesIndex].priceTag && relatedServices[relatedServicesIndex].priceTag !== "0" ? (
+                                  <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+                                    ₹ {formatIndianPrice(relatedServices[relatedServicesIndex].priceTag)}
+                                  </div>
+                                ) : null}
+
+                                <motion.button
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  onClick={() => navigate(`/service/${relatedServices[relatedServicesIndex]._id}`)}
+                                  style={{ backgroundColor: "var(--primary)" }}
+                                  className="inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-200/70 transition duration-300 hover:brightness-95"
+                                >
+                                  View Details
+                                  <span className="ml-2 text-base">→</span>
+                                </motion.button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+
+                      {relatedServicesIndex < relatedServices.length - 1 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 18, scale: 0.82 }}
+                          animate={{ opacity: 1, y: -22, scale: 0.82 }}
+                          exit={{ opacity: 0, y: 18, scale: 0.82 }}
+                          transition={{ duration: 0.35, ease: "easeOut" }}
+                          className="hidden md:block absolute right-0 top-[12%] w-52"
+                          style={{ transform: "translateX(20%)" }}
+                        >
+                          <div className="h-full rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.18)]">
+                            <div
+                              className="relative h-48 overflow-hidden"
+                              style={{
+                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex + 1].category?.name
+                                ).from}, ${getCategoryPlaceholder(
+                                  relatedServices[relatedServicesIndex + 1].category?.name
+                                ).to})`,
+                              }}
+                            >
+                              <div className="absolute inset-0 bg-black/10" />
+                            </div>
+                            <div className="p-4">
+                              <p className="text-[10px] uppercase tracking-[0.36em] text-slate-500">
+                                {relatedServices[relatedServicesIndex + 1].category?.name || "Service"}
+                              </p>
+                              <h4 className="mt-3 text-base font-semibold text-slate-900 line-clamp-2">
+                                {relatedServices[relatedServicesIndex + 1].serviceName}
+                              </h4>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+
+                  {relatedServices.length > 1 && (
+                    <>
+                      {relatedServicesIndex > 0 && (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setRelatedServicesIndex((prev) => prev - 1)}
+                          style={{ backgroundColor: "var(--primary)" }}
+                          className="absolute left-3 top-1/2 z-20 -translate-y-1/2 text-white p-3 rounded-full shadow-2xl hover:brightness-90"
+                          aria-label="Previous service"
+                        >
+                          <FaChevronLeft size={20} />
+                        </motion.button>
+                      )}
+
+                      {relatedServicesIndex < relatedServices.length - 1 && (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setRelatedServicesIndex((prev) => prev + 1)}
+                          style={{ backgroundColor: "var(--primary)" }}
+                          className="absolute right-3 top-1/2 z-20 -translate-y-1/2 text-white p-3 rounded-full shadow-2xl hover:brightness-90"
+                          aria-label="Next service"
+                        >
+                          <FaChevronRight size={20} />
+                        </motion.button>
+                      )}
+
+                      <div className="flex justify-center gap-2 mt-6">
+                        {relatedServices.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setRelatedServicesIndex(idx)}
+                            className={`h-2 rounded-full transition-all duration-300 ${
+                              relatedServicesIndex === idx
+                                ? "w-8 bg-[var(--primary)]"
+                                : "w-2 bg-slate-300"
+                            }`}
+                            aria-label={`Go to service ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* FAQs Section - Outside Tabs */}
         {serviceData.faqs && serviceData.faqs.length > 0 && (

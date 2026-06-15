@@ -405,6 +405,56 @@ export const getServiceById = async (req, res, next) => {
   }
 };
 
+export const getRelatedServices = async (req, res, next) => {
+  try {
+    const { serviceId } = req.params;
+    
+    if (!serviceId) {
+      const error = new Error("Service ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Get the current service to retrieve its category
+    const currentService = await Service.findById(serviceId).populate("category");
+    
+    if (!currentService) {
+      const error = new Error("Service not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const categoryId = currentService.category?._id;
+    
+    if (!categoryId) {
+      // If no category, return empty array
+      return res.status(200).json({
+        message: "Related services fetched successfully",
+        data: [],
+      });
+    }
+
+    // Fetch other active services in the same category (excluding current service)
+    const relatedServices = await Service.find({
+      category: categoryId,
+      _id: { $ne: serviceId }, // Exclude current service
+      isActive: true,
+      isVisible: true,
+    })
+      .populate("category", "name")
+      .populate("subCategory", "name")
+      .select("_id serviceName shortDescription offer priceTag")
+      .limit(6);
+
+    res.status(200).json({
+      message: "Related services fetched successfully",
+      data: relatedServices,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getFeaturedServices = async (req, res, next) => {
   try {
     const services = await Service.find({ isActive: true, isVisible: true, "Featured.isFeatured": true })

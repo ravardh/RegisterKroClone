@@ -11,6 +11,7 @@ import {
   getPublicSubCategories,
   getPublicServicesBySubCategory,
   getServiceById,
+  getRelatedServices,
   getFeaturedServices,
   getAllSubCategoriesGrouped,
   getAllServicesGrouped,
@@ -39,6 +40,7 @@ router.get("/subcategories/:subCategoryId/services", getPublicServicesBySubCateg
 router.get("/services", getPublicServices);
 router.get("/services/featured", getFeaturedServices);
 router.get("/service/:serviceId", getServiceById);
+router.get("/service/:serviceId/related", getRelatedServices);
 router.get("/blogs", getPublishedBlogs);
 router.get("/blogs/:slug", getPublishedBlogBySlug);
 router.get("/visitor-count", getVisitorCount);
