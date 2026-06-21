@@ -128,6 +128,7 @@ const ServiceDetail = () => {
   const [hasModalTriggered, setHasModalTriggered] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTopFormVisible, setIsTopFormVisible] = useState(true);
+  const [isHoveringRelated, setIsHoveringRelated] = useState(false);
   const formRef = useRef(null);
   const [descriptionTabs, setDescriptionTabs] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -284,6 +285,17 @@ const ServiceDetail = () => {
 
     fetchRelatedServices();
   }, [serviceId]);
+
+  // Auto-slide for Related Services
+  useEffect(() => {
+    if (relatedServices.length <= 1 || isHoveringRelated) return;
+    const timer = setTimeout(() => {
+      setRelatedServicesIndex((prev) =>
+        prev >= relatedServices.length - 1 ? 0 : prev + 1
+      );
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [relatedServicesIndex, relatedServices.length, isHoveringRelated]);
 
   // Intersection Observer for FAQ section - auto show modal (only once)
   useEffect(() => {
@@ -501,7 +513,7 @@ const ServiceDetail = () => {
         description={
           serviceData
             ? serviceData.shortDescription ||
-              "Get expert assistance with our professional business services"
+            "Get expert assistance with our professional business services"
             : "Professional business services"
         }
         keywords={
@@ -826,11 +838,10 @@ const ServiceDetail = () => {
                 return (
                   <div
                     key={index}
-                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${
-                      isPopular
-                        ? "border-2 border-(--primary) md:scale-105"
-                        : "border border-gray-200"
-                    }`}
+                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col ${isPopular
+                      ? "border-2 border-(--primary) md:scale-105"
+                      : "border border-gray-200"
+                      }`}
                   >
                     {/* Popular badge */}
                     {isPopular && (
@@ -894,11 +905,10 @@ const ServiceDetail = () => {
                             block: "center",
                           });
                         }}
-                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${
-                          isPopular
-                            ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
-                            : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
-                        }`}
+                        className={`w-full mt-5 sm:mt-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors ${isPopular
+                          ? "bg-(--primary) text-white hover:bg-(--primary-hover)"
+                          : "bg-gray-100 text-gray-800 hover:bg-(--primary) hover:text-white"
+                          }`}
                       >
                         Get Started
                       </button>
@@ -969,11 +979,10 @@ const ServiceDetail = () => {
                         <button
                           key={index}
                           onClick={() => handleDescriptionTabClick(index)}
-                          className={`px-6 py-4 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group cursor-pointer ${
-                            activeTab === index
-                              ? "text-(--primary) bg-white shadow-sm"
-                              : "text-gray-600 hover:text-(--primary) hover:bg-white/40"
-                          }`}
+                          className={`px-6 py-4 sm:px-8 h-full text-sm sm:text-base font-bold capitalize transition-all duration-300 whitespace-nowrap relative flex items-center justify-center gap-2 group cursor-pointer ${activeTab === index
+                            ? "text-(--primary) bg-white shadow-sm"
+                            : "text-gray-600 hover:text-(--primary) hover:bg-white/40"
+                            }`}
                         >
                           <span
                             className={`${activeTab === index ? "text-(--primary)" : "text-gray-600 group-hover:text-(--primary)"} transition-colors`}
@@ -1238,7 +1247,7 @@ const ServiceDetail = () => {
           </section>
         </div>
 
-        {/* Related Services Section - Carousel */}
+        {/* Related Services Section - Orbital Carousel */}
         {relatedServices.length > 0 && (
           <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-10 sm:py-12 md:py-16">
             <div>
@@ -1246,7 +1255,7 @@ const ServiceDetail = () => {
                 Related Services
               </h2>
               <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12 max-w-2xl mx-auto">
-                Explore other services in the same category that might help your business
+                Explore other services that complement your business needs
               </p>
 
               {isLoadingRelated ? (
@@ -1256,203 +1265,130 @@ const ServiceDetail = () => {
                     <div className="p-6 space-y-4">
                       <div className="h-5 bg-slate-200 rounded-full animate-pulse"></div>
                       <div className="h-4 bg-slate-200 rounded-full animate-pulse"></div>
-                      <div className="h-4 bg-slate-200 rounded-full animate-pulse"></div>
                       <div className="h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="relative">
-                  <div className="mx-auto max-w-[72rem] px-4 sm:px-6">
-                    <div className="relative flex items-center justify-center py-10">
-                      {relatedServicesIndex > 0 && (
+                <div
+                  className="relative mx-auto max-w-5xl px-4 sm:px-6"
+                  onMouseEnter={() => setIsHoveringRelated(true)}
+                  onMouseLeave={() => setIsHoveringRelated(false)}
+                >
+                  <div className="relative flex items-center justify-center py-10 min-h-[480px]">
+                    {relatedServices.map((service, index) => {
+                      let diff = index - relatedServicesIndex;
+
+                      // Wrap around logic for infinite feel
+                      if (diff > relatedServices.length / 2) diff -= relatedServices.length;
+                      if (diff < -relatedServices.length / 2) diff += relatedServices.length;
+
+                      // Hide cards that are too far away
+                      if (Math.abs(diff) > 2) return null;
+
+                      const isActive = diff === 0;
+                      const zIndex = 30 - Math.abs(diff);
+                      const scale = isActive ? 1 : 1 - Math.abs(diff) * 0.13;
+                      const translateX = diff * 130; // stacked fan offset
+                      const translateY = Math.abs(diff) * 18; // arc downward per layer
+                      const rotate = diff * 5; // tilt per layer
+                      const opacity = isActive ? 1 : Math.abs(diff) === 1 ? 0.75 : 0.5;
+
+                      return (
                         <motion.div
-                          initial={{ opacity: 0, y: 18, scale: 0.82 }}
-                          animate={{ opacity: 1, y: -22, scale: 0.82 }}
-                          exit={{ opacity: 0, y: 18, scale: 0.82 }}
-                          transition={{ duration: 0.35, ease: "easeOut" }}
-                          className="hidden md:block absolute left-0 top-[12%] w-52"
-                          style={{ transform: "translateX(-20%)" }}
+                          key={service._id}
+                          initial={false}
+                          animate={{
+                            x: translateX,
+                            y: translateY,
+                            rotate: rotate,
+                            scale: scale,
+                            zIndex: zIndex,
+                            opacity: opacity,
+                          }}
+                          transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.8 }}
+                          className={`absolute w-full max-w-[18rem] sm:max-w-[20rem] md:max-w-[22rem] lg:max-w-[24rem] ${isActive ? 'pointer-events-auto' : 'pointer-events-auto cursor-pointer'}`}
+                          onClick={() => {
+                            if (!isActive) setRelatedServicesIndex(index);
+                          }}
+                          whileHover={!isActive ? { y: translateY - 10, scale: scale * 1.05 } : {}}
                         >
-                          <div className="h-full rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.18)]">
+                          <div className={`relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white transition-all duration-300 ${isActive ? 'shadow-[0_36px_90px_-44px_rgba(15,23,42,0.22)]' : 'shadow-md hover:shadow-lg'}`}>
                             <div
                               className="relative h-48 overflow-hidden"
                               style={{
                                 backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex - 1].category?.name
+                                  service.category?.name
                                 ).from}, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex - 1].category?.name
-                                ).to})`,
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-black/10" />
-                            </div>
-                            <div className="p-4">
-                              <p className="text-[10px] uppercase tracking-[0.36em] text-slate-500">
-                                {relatedServices[relatedServicesIndex - 1].category?.name || "Service"}
-                              </p>
-                              <h4 className="mt-3 text-base font-semibold text-slate-900 line-clamp-2">
-                                {relatedServices[relatedServicesIndex - 1].serviceName}
-                              </h4>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      <div className="relative z-20 w-full max-w-[18rem] sm:max-w-[20rem] md:max-w-[22rem] lg:max-w-[24rem]">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={relatedServices[relatedServicesIndex]._id}
-                            initial={{ opacity: 0, y: 18, scale: 0.92 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -18, scale: 0.92 }}
-                            transition={{ duration: 0.45, ease: "easeOut" }}
-                            whileHover={{ y: -6, scale: 1.01 }}
-                            className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_36px_90px_-44px_rgba(15,23,42,0.22)]"
-                          >
-                            <div
-                              className="relative h-56 overflow-hidden"
-                              style={{
-                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex].category?.name
-                                ).from}, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex].category?.name
+                                  service.category?.name
                                 ).to})`,
                               }}
                             >
                               <div className="absolute inset-0 bg-black/10" />
                               <div className="absolute inset-x-0 top-4 px-5 flex items-center justify-between gap-3">
                                 <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.32em] text-white/85">
-                                  {relatedServices[relatedServicesIndex].category?.name || "Service"}
+                                  {service.category?.name || "Service"}
                                 </span>
-                                {relatedServices[relatedServicesIndex].offer && (
+                                {service.offer && (
                                   <span className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-slate-900">
-                                    {relatedServices[relatedServicesIndex].offer}
+                                    {service.offer}
                                   </span>
                                 )}
                               </div>
-                              <div className="absolute inset-x-0 bottom-4 px-5">
-                                <div className="text-[3.4rem] font-light text-white/15">★</div>
+                            </div>
+
+                            <div className="p-5 space-y-4 bg-white">
+                              <motion.h3 layout className="text-lg font-bold text-slate-900 leading-tight line-clamp-2 min-h-[3rem]">
+                                {service.serviceName}
+                              </motion.h3>
+
+                              <motion.p layout className="text-sm leading-relaxed text-slate-600 line-clamp-3 min-h-[4.5rem]">
+                                {service.shortDescription}
+                              </motion.p>
+
+                              <div className="pt-2 flex items-center justify-between">
+                                {service.priceTag && service.priceTag !== "0" ? (
+                                  <motion.div
+                                    layout
+                                    className="font-bold px-3 py-1.5 rounded-full text-sm"
+                                    style={{ color: "var(--primary)", backgroundColor: "color-mix(in srgb, var(--primary) 10%, transparent)" }}
+                                  >
+                                    ₹ {formatIndianPrice(service.priceTag)}
+                                  </motion.div>
+                                ) : <div />}
+
+                                <AnimatePresence>
+                                  {isActive && (
+                                    <motion.button
+                                      initial={{ opacity: 0, scale: 0.8, x: 10 }}
+                                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                                      exit={{ opacity: 0, scale: 0.8, x: 10 }}
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/service/${service._id}`);
+                                      }}
+                                      style={{ backgroundColor: "var(--primary)" }}
+                                      className="text-white text-xs font-semibold px-4 py-2 rounded-full shadow-md flex items-center gap-1.5"
+                                    >
+                                      View Details <FaChevronRight size={10} />
+                                    </motion.button>
+                                  )}
+                                </AnimatePresence>
                               </div>
                             </div>
 
-                            <div className="p-4 space-y-4">
-                              <div className="space-y-1">
-                                <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">
-                                  Related Service
-                                </p>
-                                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight">
-                                  {relatedServices[relatedServicesIndex].serviceName}
-                                </h3>
-                              </div>
-
-                              <p className="text-sm leading-relaxed text-slate-600 line-clamp-3">
-                                {relatedServices[relatedServicesIndex].shortDescription}
-                              </p>
-
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                {relatedServices[relatedServicesIndex].priceTag && relatedServices[relatedServicesIndex].priceTag !== "0" ? (
-                                  <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-                                    ₹ {formatIndianPrice(relatedServices[relatedServicesIndex].priceTag)}
-                                  </div>
-                                ) : null}
-
-                                <motion.button
-                                  whileHover={{ scale: 1.03 }}
-                                  whileTap={{ scale: 0.97 }}
-                                  onClick={() => navigate(`/service/${relatedServices[relatedServicesIndex]._id}`)}
-                                  style={{ backgroundColor: "var(--primary)" }}
-                                  className="inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-200/70 transition duration-300 hover:brightness-95"
-                                >
-                                  View Details
-                                  <span className="ml-2 text-base">→</span>
-                                </motion.button>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-
-                      {relatedServicesIndex < relatedServices.length - 1 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 18, scale: 0.82 }}
-                          animate={{ opacity: 1, y: -22, scale: 0.82 }}
-                          exit={{ opacity: 0, y: 18, scale: 0.82 }}
-                          transition={{ duration: 0.35, ease: "easeOut" }}
-                          className="hidden md:block absolute right-0 top-[12%] w-52"
-                          style={{ transform: "translateX(20%)" }}
-                        >
-                          <div className="h-full rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.18)]">
-                            <div
-                              className="relative h-48 overflow-hidden"
-                              style={{
-                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex + 1].category?.name
-                                ).from}, ${getCategoryPlaceholder(
-                                  relatedServices[relatedServicesIndex + 1].category?.name
-                                ).to})`,
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-black/10" />
-                            </div>
-                            <div className="p-4">
-                              <p className="text-[10px] uppercase tracking-[0.36em] text-slate-500">
-                                {relatedServices[relatedServicesIndex + 1].category?.name || "Service"}
-                              </p>
-                              <h4 className="mt-3 text-base font-semibold text-slate-900 line-clamp-2">
-                                {relatedServices[relatedServicesIndex + 1].serviceName}
-                              </h4>
-                            </div>
+                            {/* Overlay for inactive cards to make them slightly darker */}
+                            {!isActive && (
+                              <div className="absolute inset-0 bg-black/5 pointer-events-none rounded-[2rem]" />
+                            )}
                           </div>
                         </motion.div>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
 
-                  {relatedServices.length > 1 && (
-                    <>
-                      {relatedServicesIndex > 0 && (
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setRelatedServicesIndex((prev) => prev - 1)}
-                          style={{ backgroundColor: "var(--primary)" }}
-                          className="absolute left-3 top-1/2 z-20 -translate-y-1/2 text-white p-3 rounded-full shadow-2xl hover:brightness-90"
-                          aria-label="Previous service"
-                        >
-                          <FaChevronLeft size={20} />
-                        </motion.button>
-                      )}
-
-                      {relatedServicesIndex < relatedServices.length - 1 && (
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setRelatedServicesIndex((prev) => prev + 1)}
-                          style={{ backgroundColor: "var(--primary)" }}
-                          className="absolute right-3 top-1/2 z-20 -translate-y-1/2 text-white p-3 rounded-full shadow-2xl hover:brightness-90"
-                          aria-label="Next service"
-                        >
-                          <FaChevronRight size={20} />
-                        </motion.button>
-                      )}
-
-                      <div className="flex justify-center gap-2 mt-6">
-                        {relatedServices.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setRelatedServicesIndex(idx)}
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              relatedServicesIndex === idx
-                                ? "w-8 bg-[var(--primary)]"
-                                : "w-2 bg-slate-300"
-                            }`}
-                            aria-label={`Go to service ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </div>
               )}
             </div>
@@ -1469,7 +1405,7 @@ const ServiceDetail = () => {
               <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-900">
                 Frequently Asked Questions
               </h2>
-              <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
+              <div className="space-y-3 sm:space-y-4 w-full">
                 {serviceData.faqs.map((faq, index) => (
                   <details
                     key={index}
@@ -1557,11 +1493,10 @@ const ServiceDetail = () => {
                           <button
                             key={idx}
                             onClick={() => setReviewIndex(idx)}
-                            className={`w-3 h-3 rounded-full transition ${
-                              reviewIndex === idx
-                                ? "bg-(--primary)"
-                                : "bg-gray-300"
-                            }`}
+                            className={`w-3 h-3 rounded-full transition ${reviewIndex === idx
+                              ? "bg-(--primary)"
+                              : "bg-gray-300"
+                              }`}
                             aria-label={`Go to page ${idx + 1}`}
                           />
                         ),

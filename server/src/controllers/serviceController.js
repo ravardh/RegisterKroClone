@@ -38,6 +38,34 @@ const mapUploadedDocuments = (files = []) =>
     url: `/uploads/service-documents/${file.filename}`,
   }));
 
+const sanitizeRelatedServices = async (relatedServicesInput) => {
+  const relatedServices = parseMaybeJson(relatedServicesInput, []);
+  if (!Array.isArray(relatedServices)) {
+    const error = new Error("relatedServices must be an array");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const serviceIds = relatedServices.map(id => String(id)).filter(Boolean);
+  
+  if (new Set(serviceIds).size !== serviceIds.length) {
+    const error = new Error("Duplicate related services are not allowed");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (serviceIds.length === 0) return [];
+
+  const serviceDocs = await Service.find({ _id: { $in: serviceIds } }).select("_id");
+  if (serviceDocs.length !== serviceIds.length) {
+    const error = new Error("One or more related services are invalid");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return serviceIds;
+};
+
 const sanitizeFaqs = (faqs) => {
   if (!Array.isArray(faqs)) {
     return [];
@@ -57,6 +85,14 @@ export const getAllServices = async (req, res, next) => {
     const services = await Service.find()
       .populate("category", "name")
       .populate("subCategory", "name")
+      .populate({
+        path: "relatedServices",
+        select: "serviceName category subCategory",
+        populate: [
+          { path: "category", select: "name" },
+          { path: "subCategory", select: "name" }
+        ]
+      })
       .populate("lastEditedBy", "fullName email");
     res.status(200).json({
       message: "Services fetched successfully",
@@ -75,6 +111,7 @@ export const createService = async (req, res, next) => {
     const faqs = parseMaybeJson(req.body.faqs, []);
     const packages = parseMaybeJson(req.body.packages, []);
     const Featured = parseMaybeJson(req.body.Featured, { isFeatured: false });
+    const relatedServices = await sanitizeRelatedServices(req.body.relatedServices);
     const isActive = parseBoolean(req.body.isActive, true);
     const isVisible = parseBoolean(req.body.isVisible, true);
     const uploadedDocuments = mapUploadedDocuments(req.files);
@@ -142,6 +179,7 @@ export const createService = async (req, res, next) => {
       offer: offer || null,
       documents: uploadedDocuments,
       sequence: sequence || null,
+      relatedServices: relatedServices || [],
       lastEditedBy: req.user._id,
     });
 
@@ -169,6 +207,9 @@ export const updateService = async (req, res, next) => {
     const packages = parseMaybeJson(req.body.packages, undefined);
     const Featured = parseMaybeJson(req.body.Featured, undefined);
     const documents = parseMaybeJson(req.body.documents, undefined);
+    const relatedServices = req.body.relatedServices !== undefined
+      ? await sanitizeRelatedServices(req.body.relatedServices)
+      : undefined;
     const hasIsActive = req.body.isActive !== undefined;
     const hasIsVisible = req.body.isVisible !== undefined;
     const uploadedDocuments = mapUploadedDocuments(req.files);
@@ -236,6 +277,7 @@ export const updateService = async (req, res, next) => {
         offer: offer !== undefined ? offer : existingService.offer,
         sequence: sequence !== undefined ? sequence : existingService.sequence,
         documents: finalDocuments,
+        relatedServices: relatedServices !== undefined ? relatedServices : existingService.relatedServices,
         lastEditedBy: req.user.id,
       },
       { new: true, runValidators: true }

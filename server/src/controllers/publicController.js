@@ -382,7 +382,10 @@ export const getServiceById = async (req, res, next) => {
     const service = await Service.findById(serviceId)
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive isVisible Featured packages offer documents category subCategory createdAt updatedAt");
+      .populate("relatedServices.category", "name")
+      .populate("relatedServices.subCategory", "name")
+      .populate("relatedServices.service", "serviceName")
+      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive isVisible Featured packages offer documents category subCategory relatedServices createdAt updatedAt");
     
     if (!service) {
       const error = new Error("Service not found");
@@ -415,8 +418,15 @@ export const getRelatedServices = async (req, res, next) => {
       return next(error);
     }
 
-    // Get the current service to retrieve its category
-    const currentService = await Service.findById(serviceId).populate("category");
+    const currentService = await Service.findById(serviceId).populate({
+      path: "relatedServices",
+      match: { isActive: true, isVisible: true },
+      select: "_id serviceName shortDescription offer priceTag category",
+      populate: {
+        path: "category",
+        select: "name"
+      }
+    });
     
     if (!currentService) {
       const error = new Error("Service not found");
@@ -424,31 +434,9 @@ export const getRelatedServices = async (req, res, next) => {
       return next(error);
     }
 
-    const categoryId = currentService.category?._id;
-    
-    if (!categoryId) {
-      // If no category, return empty array
-      return res.status(200).json({
-        message: "Related services fetched successfully",
-        data: [],
-      });
-    }
-
-    // Fetch other active services in the same category (excluding current service)
-    const relatedServices = await Service.find({
-      category: categoryId,
-      _id: { $ne: serviceId }, // Exclude current service
-      isActive: true,
-      isVisible: true,
-    })
-      .populate("category", "name")
-      .populate("subCategory", "name")
-      .select("_id serviceName shortDescription offer priceTag")
-      .limit(6);
-
     res.status(200).json({
       message: "Related services fetched successfully",
-      data: relatedServices,
+      data: currentService.relatedServices || [],
     });
   } catch (error) {
     next(error);

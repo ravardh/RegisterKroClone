@@ -124,6 +124,12 @@ const serviceSchema = mongoose.Schema(
         },
       },
     ],
+    relatedServices: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Service",
+      },
+    ],
   },
   {
     timestamps: true,

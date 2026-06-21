@@ -21,6 +21,12 @@ const blogSchema = new mongoose.Schema(
       default: "",
       maxlength: 80,
     },
+    subcategory: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 80,
+    },
     author: {
       type: String,
       required: true,
