@@ -13,9 +13,11 @@ const AddServiceModal = ({
   onClose,
   onAddService,
   editingService = null,
+  allServices = [],
 }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [allSubCategories, setAllSubCategories] = useState([]);
   const [formData, setFormData] = useState({
     isVisible: true,
     category: "",
@@ -32,6 +34,7 @@ const AddServiceModal = ({
     faqs: [{ question: "", answer: "" }],
     documents: [],
     sequence: "",
+    relatedServices: [{ category: "", subCategory: "", service: "" }],
   });
   const [newDocuments, setNewDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -250,6 +253,13 @@ const AddServiceModal = ({
           offer: editingService.offer || "",
           documents: editingService.documents || [],
           sequence: editingService.sequence || "",
+          relatedServices: editingService.relatedServices?.length
+            ? editingService.relatedServices.map(s => ({
+              category: s.category?._id || s.category || "",
+              subCategory: s.subCategory?._id || s.subCategory || "",
+              service: s._id || s || ""
+            }))
+            : [{ category: "", subCategory: "", service: "" }],
         });
         setNewDocuments([]);
         setActiveDescTab(0);
@@ -421,6 +431,21 @@ const AddServiceModal = ({
       console.error("Error fetching categories:", error);
     }
   };
+
+  const fetchAllSubCategories = async () => {
+    try {
+      const res = await axios.get("/services/subcategories-list");
+      setAllSubCategories(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching all subcategories:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAllSubCategories();
+    }
+  }, [isOpen]);
 
   const fetchSubCategories = async (category) => {
     try {
@@ -625,6 +650,9 @@ const AddServiceModal = ({
         offer: formData.offer?.trim() || null,
         documents: formData.documents || [],
         sequence: formData.sequence || "",
+        relatedServices: formData.relatedServices
+          .filter(rs => rs.service)
+          .map(rs => rs.service),
       };
 
       // Validate at least one description tab has content
@@ -650,6 +678,7 @@ const AddServiceModal = ({
       formPayload.append("offer", submitData.offer || "");
       formPayload.append("documents", JSON.stringify(submitData.documents));
       formPayload.append("sequence", submitData.sequence);
+      formPayload.append("relatedServices", JSON.stringify(submitData.relatedServices));
 
       newDocuments.forEach((file) => {
         formPayload.append("documents", file);
@@ -693,6 +722,7 @@ const AddServiceModal = ({
       faqs: [{ question: "", answer: "" }],
       documents: [],
       sequence: "",
+      relatedServices: [{ category: "", subCategory: "", service: "" }],
     });
     setNewDocuments([]);
 
@@ -718,27 +748,30 @@ const AddServiceModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-49">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6">
+      <div className="bg-gray-50 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="bg-white border-b border-gray-100 px-6 py-5 flex justify-between items-center shrink-0 z-10">
           <h2 className="text-2xl font-bold text-gray-800">
             {editingService ? "Edit Service" : "Add New Service"}
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 transition duration-200"
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-200"
           >
             <MdClose className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
+        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto flex-1 space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm mb-4">
+              {error}
+            </div>
+          )}
+
+          {/* Section 1: Basic Information */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Basic Information</h3>
 
             {/* Visibility Toggle */}
             <div className="rounded-lg border border-gray-200 p-3 bg-gray-50">
@@ -765,71 +798,78 @@ const AddServiceModal = ({
               </div>
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.category}
-                onChange={handleCategoryChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id || cat} value={cat._id || cat}>
-                    {cat.name || cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={handleCategoryChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id || cat} value={cat._id || cat}>
+                      {cat.name || cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* SubCategory */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sub-Category <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.subCategory}
-                onChange={handleSubCategoryChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-                disabled={!formData.category}
-              >
-                <option value="">Select Sub-Category</option>
-                {subCategories.map((subCat) => (
-                  <option
-                    key={subCat._id || subCat}
-                    value={subCat._id || subCat}
-                  >
-                    {subCat.name || subCat}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* SubCategory */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Sub-Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.subCategory}
+                  onChange={handleSubCategoryChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  required
+                  disabled={!formData.category}
+                >
+                  <option value="">Select Sub-Category</option>
+                  {subCategories.map((subCat) => (
+                    <option
+                      key={subCat._id || subCat}
+                      value={subCat._id || subCat}
+                    >
+                      {subCat.name || subCat}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Service Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Service Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="serviceName"
-                value={formData.serviceName}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Enter service name"
-                required
-                disabled={!formData.subCategory}
-              />
+              {/* Service Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Service Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="serviceName"
+                  value={formData.serviceName}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  placeholder="Enter service name"
+                  required
+                  disabled={!formData.subCategory}
+                />
+              </div>
             </div>
+          </div>
+
+          {/* Section 2: Pricing & Details */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Pricing & Details</h3>
 
             {/* One Liner & Price Tag */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   One Liner Tagline <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -837,14 +877,14 @@ const AddServiceModal = ({
                   name="OneLinner"
                   value={formData.OneLinner}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="e.g. Start your business in 7 days"
                   required
                   disabled={!formData.subCategory}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Price Tag <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -852,7 +892,7 @@ const AddServiceModal = ({
                   name="priceTag"
                   value={formData.priceTag}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="e.g. ₹2,999 or Starting at ₹999"
                   required
                   disabled={!formData.subCategory}
@@ -861,9 +901,9 @@ const AddServiceModal = ({
             </div>
 
             {/* Short Description & Sequence */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Short Description <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -871,14 +911,14 @@ const AddServiceModal = ({
                   name="shortDescription"
                   value={formData.shortDescription}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="Brief description (1-2 lines)"
                   required
                   disabled={!formData.subCategory}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Sequence
                 </label>
                 <input
@@ -886,15 +926,20 @@ const AddServiceModal = ({
                   name="sequence"
                   value={formData.sequence}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   placeholder="Display sequence (optional)"
                   disabled={!formData.subCategory}
                 />
               </div>
             </div>
+          </div>
+
+          {/* Section 3: Features & Highlights */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Features & Highlights</h3>
 
             {/* Featured */}
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap bg-gray-50 p-4 rounded-lg border border-gray-100">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -912,7 +957,7 @@ const AddServiceModal = ({
                       },
                     }))
                   }
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
                   disabled={!formData.subCategory}
                 />
                 <label
@@ -923,7 +968,7 @@ const AddServiceModal = ({
                 </label>
               </div>
               {formData.Featured.isFeatured && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 border-l border-gray-300 pl-4">
                   <label className="text-sm font-medium text-gray-700">
                     Order:
                   </label>
@@ -940,7 +985,7 @@ const AddServiceModal = ({
                         },
                       }))
                     }
-                    className="w-20 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className="w-24 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                     placeholder="#"
                     required
                   />
@@ -950,10 +995,10 @@ const AddServiceModal = ({
 
             {/* Top Pointers */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Key Features / Top Pointers
               </label>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {formData.topPointers.map((pointer, index) => (
                   <div key={index} className="flex gap-2">
                     <input
@@ -962,7 +1007,7 @@ const AddServiceModal = ({
                       onChange={(e) =>
                         handlePointerChange(index, e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       placeholder={`Pointer ${index + 1}`}
                       disabled={!formData.subCategory}
                     />
@@ -970,9 +1015,9 @@ const AddServiceModal = ({
                       <button
                         type="button"
                         onClick={() => removePointer(index)}
-                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        className="px-3 py-2 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
                       >
-                        <MdDelete />
+                        <MdDelete className="w-5 h-5" />
                       </button>
                     )}
                   </div>
@@ -980,38 +1025,40 @@ const AddServiceModal = ({
                 <button
                   type="button"
                   onClick={addPointer}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 font-medium rounded-lg hover:bg-blue-100 transition-colors text-sm"
                   disabled={!formData.subCategory}
                 >
-                  <MdAdd /> Add Pointer
+                  <MdAdd className="w-4 h-4" /> Add Pointer
                 </button>
               </div>
             </div>
-
-            {/* Packages */}
+          </div>          {/* Section 4: Packages */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Service Packages</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Packages
-              </label>
               <div className="space-y-4">
                 {formData.packages.map((pkg, pkgIndex) => (
                   <div
                     key={pkgIndex}
-                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-3"
+                    className="border border-gray-200 rounded-lg p-5 bg-gray-50 space-y-4"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                      <span className="text-sm font-bold text-gray-700 uppercase tracking-wider">
                         Package {pkgIndex + 1}
                       </span>
-                      <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={pkg.isMostPopular || false}
+                            checked={pkg.isMostPopular}
                             onChange={(e) =>
-                              handlePackageChange(pkgIndex, "isMostPopular", e.target.checked)
+                              handlePackageChange(
+                                pkgIndex,
+                                "isMostPopular",
+                                e.target.checked
+                              )
                             }
-                            className="w-3.5 h-3.5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 disabled:opacity-60"
                             disabled={!formData.subCategory}
                           />
                           Most Popular
@@ -1020,84 +1067,98 @@ const AddServiceModal = ({
                           <button
                             type="button"
                             onClick={() => removePackage(pkgIndex)}
-                            className="text-red-500 hover:text-red-600"
+                            className="text-red-500 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition-colors"
                             disabled={!formData.subCategory}
                           >
-                            <MdDelete />
+                            <MdDelete className="w-5 h-5" />
                           </button>
                         )}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <input
-                        type="text"
-                        value={pkg.name}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          Package Name
+                        </label>
+                        <input
+                          type="text"
+                          value={pkg.name}
+                          onChange={(e) =>
+                            handlePackageChange(pkgIndex, "name", e.target.value)
+                          }
+                          placeholder="e.g. Basic, Premium"
+                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-60"
+                          disabled={!formData.subCategory}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          Price
+                        </label>
+                        <input
+                          type="text"
+                          value={pkg.price}
+                          onChange={(e) =>
+                            handlePackageChange(pkgIndex, "price", e.target.value)
+                          }
+                          placeholder="e.g. ₹4,999"
+                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-60"
+                          disabled={!formData.subCategory}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Package Description
+                      </label>
+                      <textarea
+                        value={pkg.description}
                         onChange={(e) =>
-                          handlePackageChange(pkgIndex, "name", e.target.value)
+                          handlePackageChange(
+                            pkgIndex,
+                            "description",
+                            e.target.value
+                          )
                         }
-                        placeholder="Package name (e.g. Basic, Premium)"
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                        disabled={!formData.subCategory}
-                      />
-                      <input
-                        type="text"
-                        value={pkg.price}
-                        onChange={(e) =>
-                          handlePackageChange(pkgIndex, "price", e.target.value)
-                        }
-                        placeholder="Price (e.g. ₹4,999)"
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        placeholder="Brief overview of this package"
+                        rows="2"
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none disabled:opacity-60"
                         disabled={!formData.subCategory}
                       />
                     </div>
 
-                    <textarea
-                      rows="2"
-                      value={pkg.description}
-                      onChange={(e) =>
-                        handlePackageChange(
-                          pkgIndex,
-                          "description",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Package description (optional)"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                      disabled={!formData.subCategory}
-                    />
-
-                    {/* Included Features */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
                         Included Features
                       </label>
                       <div className="space-y-2">
-                        {pkg.includedFeatures.map((feat, featIndex) => (
-                          <div key={featIndex} className="flex gap-2">
+                        {pkg.includedFeatures.map((feature, featureIndex) => (
+                          <div key={featureIndex} className="flex gap-2">
                             <input
                               type="text"
-                              value={feat}
+                              value={feature}
                               onChange={(e) =>
                                 handlePackageFeatureChange(
                                   pkgIndex,
-                                  featIndex,
+                                  featureIndex,
                                   e.target.value
                                 )
                               }
-                              placeholder={`Feature ${featIndex + 1}`}
-                              className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                              placeholder="Feature detail"
+                              className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all disabled:opacity-60"
                               disabled={!formData.subCategory}
                             />
                             {pkg.includedFeatures.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() =>
-                                  removePackageFeature(pkgIndex, featIndex)
+                                  removePackageFeature(pkgIndex, featureIndex)
                                 }
-                                className="px-2 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-xs"
+                                className="px-2 py-1.5 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
                               >
-                                <MdDelete />
+                                <MdDelete className="w-4 h-4" />
                               </button>
                             )}
                           </div>
@@ -1127,277 +1188,381 @@ const AddServiceModal = ({
               )}
             </div>
 
-            {/* Offer */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Offer
-              </label>
-              <input
-                type="text"
-                name="offer"
-                value={formData.offer}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="e.g. 20% off for first-time customers (optional)"
-                disabled={!formData.subCategory}
-              />
-            </div>
+            {/* Section 5: Documents & Offer */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+              <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Documents & Offer</h3>
 
-            {/* Documents */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Service Documents
-              </label>
-
-              {/* Hidden file input — triggered one at a time */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.xls,.xlsx,.ppt,.pptx,.doc,.docx,.txt,.csv"
-                onChange={handleAddDocument}
-                className="hidden"
-                disabled={!formData.subCategory}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={!formData.subCategory}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <MdAdd className="w-4 h-4" /> Add Document
-              </button>
-              <p className="text-xs text-gray-500 mt-1">
-                Allowed: PDF, XLS, XLSX, PPT, PPTX, DOC, DOCX, TXT, CSV (max 10MB each)
-              </p>
-
-              {/* Existing saved documents */}
-              {formData.documents?.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Saved Documents</p>
-                  {formData.documents.map((doc, index) => (
-                    <div key={`${doc.url}-${index}`} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                      <span className="truncate text-gray-700">{doc.displayName || doc.name}</span>
-                      <div className="ml-3 flex flex-shrink-0 items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => handlePreviewSavedDoc(doc)}
-                          disabled={previewLoading}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          <MdVisibility className="h-4 w-4" /> Preview
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              documents: prev.documents.filter((_, i) => i !== index),
-                            }))
-                          }
-                          className="text-xs text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Newly queued documents (not yet uploaded) */}
-              {newDocuments.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Queued for Upload</p>
-                  {newDocuments.map((doc, index) => (
-                    <div key={`${doc.name}-${doc.size}-${index}`} className="flex items-center justify-between text-sm bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                      <span className="truncate text-gray-700">{doc.name}</span>
-                      <div className="ml-3 flex flex-shrink-0 items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => handlePreviewNewDoc(doc)}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          <MdVisibility className="h-4 w-4" /> Preview
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveNewDoc(index)}
-                          className="text-xs text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Description Tabs */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description Tabs <span className="text-red-500">*</span>
-              </label>
-
-              {/* Tab navigation */}
-              <div className="flex flex-wrap gap-1 mb-3 border-b border-gray-200">
-                {formData.description.map((desc, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveDescTab(index)}
-                    className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeDescTab === index
-                      ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                      }`}
-                  >
-                    {desc.tabs?.trim() || `Tab ${index + 1}`}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: [...prev.description, { ...EMPTY_DESCRIPTION_TAB }],
-                    }));
-                    setActiveDescTab(formData.description.length);
-                  }}
-                  className="px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-t-lg flex items-center gap-1"
+              {/* Offer */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Offer / Promotion
+                </label>
+                <input
+                  type="text"
+                  name="offer"
+                  value={formData.offer}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  placeholder="e.g. 20% off for first-time customers (optional)"
                   disabled={!formData.subCategory}
-                >
-                  <MdAdd /> Add Tab
-                </button>
+                />
               </div>
 
-              {/* Active tab content */}
-              {formData.description.map((desc, index) => (
-                <div
-                  key={index}
-                  className={`space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50 ${activeDescTab === index ? "" : "hidden"
-                    }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={desc.tabs}
-                        onChange={(e) => {
-                          setFormData((prev) => {
-                            const updated = [...prev.description];
-                            updated[index] = { ...updated[index], tabs: e.target.value };
-                            return { ...prev, description: updated };
-                          });
-                        }}
-                        placeholder="Tab name (e.g. Overview, Process, Requirements)"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                        disabled={!formData.subCategory}
-                      />
-                    </div>
-                    {formData.description.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormData((prev) => {
-                            const updated = prev.description.filter((_, i) => i !== index);
-                            return { ...prev, description: updated };
-                          });
-                          // Cleanup Quill instance
-                          if (quillInstances.current[index]) {
-                            quillInstances.current[index].off("text-change");
-                            quillInstances.current.splice(index, 1);
-                          }
-                          setActiveDescTab((prev) => Math.min(prev, formData.description.length - 2));
-                        }}
-                        className="ml-3 px-2 py-2 text-red-500 hover:text-red-600"
-                        disabled={!formData.subCategory}
-                      >
-                        <MdDelete />
-                      </button>
-                    )}
-                  </div>
+              {/* Documents */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service Documents
+                </label>
 
-                  <div
-                    ref={(el) => (quillRefs.current[index] = el)}
-                    className="bg-white rounded border border-gray-300"
-                    style={{ minHeight: "200px", maxHeight: "400px", overflow: "auto" }}
-                  />
-                </div>
-              ))}
+                {/* Hidden file input — triggered one at a time */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.xls,.xlsx,.ppt,.pptx,.doc,.docx,.txt,.csv"
+                  onChange={handleAddDocument}
+                  className="hidden"
+                  disabled={!formData.subCategory}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={!formData.subCategory}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <MdAdd className="w-4 h-4" /> Add Document
+                </button>
+                <p className="text-xs text-gray-500 mt-1">
+                  Allowed: PDF, XLS, XLSX, PPT, PPTX, DOC, DOCX, TXT, CSV (max 10MB each)
+                </p>
+
+                {/* Existing saved documents */}
+                {formData.documents?.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Saved Documents</p>
+                    {formData.documents.map((doc, index) => (
+                      <div key={`${doc.url}-${index}`} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                        <span className="truncate text-gray-700">{doc.displayName || doc.name}</span>
+                        <div className="ml-3 flex flex-shrink-0 items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handlePreviewSavedDoc(doc)}
+                            disabled={previewLoading}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            <MdVisibility className="h-4 w-4" /> Preview
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                documents: prev.documents.filter((_, i) => i !== index),
+                              }))
+                            }
+                            className="text-xs text-red-600 hover:text-red-700 font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Newly queued documents (not yet uploaded) */}
+                {newDocuments.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Queued for Upload</p>
+                    {newDocuments.map((doc, index) => (
+                      <div key={`${doc.name}-${doc.size}-${index}`} className="flex items-center justify-between text-sm bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                        <span className="truncate text-gray-700">{doc.name}</span>
+                        <div className="ml-3 flex flex-shrink-0 items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handlePreviewNewDoc(doc)}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                          >
+                            <MdVisibility className="h-4 w-4" /> Preview
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNewDoc(index)}
+                            className="text-xs text-red-600 hover:text-red-700 font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* FAQs */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                FAQs
-              </label>
-              <div className="space-y-3">
-                {formData.faqs.map((faq, index) => (
+            {/* Section 6: Description Tabs */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+              <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">Detailed Description Tabs</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description Tabs <span className="text-red-500">*</span>
+                </label>
+
+                {/* Tab navigation */}
+                <div className="flex flex-wrap gap-1 mb-3 border-b border-gray-200">
+                  {formData.description.map((desc, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setActiveDescTab(index)}
+                      className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeDescTab === index
+                        ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
+                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                        }`}
+                    >
+                      {desc.tabs?.trim() || `Tab ${index + 1}`}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: [...prev.description, { ...EMPTY_DESCRIPTION_TAB }],
+                      }));
+                      setActiveDescTab(formData.description.length);
+                    }}
+                    className="px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-t-lg flex items-center gap-1"
+                    disabled={!formData.subCategory}
+                  >
+                    <MdAdd /> Add Tab
+                  </button>
+                </div>
+
+                {/* Active tab content */}
+                {formData.description.map((desc, index) => (
                   <div
                     key={index}
-                    className="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    className={`space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50 ${activeDescTab === index ? "" : "hidden"
+                      }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        FAQ {index + 1}
-                      </span>
-                      {formData.faqs.length > 1 && (
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={desc.tabs}
+                          onChange={(e) => {
+                            setFormData((prev) => {
+                              const updated = [...prev.description];
+                              updated[index] = { ...updated[index], tabs: e.target.value };
+                              return { ...prev, description: updated };
+                            });
+                          }}
+                          placeholder="Tab name (e.g. Overview, Process, Requirements)"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                          disabled={!formData.subCategory}
+                        />
+                      </div>
+                      {formData.description.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeFaq(index)}
+                          onClick={() => {
+                            setFormData((prev) => {
+                              const updated = prev.description.filter((_, i) => i !== index);
+                              return { ...prev, description: updated };
+                            });
+                            // Cleanup Quill instance
+                            if (quillInstances.current[index]) {
+                              quillInstances.current[index].off("text-change");
+                              quillInstances.current.splice(index, 1);
+                            }
+                            setActiveDescTab((prev) => Math.min(prev, formData.description.length - 2));
+                          }}
+                          className="ml-3 px-2 py-2 text-red-500 hover:text-red-600"
                           disabled={!formData.subCategory}
-                          className="text-red-500 hover:text-red-600 disabled:opacity-60"
                         >
                           <MdDelete />
                         </button>
                       )}
                     </div>
-                    <input
-                      type="text"
-                      value={faq.question}
-                      onChange={(e) =>
-                        handleFaqChange(index, "question", e.target.value)
-                      }
-                      placeholder="Question"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      disabled={!formData.subCategory}
-                    />
-                    <textarea
-                      rows="3"
-                      value={faq.answer}
-                      onChange={(e) =>
-                        handleFaqChange(index, "answer", e.target.value)
-                      }
-                      placeholder="Answer"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                      disabled={!formData.subCategory}
+
+                    <div
+                      ref={(el) => (quillRefs.current[index] = el)}
+                      className="bg-white rounded border border-gray-300"
+                      style={{ minHeight: "200px", maxHeight: "400px", overflow: "auto" }}
                     />
                   </div>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={addFaq}
-                disabled={!formData.subCategory}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
-              >
-                <MdAdd /> Add FAQ
-              </button>
+            </div>
+
+            {/* Section 7: FAQs & Related Services */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-8">
+              {/* FAQs */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3 mb-4">Frequently Asked Questions</h3>
+                <div className="space-y-3">
+                  {formData.faqs.map((faq, index) => (
+                    <div
+                      key={index}
+                      className="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-gray-700">
+                          FAQ {index + 1}
+                        </span>
+                        {formData.faqs.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeFaq(index)}
+                            disabled={!formData.subCategory}
+                            className="text-red-500 hover:text-red-600 disabled:opacity-60"
+                          >
+                            <MdDelete />
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={faq.question}
+                        onChange={(e) =>
+                          handleFaqChange(index, "question", e.target.value)
+                        }
+                        placeholder="Question"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        disabled={!formData.subCategory}
+                      />
+                      <textarea
+                        rows="3"
+                        value={faq.answer}
+                        onChange={(e) =>
+                          handleFaqChange(index, "answer", e.target.value)
+                        }
+                        placeholder="Answer"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                        disabled={!formData.subCategory}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={addFaq}
+                  disabled={!formData.subCategory}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-2"
+                >
+                  <MdAdd /> Add FAQ
+                </button>
+              </div>
+
+
+            </div>
+
+            {/* Related Services */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3 mb-4">Related Services</h3>
+              <div className="space-y-3">
+                {formData.relatedServices.map((rs, index) => (
+                  <div key={index} className="flex flex-col md:flex-row gap-3 items-start md:items-center bg-gray-50 p-4 border border-gray-200 rounded-lg">
+                    <select
+                      value={rs.category}
+                      onChange={(e) => {
+                        const newRs = [...formData.relatedServices];
+                        newRs[index] = { ...newRs[index], category: e.target.value, subCategory: "", service: "" };
+                        setFormData((prev) => ({ ...prev, relatedServices: newRs }));
+                      }}
+                      className="flex-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat._id || cat} value={cat._id || cat}>{cat.name || cat}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={rs.subCategory}
+                      onChange={(e) => {
+                        const newRs = [...formData.relatedServices];
+                        newRs[index] = { ...newRs[index], subCategory: e.target.value, service: "" };
+                        setFormData((prev) => ({ ...prev, relatedServices: newRs }));
+                      }}
+                      disabled={!rs.category}
+                      className="flex-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white"
+                    >
+                      <option value="">Select Sub-Category</option>
+                      {allSubCategories
+                        .filter((sub) => String(sub.category?._id || sub.category) === String(rs.category))
+                        .map((sub) => (
+                          <option key={sub._id || sub} value={sub._id || sub}>{sub.name || sub}</option>
+                        ))}
+                    </select>
+
+                    <select
+                      value={rs.service}
+                      onChange={(e) => {
+                        const newRs = [...formData.relatedServices];
+                        newRs[index] = { ...newRs[index], service: e.target.value };
+                        setFormData((prev) => ({ ...prev, relatedServices: newRs }));
+                      }}
+                      disabled={!rs.subCategory}
+                      className="flex-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white"
+                    >
+                      <option value="">Select Service</option>
+                      {allServices
+                        .filter((svc) => String(svc.category?._id || svc.category) === String(rs.category) && String(svc.subCategory?._id || svc.subCategory) === String(rs.subCategory))
+                        .filter((svc) => !editingService || String(svc._id) !== String(editingService._id))
+                        .filter((svc) => !formData.relatedServices.some((otherRs, otherIndex) => otherIndex !== index && String(otherRs.service) === String(svc._id)))
+                        .map((svc) => (
+                          <option key={svc._id} value={svc._id}>{svc.serviceName}</option>
+                        ))}
+                    </select>
+
+                    <div className="flex gap-2">
+                      {formData.relatedServices.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newRs = formData.relatedServices.filter((_, i) => i !== index);
+                            setFormData((prev) => ({ ...prev, relatedServices: newRs }));
+                          }}
+                          className="p-2 text-red-500 hover:text-red-600 border border-red-200 hover:bg-red-50 rounded-lg bg-white"
+                        >
+                          <MdDelete className="w-5 h-5" />
+                        </button>
+                      )}
+                      {index === formData.relatedServices.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              relatedServices: [...prev.relatedServices, { category: "", subCategory: "", service: "" }],
+                            }));
+                          }}
+                          className="p-2 text-blue-500 hover:text-blue-600 border border-blue-200 hover:bg-blue-50 rounded-lg bg-white"
+                        >
+                          <MdAdd className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
+
+          <div className="flex gap-4 pt-4 border-t border-gray-100 sticky bottom-0 bg-gray-50 pb-2 z-10">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+              className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-semibold shadow-sm transition-all"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300"
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-sm shadow-blue-200 transition-all disabled:bg-blue-300 disabled:cursor-not-allowed"
               disabled={loading || isUploadingImage || !formData.subCategory}
             >
               {isUploadingImage

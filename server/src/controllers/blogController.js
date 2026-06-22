@@ -35,7 +35,7 @@ const createUniqueSlug = async (title, excludedBlogId = null) => {
 
 export const createBlog = async (req, res, next) => {
   try {
-    const { title, category = "", author, summary = "", content } = req.body;
+    const { title, category = "", subcategory = "", author, summary = "", content } = req.body;
     const plainText = stripHtml(content);
 
     if (!title?.trim() || !author?.trim() || !plainText || plainText.length < 20) {
@@ -50,6 +50,7 @@ export const createBlog = async (req, res, next) => {
       title: title.trim(),
       slug,
       category: category.trim(),
+      subcategory: subcategory.trim(),
       author: author.trim(),
       summary: summary.trim(),
       content,
@@ -69,7 +70,7 @@ export const createBlog = async (req, res, next) => {
 export const getAdminBlogs = async (req, res, next) => {
   try {
     const blogs = await Blog.find()
-      .select("title slug category author summary content isPublished createdAt updatedAt")
+      .select("title slug category subcategory author summary content isPublished createdAt updatedAt")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -84,7 +85,7 @@ export const getAdminBlogs = async (req, res, next) => {
 export const updateBlog = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, category = "", author, summary = "", content } = req.body;
+    const { title, category = "", subcategory = "", author, summary = "", content } = req.body;
     const plainText = stripHtml(content);
 
     if (!title?.trim() || !author?.trim() || !plainText || plainText.length < 20) {
@@ -104,6 +105,7 @@ export const updateBlog = async (req, res, next) => {
     blog.title = title.trim();
     blog.slug = await createUniqueSlug(title, blog._id);
     blog.category = category.trim();
+    blog.subcategory = subcategory.trim();
     blog.author = author.trim();
     blog.summary = summary.trim();
     blog.content = content;
@@ -137,7 +139,7 @@ export const updateBlogVisibility = async (req, res, next) => {
       id,
       { isPublished },
       { new: true, runValidators: true },
-    ).select("title slug category author summary content isPublished createdAt updatedAt");
+    ).select("title slug category subcategory author summary content isPublished createdAt updatedAt");
 
     if (!updated) {
       const error = new Error("Blog not found");
@@ -157,7 +159,7 @@ export const updateBlogVisibility = async (req, res, next) => {
 export const getPublishedBlogs = async (req, res, next) => {
   try {
     const blogs = await Blog.find({ isPublished: true })
-      .select("title slug category author summary content createdAt updatedAt")
+      .select("title slug category subcategory author summary content createdAt updatedAt")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -180,7 +182,7 @@ export const getPublishedBlogBySlug = async (req, res, next) => {
     }
 
     const blog = await Blog.findOne({ slug, isPublished: true }).select(
-      "title slug category author summary content createdAt updatedAt",
+      "title slug category subcategory author summary content createdAt updatedAt",
     );
 
     if (!blog) {

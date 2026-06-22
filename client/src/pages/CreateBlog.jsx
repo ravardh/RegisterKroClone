@@ -1,20 +1,150 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave } from "react-icons/md";
+import { MdArrowBack, MdSave, MdKeyboardArrowDown, MdClose, MdCheck } from "react-icons/md";
 import toast from "react-hot-toast";
 import SEOHelmet from "../components/SEOHelmet";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import axios from "../config/api";
+import { useAppData } from "../context/DataContext";
+
+const SubcategoryDropdown = ({ value, onChange, options = [], loading = false }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const selected = options.find((o) => o._id === value || o.name === value) || null;
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const pick = (val) => {
+    onChange(val);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Trigger */}
+      <button
+        type="button"
+        id="subcategory-dropdown-btn"
+        disabled={loading}
+        onClick={() => setOpen((p) => !p)}
+        className={[
+          "w-full flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-sm transition-all duration-200",
+          "bg-white shadow-sm focus:outline-none",
+          loading ? "opacity-60 cursor-not-allowed" : "hover:shadow-md",
+          open
+            ? "border-blue-500 ring-2 ring-blue-200"
+            : "border-gray-200 hover:border-gray-300",
+        ].join(" ")}
+      >
+        {loading ? (
+          <span className="text-gray-400 font-normal text-sm">Loading…</span>
+        ) : selected ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+            {selected.name}
+          </span>
+        ) : (
+          <span className="text-gray-400 font-normal">Select subcategory…</span>
+        )}
+        <span className="flex items-center gap-1 shrink-0">
+          {selected && !loading && (
+            <span
+              role="button"
+              tabIndex={0}
+              title="Clear"
+              onClick={(e) => { e.stopPropagation(); pick(""); }}
+              onKeyDown={(e) => e.key === "Enter" && (e.stopPropagation(), pick(""))}
+              className="rounded-full p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            >
+              <MdClose size={14} />
+            </span>
+          )}
+          <MdKeyboardArrowDown
+            size={18}
+            className={`text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
+
+      {/* Floating panel */}
+      <div
+        className={[
+          "absolute z-50 mt-1.5 w-full rounded-xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5",
+          "overflow-hidden transition-all duration-200 origin-top",
+          open ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none",
+        ].join(" ")}
+        style={{ maxHeight: "260px", overflowY: "auto" }}
+      >
+        {/* Clear option */}
+        <button
+          type="button"
+          onClick={() => pick("")}
+          className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs text-gray-400 hover:bg-gray-50 transition-colors border-b border-gray-100"
+        >
+          <MdClose size={13} />
+          Clear selection
+        </button>
+
+        {options.length === 0 ? (
+          <p className="px-4 py-4 text-xs text-gray-400 text-center italic">No subcategories found</p>
+        ) : (
+          <div className="p-2 grid grid-cols-2 gap-1.5">
+            {options.map((opt) => {
+              const isActive = value === opt.name;
+              return (
+                <button
+                  key={opt._id}
+                  type="button"
+                  onClick={() => pick(opt.name)}
+                  className={[
+                    "flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-all duration-150 text-left",
+                    isActive
+                      ? "border-blue-200 bg-blue-50 text-blue-700 shadow-sm scale-[1.02]"
+                      : "border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100",
+                  ].join(" ")}
+                >
+                  <span className="flex-1 leading-tight">{opt.name}</span>
+                  {isActive && <MdCheck size={13} className="shrink-0 text-blue-600" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin", onCancel, onSuccess }) => {
   const navigate = useNavigate();
   const isEditMode = Boolean(blog?._id);
+  const { subCategories: subCatMap, isDataLoaded } = useAppData();
+
+  // Flatten the grouped {categoryId: [...subcats]} map into a deduplicated sorted list
+  const subcategoryOptions = React.useMemo(() => {
+    const seen = new Set();
+    return Object.values(subCatMap)
+      .flat()
+      .filter((sc) => {
+        if (seen.has(sc._id)) return false;
+        seen.add(sc._id);
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [subCatMap]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     title: blog?.title || "",
     category: blog?.category || "",
+    subcategory: blog?.subcategory || "",
     author: blog?.author || "",
     summary: blog?.summary || "",
     content: blog?.content || "",
@@ -129,6 +259,7 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
     const title = formData.title.trim();
     const author = formData.author.trim();
     const category = formData.category.trim();
+    const subcategory = formData.subcategory.trim();
     const summary = formData.summary.trim();
 
     if (!title) {
@@ -153,6 +284,7 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
         title,
         author,
         category,
+        subcategory,
         summary,
         content: formData.content,
       };
@@ -231,7 +363,7 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Category
@@ -243,6 +375,19 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
                   onChange={handleChange}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Tax, Compliance"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Subcategory
+                </label>
+                <SubcategoryDropdown
+                  value={formData.subcategory}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, subcategory: val }))
+                  }
+                  options={subcategoryOptions}
+                  loading={!isDataLoaded}
                 />
               </div>
               <div>
@@ -293,12 +438,12 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
                 {isUploadingImage
                   ? "Uploading image..."
                   : isSubmitting
-                  ? isEditMode
-                    ? "Updating..."
-                    : "Publishing..."
-                  : isEditMode
-                  ? "Update Blog"
-                  : "Publish Blog"}
+                    ? isEditMode
+                      ? "Updating..."
+                      : "Publishing..."
+                    : isEditMode
+                      ? "Update Blog"
+                      : "Publish Blog"}
               </button>
             </div>
           </form>

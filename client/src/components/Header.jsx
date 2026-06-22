@@ -270,7 +270,7 @@ const Header = () => {
                       {/* Subcategories Dropdown */}
                       {activeTab === category.name &&
                         subCategories.length > 0 && (
-                          <div className={`absolute ${opensToLeft ? "right-0" : "left-0"} top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible`}>
+                          <div className={`absolute ${opensToLeft ? "right-0" : "left-0"} top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}>
                             <div className="p-3 max-h-[calc(100vh-8rem)] overflow-y-auto">
                               {subCategories.map((subCat) => (
                                 <div key={subCat._id} className="relative">
@@ -310,7 +310,7 @@ const Header = () => {
                                   : "w-80";
                                 return (
                                   <div
-                                    className={`absolute top-0 ${opensToLeft ? "right-full mr-2" : "left-full ml-2"} ${servicesPanelWidth} bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200`}
+                                    className={`absolute top-0 ${opensToLeft ? "right-full mr-2" : "left-full ml-2"} ${servicesPanelWidth} bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200 before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}
                                   >
                                     <div className="p-4">
                                       <h3 className="font-semibold text-sm mb-3 text-(--primary)">

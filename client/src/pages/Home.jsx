@@ -10,6 +10,7 @@ import Step4 from "../assets/step4.png";
 import commondata from "../assets/common.json";
 import SEOHelmet from "../components/SEOHelmet";
 import WhyChooseUsSection from "../components/WhyChooseUsSection";
+import PromoBanner from "../components/PromoBanner";
 import { useAppData } from "../context/DataContext";
 
 const Home = () => {
@@ -151,6 +152,9 @@ const Home = () => {
 
   return (
     <>
+      {/* Floating promotional banner — renders only when /img/img.jpeg exists */}
+      <PromoBanner imageSrc="/img/img.jpeg" alt="Special Festival Offer" delay={1200} />
+
       <SEOHelmet
         title="TaxProSolution - Get Your Business Registered in 7 Days"
         description="Fast, reliable business registration and setup services. Get your business registered in just 7 days with expert consultation. Trusted by 5000+ happy clients."
@@ -314,7 +318,7 @@ const Home = () => {
                   1
                 </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
-                  Choose a Service & Submit Your Application
+                  Choose a Service &amp; Submit Your Application
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
@@ -339,7 +343,7 @@ const Home = () => {
                   2
                 </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
-                  Lead Generation & Manager Assignment
+                  Lead Generation &amp; Manager Assignment
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
@@ -381,7 +385,7 @@ const Home = () => {
                   3
                 </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
-                  Document Collection & Expert Handling
+                  Document Collection &amp; Expert Handling
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">
@@ -407,7 +411,7 @@ const Home = () => {
                   4
                 </span>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-(--text)">
-                  Track Progress & Get Confirmation
+                  Track Progress &amp; Get Confirmation
                 </h3>
               </div>
               <ul className="space-y-2 md:space-y-3 text-sm sm:text-base md:text-lg text-(--secondary) mb-4 md:mb-6">

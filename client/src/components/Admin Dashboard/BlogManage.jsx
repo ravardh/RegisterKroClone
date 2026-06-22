@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MdAdd, MdEdit, MdSearch, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdAdd, MdEdit, MdVisibility } from "react-icons/md";
 import toast from "react-hot-toast";
 import axios from "../../config/api";
 import CreateBlog from "../../pages/CreateBlog";
@@ -190,22 +190,30 @@ const BlogManage = () => {
                       {blog.author || "-"}
                     </td>
                     <td className="px-4 py-4 border-r border-gray-50">
-                      <button
-                        onClick={() => handleVisibilityToggle(blog)}
-                        className={clsx(
-                          "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all border",
-                          blog.isPublished
-                            ? "bg-green-50 text-green-700 border-green-100 hover:bg-green-100"
-                            : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"
-                        )}
-                      >
-                        {blog.isPublished ? (
-                          <MdVisibility className="h-4 w-4" />
-                        ) : (
-                          <MdVisibilityOff className="h-4 w-4" />
-                        )}
-                        {blog.isPublished ? "Visible" : "Hidden"}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleVisibilityToggle(blog)}
+                          className={clsx(
+                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                            blog.isPublished ? "bg-green-500" : "bg-gray-300"
+                          )}
+                          title={blog.isPublished ? "Set to Hidden" : "Set to Visible"}
+                        >
+                          <span className="sr-only">Toggle visibility</span>
+                          <span
+                            className={clsx(
+                              "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                              blog.isPublished ? "translate-x-6" : "translate-x-1"
+                            )}
+                          />
+                        </button>
+                        <span className={clsx(
+                          "font-medium text-xs",
+                          blog.isPublished ? "text-green-700" : "text-gray-500"
+                        )}>
+                          {blog.isPublished ? "Visible" : "Hidden"}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-4 py-4 border-r border-gray-50 text-gray-500 font-medium">
                       {formatDate(blog.createdAt)}

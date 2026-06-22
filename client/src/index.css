@@ -642,3 +642,605 @@ iframe {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   Peek-from-right Promotional / Festival Banner
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+
+/* Banner slides/peeks in from right edge */
+@keyframes promo-peek-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(80%); }   /* 20% visible */
+}
+
+/* Gentle nudge left-right on the peek strip to invite clicks */
+@keyframes promo-peek-nudge {
+  0%,  100% { transform: translateX(80%); }
+  25%        { transform: translateX(76%); }
+  75%        { transform: translateX(82%); }
+}
+
+/* Shimmer sweep across the image */
+@keyframes promo-shimmer {
+  0%   { left: -60%; }
+  100% { left: 120%; }
+}
+
+/* Festive badge bob */
+@keyframes promo-badge-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+/* ── Backdrop overlay (expanded only) ── */
+.promo-peek-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(10, 20, 50, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: promo-overlay-fade 0.35s ease forwards;
+}
+
+@keyframes promo-overlay-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Main banner wrapper ── */
+.promo-peek-banner {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 999;
+
+  /* Panel is 340px wide; translateX(80%) means 272px off-screen, 68px visible (≈20%) */
+  width: 340px;
+  transform: translateX(100%);   /* hidden initially */
+  translate: 0 -50%;             /* vertical centre */
+
+  display: flex;
+  flex-direction: row;
+  border-radius: 1rem 0 0 1rem;
+  overflow: hidden;
+
+  box-shadow:
+    -6px 0 32px rgba(13, 77, 184, 0.22),
+    0 20px 48px rgba(0, 0, 0, 0.14);
+
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Peek state: 20% visible, nudge animation ── */
+.promo-peek-banner--peeking {
+  animation: promo-peek-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+             promo-peek-nudge 3.5s ease-in-out 0.8s infinite;
+}
+
+/* ── Expanded state: fully open, stop nudge ── */
+.promo-peek-banner--expanded {
+  animation: none;
+  transform: translateX(0);
+}
+
+/* ── Peek tab (left strip visible when collapsed) ── */
+.promo-peek-banner__tab {
+  flex-shrink: 0;
+  width: 68px;          /* this is the 20% that shows */
+  background: linear-gradient(180deg, var(--brand-royal) 0%, #2563eb 60%, #1d4ed8 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.25rem;
+  transition: background 0.2s ease, width 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.promo-peek-banner__tab:hover {
+  background: linear-gradient(180deg, #1d4ed8 0%, var(--brand-royal) 100%);
+  width: 76px;
+}
+
+.promo-peek-banner__tab-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.promo-peek-banner__tab-arrow {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+  animation: promo-tab-arrow-bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes promo-tab-arrow-bounce {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(-4px); }
+}
+
+/* ── Full panel content area ── */
+.promo-peek-banner__panel {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Top gradient accent strip ── */
+.promo-peek-banner__strip {
+  height: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, var(--brand-royal) 0%, #2f7bef 50%, #f59e0b 100%);
+}
+
+/* ── Close button ── */
+.promo-peek-banner__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #374151;
+  border: 1.5px solid rgba(13, 77, 184, 0.15);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.25s ease;
+}
+
+.promo-peek-banner__close:hover {
+  background: var(--brand-royal);
+  color: #ffffff;
+  transform: rotate(90deg) scale(1.1);
+  border-color: transparent;
+}
+
+/* ── Festive badge ── */
+.promo-peek-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.3rem;
+  margin: 0.7rem 0.7rem 0.4rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1.5px solid #fbbf24;
+  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
+  animation: promo-badge-bob 2.8s ease-in-out infinite;
+}
+
+/* ── Image wrapper ── */
+.promo-peek-banner__img-wrap {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  min-height: 160px;
+  max-height: 52vh;
+}
+
+.promo-peek-banner__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s ease;
+}
+
+.promo-peek-banner--expanded:hover .promo-peek-banner__img {
+  transform: scale(1.04);
+}
+
+/* ── Shimmer on image ── */
+.promo-peek-banner__img-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.promo-peek-banner__img-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 60%
+  );
+  animation: promo-shimmer 3.2s ease-in-out infinite 1.2s;
+}
+
+/* ── Footer / CTA ── */
+.promo-peek-banner__footer {
+  padding: 0.7rem 0.85rem 0.85rem;
+  background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%);
+  border-top: 1px solid rgba(13, 77, 184, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.promo-peek-banner__tagline {
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.promo-peek-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--brand-royal) 0%, #2f7bef 100%);
+  box-shadow: 0 4px 12px rgba(13, 77, 184, 0.35);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promo-peek-banner__cta:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 7px 18px rgba(13, 77, 184, 0.45);
+}
+
+/* ── Tablet (< 1024px): narrower panel ── */
+@media (max-width: 1023px) {
+  .promo-peek-banner {
+    width: 300px;
+  }
+  .promo-peek-banner__tab {
+    width: 60px;
+  }
+  @keyframes promo-peek-in {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(80%); }
+  }
+  @keyframes promo-peek-nudge {
+    0%,  100% { transform: translateX(80%); }
+    25%        { transform: translateX(75%); }
+    75%        { transform: translateX(83%); }
+  }
+}
+
+/* ── Mobile (< 640px): bottom sheet, 25% visible ── */
+@media (max-width: 639px) {
+  .promo-peek-banner {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 1rem 1rem 0 0;
+    flex-direction: column-reverse;
+    translate: 0 0;
+  }
+
+  .promo-peek-banner--peeking {
+    animation: promo-mobile-peek-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               promo-mobile-nudge 3.5s ease-in-out 0.8s infinite;
+  }
+
+  .promo-peek-banner--expanded {
+    animation: none;
+    transform: translateY(0);
+  }
+
+  @keyframes promo-mobile-peek-in {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(75%); }   /* 25% visible at bottom */
+  }
+
+  @keyframes promo-mobile-nudge {
+    0%,  100% { transform: translateY(75%); }
+    40%        { transform: translateY(70%); }
+  }
+
+  .promo-peek-banner__tab {
+    width: 100%;
+    height: 52px;
+    flex-direction: row;
+    writing-mode: horizontal-tb;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .promo-peek-banner__tab-label {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 0.7rem;
+  }
+
+  .promo-peek-banner__tab-arrow {
+    transform: rotate(90deg);
+  }
+
+  .promo-peek-banner__img-wrap {
+    max-height: 40vw;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .promo-peek-banner,
+  .promo-peek-banner--peeking,
+  .promo-peek-banner--expanded,
+  .promo-peek-banner__tab,
+  .promo-peek-banner__img,
+  .promo-peek-banner__cta,
+  .promo-peek-banner__close {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .promo-peek-banner--peeking  { transform: translateX(80%); }
+  .promo-peek-banner--expanded { transform: translateX(0); }
+
+  .promo-peek-banner__badge,
+  .promo-peek-banner__tab-arrow,
+  .promo-peek-banner__img-shimmer::after {
+    animation: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Light Footer  (IndiaFilings-style)
+   ═══════════════════════════════════════════════════════════ */
+
+.footer-root {
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  font-family: inherit;
+}
+
+.footer-top-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 0;
+}
+
+/* 5-column grid: logo | col1 | col2 | col3 | col4 */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 220px repeat(4, 1fr);
+  gap: 2rem 2.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 200px repeat(4, 1fr);
+    gap: 1.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 1.5rem;
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-brand {
+    grid-column: unset;
+  }
+}
+
+/* ── Brand block ── */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-logo-link {
+  display: inline-block;
+  line-height: 0;
+}
+
+/* Light-mode logo: no white background box needed */
+.site-logo--footer-light {
+  height: 3rem;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+.footer-tagline {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #374151;
+  margin: 0;
+}
+
+.footer-tagline a {
+  color: var(--brand-royal);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-tagline a:hover {
+  text-decoration: underline;
+}
+
+/* ── Nav column ── */
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-col-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.35rem;
+  letter-spacing: 0;
+}
+
+.footer-col-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.footer-link {
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.18s ease;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: var(--brand-royal);
+}
+
+/* ── Divider between main and bottom bar ── */
+.footer-bottom-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin-top: 2.25rem;
+}
+
+/* ── Bottom bar ── */
+.footer-bottom-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.9rem 0 1.1rem;
+  text-align: center;
+}
+
+.footer-copyright {
+  font-size: 0.78rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ── Developed-by row (above divider) ── */
+.footer-developed-by-wrap {
+  text-align: center;
+  padding: 0.75rem 0 0;
+}
+
+.footer-developed-by {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.footer-dev-link {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.footer-dev-link:hover {
+  color: var(--brand-royal);
+  text-decoration: underline;
+}
+
+/* ── Social icon row ── */
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.footer-social-icon:hover {
+  border-color: var(--brand-royal);
+  color: var(--brand-royal);
+  background: #eff6ff;
+}
+
+@media (max-width: 480px) {
+  .footer-bottom-bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+/* ── Map embed ── */
+.footer-map-wrap {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  margin-top: 0.25rem;
+}

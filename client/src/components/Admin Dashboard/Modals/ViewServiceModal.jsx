@@ -246,6 +246,27 @@ const ViewServiceModal = ({ service, onClose, onEdit, onDelete }) => {
             </div>
           )}
 
+          {/* Related Services */}
+          {service.relatedServices && service.relatedServices.length > 0 && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-2">
+                Related Services
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {service.relatedServices.map((rs, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <p className="text-sm font-semibold text-gray-800 truncate">
+                      {rs.serviceName || "Unknown Service"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 truncate">
+                      {getDisplayName(rs.category)} • {getDisplayName(rs.subCategory)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Created At */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">

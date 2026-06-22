@@ -190,22 +190,28 @@ const Services = () => {
                     </td>
                     <td className="px-4 py-4 border-r border-gray-50">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleVisibilityToggle(svc)}
+                          className={clsx(
+                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                            svc.isVisible ? "bg-green-500" : "bg-gray-300"
+                          )}
+                          title={svc.isVisible ? "Set to Hidden" : "Set to Visible"}
+                        >
+                          <span className="sr-only">Toggle visibility</span>
+                          <span
+                            className={clsx(
+                              "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                              svc.isVisible ? "translate-x-6" : "translate-x-1"
+                            )}
+                          />
+                        </button>
                         <span className={clsx(
-                          "w-2 h-2 rounded-full",
-                          svc.isVisible ? "bg-green-500" : "bg-gray-300"
-                        )}></span>
-                        <span className={clsx(
-                          "font-medium",
-                          svc.isVisible ? "text-green-700" : "text-gray-400"
+                          "font-medium text-xs",
+                          svc.isVisible ? "text-green-700" : "text-gray-500"
                         )}>
                           {svc.isVisible ? "Visible" : "Hidden"}
                         </span>
-                        <button
-                          onClick={() => handleVisibilityToggle(svc)}
-                          className="ml-auto text-blue-600 hover:underline text-xs font-bold"
-                        >
-                          Toggle
-                        </button>
                       </div>
                     </td>
                     <td className="px-4 py-4 border-r border-gray-50">
@@ -269,6 +275,7 @@ const Services = () => {
         }}
         onAddService={handleSave}
         editingService={editingService}
+        allServices={services}
       />
 
       <ViewServiceModal
