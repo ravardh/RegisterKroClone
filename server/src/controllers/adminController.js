@@ -7,6 +7,7 @@ import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
 import Blog from "../models/blogModel.js";
 import TeamMember from "../models/teamMemberModel.js";
+import Career from "../models/Career.js";
 import bcrypt from "bcrypt";
 import { sendRmAssignmentEmail } from "../config/emailService.js";
 import fs from "fs";
@@ -531,6 +532,91 @@ export const rejectFeedback = async (req, res, next) => {
 
     res.status(200).json({
       message: "Feedback rejected and removed",
+      data: deleted,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllCareers = async (req, res, next) => {
+  try {
+    const careers = await Career.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      message: "Career applications fetched successfully",
+      data: careers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateCareerStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const allowedStatuses = ["pending", "reviewed", "rejected", "shortlisted"];
+
+    if (!id) {
+      const error = new Error("Application ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      const error = new Error("Invalid status value");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const updated = await Career.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      const error = new Error("Application not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Application status updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteCareer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      const error = new Error("Application ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const deleted = await Career.findByIdAndDelete(id);
+
+    if (!deleted) {
+      const error = new Error("Application not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (deleted.resume) {
+      const resumePath = path.join(process.cwd(), "uploads", "resumes", deleted.resume);
+      if (fs.existsSync(resumePath)) {
+        fs.unlinkSync(resumePath);
+      }
+    }
+
+    res.status(200).json({
+      message: "Application deleted successfully",
       data: deleted,
     });
   } catch (error) {

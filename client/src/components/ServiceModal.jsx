@@ -32,7 +32,15 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
         if (categorySubCategories.length > 0) {
           setSelectedSubCategory(categorySubCategories[0]);
           setServices(servicesData[categorySubCategories[0]._id] || []);
+        } else {
+          setSelectedSubCategory(null);
+          setServices([]);
         }
+      } else {
+        setCategory(null);
+        setSubCategories([]);
+        setSelectedSubCategory(null);
+        setServices([]);
       }
     } catch (error) {
       console.error("Error loading modal data:", error);
@@ -131,9 +139,13 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
                 <div className="text-center py-8 text-gray-500">
                   Loading services...
                 </div>
+              ) : subCategories.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No subcategories or services available yet.
+                </div>
               ) : services.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  No services found for this subcategory
+                  No services found for this subcategory.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">

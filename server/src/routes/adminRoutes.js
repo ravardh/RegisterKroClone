@@ -16,6 +16,9 @@ import {
   approveFeedback,
   rejectFeedback,
   backupDatabase,
+  getAllCareers,
+  updateCareerStatus,
+  deleteCareer,
 } from "../controllers/adminController.js";
 import {
   createBlog,
@@ -29,7 +32,11 @@ import {
   updateTeamMember,
   deleteTeamMember,
 } from "../controllers/teamController.js";
-import { uploadTeamImage } from "../middleware/uploadMiddleware.js";
+import {
+  getAdminSpecialOffer,
+  updateSpecialOffer,
+} from "../controllers/offerController.js";
+import { uploadOfferImage, uploadTeamImage } from "../middleware/uploadMiddleware.js";
 import { adminProtect, superAdminProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -48,6 +55,11 @@ router.put("/update-rm/:id", updateRm);
 router.get("/contacts", getAllContacts);
 router.delete("/contacts/:id", deleteContact);
 
+// Career routes
+router.get("/careers", getAllCareers);
+router.patch("/careers/:id/status", updateCareerStatus);
+router.delete("/careers/:id", deleteCareer);
+
 // Feedback routes
 router.get("/feedbacks", getAllFeedbacks);
 router.patch("/feedbacks/:id/approve", approveFeedback);
@@ -58,6 +70,10 @@ router.get("/blogs", getAdminBlogs);
 router.post("/blogs", createBlog);
 router.put("/blogs/:id", updateBlog);
 router.patch("/blogs/:id/visibility", updateBlogVisibility);
+
+// Special Offer
+router.get("/special-offer", getAdminSpecialOffer);
+router.put("/special-offer", uploadOfferImage, updateSpecialOffer);
 
 // Our Team
 router.get("/team", getAdminTeamMembers);

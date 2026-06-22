@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
-import { FaChevronLeft, FaChevronRight, FaPhoneAlt, FaTrophy, FaUsers, FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTrophy, FaUsers, FaStar, FaStarHalfAlt } from "react-icons/fa";
 import { MdDownload, MdOutlineTrackChanges } from "react-icons/md";
 import toast from "react-hot-toast";
 import "quill/dist/quill.snow.css";
@@ -9,7 +9,6 @@ import axiosInstance from "../config/api";
 import SEOHelmet from "../components/SEOHelmet";
 import { useAppData } from "../context/DataContext";
 import CircularText from "../components/CircularText";
-import CommonData from "../assets/common.json";
 import { motion, AnimatePresence } from "motion/react";
 import {
   HiOutlineDocumentText,
@@ -52,6 +51,18 @@ const formatIndianPrice = (price) => {
   }
 
   return `${result}.${decimalPart}`;
+};
+
+const getWhyChooseUsCards = (service) => {
+  const items = service?.whyChooseus ?? service?.whyChooseUs ?? [];
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .map((card) => ({
+      title: String(card?.title ?? "").trim(),
+      description: String(card?.description ?? "").trim(),
+    }))
+    .filter((card) => card.title);
 };
 
 const getTabIcon = (tabName) => {
@@ -114,7 +125,6 @@ const ServiceDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [relatedServicesIndex, setRelatedServicesIndex] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
-  const [reviewsPerPage, setReviewsPerPage] = useState(3);
   const [serviceData, setServiceData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -198,19 +208,8 @@ const ServiceDetail = () => {
     "Jammu and Kashmir",
   ];
 
-  useEffect(() => {
-    const handleResize = () => {
-      setReviewsPerPage(window.innerWidth < 768 ? 1 : 3);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // Calculate maxReviewIndex based on actual reviews from backend
-  const maxReviewIndex =
-    reviews.length > 0 ? Math.ceil(reviews.length / reviewsPerPage) - 1 : 0;
+  const maxReviewIndex = reviews.length > 0 ? reviews.length - 1 : 0;
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
@@ -343,10 +342,8 @@ const ServiceDetail = () => {
     setReviewIndex((prev) => (prev <= 0 ? maxReviewIndex : prev - 1));
   };
 
-  const visibleReviews = reviews.slice(
-    reviewIndex * reviewsPerPage,
-    (reviewIndex + 1) * reviewsPerPage,
-  );
+  const visibleReviews =
+    reviews.length > 0 ? [reviews[Math.min(reviewIndex, reviews.length - 1)]] : [];
 
   const handleDescriptionTabClick = (tabIndex) => {
     setActiveTab(tabIndex);
@@ -1051,7 +1048,7 @@ const ServiceDetail = () => {
                         prose-img:rounded-3xl prose-img:shadow-2xl prose-img:my-12
                         prose-blockquote:border-l-8 prose-blockquote:border-(--primary) prose-blockquote:bg-blue-50/50 prose-blockquote:rounded-r-2xl prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:italic prose-blockquote:text-lg prose-blockquote:text-blue-900
                         
-                        [&_strong]:text-(--primary) [&_strong]:font-bold [&_strong]:block [&_strong]:mt-6 [&_strong]:mb-2 [&_strong]:text-sm [&_strong]:tracking-tight"
+                        [&_strong]:text-gray-900 [&_strong]:font-bold [&_strong]:block [&_strong]:mt-6 [&_strong]:mb-2 [&_strong]:text-sm [&_strong]:tracking-tight"
                           dangerouslySetInnerHTML={{
                             __html: descriptionTabs[activeTab]?.content || "",
                           }}
@@ -1219,302 +1216,279 @@ const ServiceDetail = () => {
             </button>
           </div>
         )}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 my-10 md:my-20">
-          <section className="cta-section py-6 md:py-8 bg-[url('/hero.webp')] rounded-2xl opacity-90 bg-cover bg-center shadow-lg">
-            <div className="container flex flex-col md:flex-row items-center justify-between mx-auto px-6 sm:px-12 md:px-16 gap-6 md:gap-4">
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-bold mb-3">
-                  Have Questions? Speak with Our Experts
-                </h2>
-                <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed">
-                  Get tailored advice on business registration, legal
-                  requirements, and compliance from our seasoned professional
-                  available to assist you anytime.
-                </p>
-              </div>
-              <div className="md:ml-8 shrink-0">
-                <a
-                  href={`tel:${CommonData.phones.primary}`}
-                  className="call-cta-btn group inline-flex items-center gap-2.5 bg-white text-(--primary) px-4 py-2 rounded-full text-sm font-semibold shadow-md shadow-black/10 ring-2 ring-white/40 transition duration-300 hover:bg-(--primary) hover:text-white hover:shadow-lg hover:scale-105 active:scale-95"
-                >
-                  <span className="call-cta-icon-wrap relative flex h-7 w-7 items-center justify-center rounded-full bg-(--primary)/10 text-(--primary) transition-colors group-hover:bg-white/20 group-hover:text-white">
-                    <FaPhoneAlt className="call-cta-phone h-3.5 w-3.5" />
-                  </span>
-                  Call Us Now
-                </a>
-              </div>
+        {/* Why Choose Us */}
+        {getWhyChooseUsCards(serviceData).length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-3">
+              Why Choose Us
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12 max-w-2xl mx-auto">
+              Discover what makes us the trusted choice for your business needs
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 divide-x divide-gray-300 border border-gray-200 rounded-lg p-6">
+              {getWhyChooseUsCards(serviceData).map((card, index) => {
+                const cardIcons = [IoShieldCheckmarkOutline, FaUsers, FaTrophy, IoRibbonOutline];
+                const Icon = cardIcons[index % cardIcons.length];
+                return (
+                  <div key={index} className="px-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-gray-900">{card.title}</h3>
+                      <div className=" rounded-xl bg-blue-50 text-(--primary)">
+                        <Icon size={22} />
+                      </div>
+                    </div>
+                    {card.description && (
+                      <p className="text-sm text-gray-600 leading-relaxed flex-1">{card.description}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          </section>
-        </div>
+          </div>
+        )}
 
-        {/* Related Services Section - Orbital Carousel */}
+        {/* Related Services — Coverflow carousel */}
         {relatedServices.length > 0 && (
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-10 sm:py-12 md:py-16">
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ">
+            <div className="text-center mb-8 sm:mb-10 max-w-3xl mx-auto">
+             
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 Related Services
               </h2>
-              <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12 max-w-2xl mx-auto">
-                Explore other services that complement your business needs
+              <p className="text-sm sm:text-base text-gray-600">
+                Explore services that complement{" "}
+                <span className="font-medium text-gray-800">{serviceData?.serviceName}</span>
               </p>
-
-              {isLoadingRelated ? (
-                <div className="flex justify-center pb-2">
-                  <div className="w-full sm:w-[28rem] rounded-[2rem] bg-white shadow-xl overflow-hidden">
-                    <div className="h-72 bg-slate-100 animate-pulse"></div>
-                    <div className="p-6 space-y-4">
-                      <div className="h-5 bg-slate-200 rounded-full animate-pulse"></div>
-                      <div className="h-4 bg-slate-200 rounded-full animate-pulse"></div>
-                      <div className="h-12 bg-slate-200 rounded-2xl animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="relative mx-auto max-w-5xl px-4 sm:px-6"
-                  onMouseEnter={() => setIsHoveringRelated(true)}
-                  onMouseLeave={() => setIsHoveringRelated(false)}
-                >
-                  <div className="relative flex items-center justify-center py-10 min-h-[480px]">
-                    {relatedServices.map((service, index) => {
-                      let diff = index - relatedServicesIndex;
-
-                      // Wrap around logic for infinite feel
-                      if (diff > relatedServices.length / 2) diff -= relatedServices.length;
-                      if (diff < -relatedServices.length / 2) diff += relatedServices.length;
-
-                      // Hide cards that are too far away
-                      if (Math.abs(diff) > 2) return null;
-
-                      const isActive = diff === 0;
-                      const zIndex = 30 - Math.abs(diff);
-                      const scale = isActive ? 1 : 1 - Math.abs(diff) * 0.13;
-                      const translateX = diff * 130; // stacked fan offset
-                      const translateY = Math.abs(diff) * 18; // arc downward per layer
-                      const rotate = diff * 5; // tilt per layer
-                      const opacity = isActive ? 1 : Math.abs(diff) === 1 ? 0.75 : 0.5;
-
-                      return (
-                        <motion.div
-                          key={service._id}
-                          initial={false}
-                          animate={{
-                            x: translateX,
-                            y: translateY,
-                            rotate: rotate,
-                            scale: scale,
-                            zIndex: zIndex,
-                            opacity: opacity,
-                          }}
-                          transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.8 }}
-                          className={`absolute w-full max-w-[18rem] sm:max-w-[20rem] md:max-w-[22rem] lg:max-w-[24rem] ${isActive ? 'pointer-events-auto' : 'pointer-events-auto cursor-pointer'}`}
-                          onClick={() => {
-                            if (!isActive) setRelatedServicesIndex(index);
-                          }}
-                          whileHover={!isActive ? { y: translateY - 10, scale: scale * 1.05 } : {}}
-                        >
-                          <div className={`relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white transition-all duration-300 ${isActive ? 'shadow-[0_36px_90px_-44px_rgba(15,23,42,0.22)]' : 'shadow-md hover:shadow-lg'}`}>
-                            <div
-                              className="relative h-48 overflow-hidden"
-                              style={{
-                                backgroundImage: `linear-gradient(135deg, ${getCategoryPlaceholder(
-                                  service.category?.name
-                                ).from}, ${getCategoryPlaceholder(
-                                  service.category?.name
-                                ).to})`,
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-black/10" />
-                              <div className="absolute inset-x-0 top-4 px-5 flex items-center justify-between gap-3">
-                                <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.32em] text-white/85">
-                                  {service.category?.name || "Service"}
-                                </span>
-                                {service.offer && (
-                                  <span className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-slate-900">
-                                    {service.offer}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="p-5 space-y-4 bg-white">
-                              <motion.h3 layout className="text-lg font-bold text-slate-900 leading-tight line-clamp-2 min-h-[3rem]">
-                                {service.serviceName}
-                              </motion.h3>
-
-                              <motion.p layout className="text-sm leading-relaxed text-slate-600 line-clamp-3 min-h-[4.5rem]">
-                                {service.shortDescription}
-                              </motion.p>
-
-                              <div className="pt-2 flex items-center justify-between">
-                                {service.priceTag && service.priceTag !== "0" ? (
-                                  <motion.div
-                                    layout
-                                    className="font-bold px-3 py-1.5 rounded-full text-sm"
-                                    style={{ color: "var(--primary)", backgroundColor: "color-mix(in srgb, var(--primary) 10%, transparent)" }}
-                                  >
-                                    ₹ {formatIndianPrice(service.priceTag)}
-                                  </motion.div>
-                                ) : <div />}
-
-                                <AnimatePresence>
-                                  {isActive && (
-                                    <motion.button
-                                      initial={{ opacity: 0, scale: 0.8, x: 10 }}
-                                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                                      exit={{ opacity: 0, scale: 0.8, x: 10 }}
-                                      whileHover={{ scale: 1.05 }}
-                                      whileTap={{ scale: 0.95 }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(`/service/${service._id}`);
-                                      }}
-                                      style={{ backgroundColor: "var(--primary)" }}
-                                      className="text-white text-xs font-semibold px-4 py-2 rounded-full shadow-md flex items-center gap-1.5"
-                                    >
-                                      View Details <FaChevronRight size={10} />
-                                    </motion.button>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            </div>
-
-                            {/* Overlay for inactive cards to make them slightly darker */}
-                            {!isActive && (
-                              <div className="absolute inset-0 bg-black/5 pointer-events-none rounded-[2rem]" />
-                            )}
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-
-                </div>
-              )}
             </div>
-          </div>
-        )}
 
-        {/* FAQs Section - Outside Tabs */}
-        {serviceData.faqs && serviceData.faqs.length > 0 && (
-          <div
-            ref={faqSectionRef}
-            className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8"
-          >
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-900">
-                Frequently Asked Questions
-              </h2>
-              <div className="space-y-3 sm:space-y-4 w-full">
-                {serviceData.faqs.map((faq, index) => (
-                  <details
-                    key={index}
-                    className="bg-gray-50 rounded-lg p-4 sm:p-5 border border-gray-200 hover:border-blue-300 transition-colors"
-                  >
-                    <summary className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 text-base sm:text-lg">
-                      {faq.question}
-                    </summary>
-                    <p className="mt-2 sm:mt-3 text-gray-600 pl-0 sm:pl-4 text-sm sm:text-base">
-                      {faq.answer}
-                    </p>
-                  </details>
-                ))}
+            {isLoadingRelated ? (
+              <div className="flex justify-center">
+                <div className="h-72 w-52 rounded-xl bg-gray-100 animate-pulse" />
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Reviews Section - Only show if there are actual reviews */}
-        {reviews.length > 0 && (
-          <section className="reviews-section py-10 md:py-20 bg-(--background)">
-            <div className="container mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-              <h2 className="text-(--primary) text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
-                What Our Clients Say
-              </h2>
-              <p className="text-(--secondary) text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 w-full sm:w-3/4 md:w-2/3 mx-auto px-4">
-                Trusted by thousands of businesses across the country. Here's
-                what they have to say about our services.
-              </p>
-
-              <div className="relative mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 transition-all duration-500 ease-in-out">
-                  {visibleReviews.map((review, index) => (
-                    <div
-                      key={index}
-                      className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg"
+            ) : (
+              <div
+                className="relative mx-auto max-w-5xl"
+                onMouseEnter={() => setIsHoveringRelated(true)}
+                onMouseLeave={() => setIsHoveringRelated(false)}
+              >
+                {relatedServices.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setRelatedServicesIndex((prev) =>
+                          prev <= 0 ? relatedServices.length - 1 : prev - 1
+                        )
+                      }
+                      className="absolute left-0 sm:-left-2 top-1/2 z-40 -translate-y-1/2 rounded-full p-2.5 text-(--primary) transition hover:bg-blue-50"
+                      aria-label="Previous related service"
                     >
-                      <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                          <div className="w-full h-full flex items-center justify-center bg-(--primary) text-white text-xl sm:text-2xl font-semibold">
-                            {review.fullName.charAt(0)}
+                      <FaChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setRelatedServicesIndex((prev) =>
+                          prev >= relatedServices.length - 1 ? 0 : prev + 1
+                        )
+                      }
+                      className="absolute right-0 sm:-right-2 top-1/2 z-40 -translate-y-1/2 rounded-full p-2.5 text-(--primary) transition hover:bg-blue-50"
+                      aria-label="Next related service"
+                    >
+                      <FaChevronRight size={18} />
+                    </button>
+                  </>
+                )}
+
+                <div className="relative flex items-center justify-center min-h-[14rem] sm:min-h-[16rem] md:min-h-[18rem]">
+                  {relatedServices.map((service, index) => {
+                    let diff = index - relatedServicesIndex;
+                    if (diff > relatedServices.length / 2) diff -= relatedServices.length;
+                    if (diff < -relatedServices.length / 2) diff += relatedServices.length;
+                    if (Math.abs(diff) > 2) return null;
+
+                    const isActive = diff === 0;
+                    const zIndex = 30 - Math.abs(diff);
+                    const scale = isActive ? 1 : 1 - Math.abs(diff) * 0.12;
+                    const translateX = diff * 88;
+                    const opacity = isActive ? 1 : Math.abs(diff) === 1 ? 0.88 : 0.65;
+                    const categoryGradient = getCategoryPlaceholder(service.category?.name);
+
+                    return (
+                      <motion.div
+                        key={service._id}
+                        initial={false}
+                        animate={{
+                          x: translateX,
+                          scale,
+                          zIndex,
+                          opacity,
+                        }}
+                        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+                        className="absolute w-[11.5rem] sm:w-[13rem] md:w-[14.5rem] cursor-pointer"
+                        onClick={() => {
+                          if (!isActive) setRelatedServicesIndex(index);
+                          else navigate(`/service/${service._id}`);
+                        }}
+                      >
+                        <div
+                          className={`relative flex flex-col overflow-hidden rounded-xl bg-white transition-all duration-300 ${isActive ? "shadow-lg" : "shadow-sm hover:shadow-md"
+                            }`}
+                        >
+                          <div
+                            className="h-1 w-full shrink-0"
+                            style={{
+                              background: `linear-gradient(90deg, ${categoryGradient.from}, ${categoryGradient.to})`,
+                            }}
+                          />
+                          <div className="flex flex-col p-4 sm:p-5">
+                            <span className="mb-2 text-[10px] font-bold uppercase tracking-wider text-(--primary)">
+                              {service.category?.name || "Service"}
+                            </span>
+                            <h3 className="mb-2 line-clamp-2 text-sm sm:text-base font-bold leading-snug text-gray-900">
+                              {service.serviceName}
+                            </h3>
+                            <p className="mb-4 line-clamp-3 text-xs leading-relaxed text-gray-600">
+                              {service.shortDescription}
+                            </p>
+                            <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                              {service.priceTag && service.priceTag !== "0" ? (
+                                <p className="text-sm font-bold text-(--primary)">
+                                  ₹ {formatIndianPrice(service.priceTag)}
+                                </p>
+                              ) : (
+                                <p className="text-xs text-gray-400 italic">Price on request</p>
+                              )}
+                              {isActive && (
+                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-(--primary)">
+                                  View <FaChevronRight size={10} />
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <h3 className="text-lg sm:text-xl font-semibold text-(--text)">
-                            {review.fullName}
-                          </h3>
-                          <p className="text-(--secondary) text-xs sm:text-sm">
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {relatedServices.length > 1 && (
+                  <div className="flex justify-center gap-2">
+                    {relatedServices.map((service, index) => (
+                      <button
+                        key={service._id}
+                        type="button"
+                        onClick={() => setRelatedServicesIndex(index)}
+                        className={`h-1.5 rounded-full transition-all ${relatedServicesIndex === index
+                          ? "w-8 bg-(--primary)"
+                          : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                          }`}
+                        aria-label={`Go to related service ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* What Clients Say + FAQ — 1×2 grid */}
+        {(reviews.length > 0 || (serviceData.faqs && serviceData.faqs.length > 0)) && (
+          <div
+            ref={faqSectionRef}
+            className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-10 md:py-16"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+              {/* What Our Clients Say */}
+              {reviews.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 sm:p-6 md:p-8 h-full">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    What Our Clients Say
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-6">
+                    Trusted feedback from businesses we have helped.
+                  </p>
+
+                  {visibleReviews.map((review, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl p-4 sm:p-5 border border-gray-100">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-11 h-11 rounded-full bg-(--primary) text-white flex items-center justify-center font-semibold shrink-0">
+                          {review.fullName.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-gray-900 truncate">{review.fullName}</h3>
+                          <p className="text-xs text-gray-500 truncate">
                             {review.serviceAvailed?.serviceName || "Service"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-1 mb-2 sm:mb-3">
-                        {Array.from({ length: review.starRating }).map(
-                          (_, i) => (
-                            <span
-                              key={i}
-                              className="text-yellow-400 text-base sm:text-lg"
-                            >
-                              ★
-                            </span>
-                          ),
-                        )}
+                      <div className="flex gap-0.5 mb-2">
+                        {Array.from({ length: review.starRating }).map((_, i) => (
+                          <span key={i} className="text-yellow-400 text-sm">★</span>
+                        ))}
                       </div>
-                      <p className="text-(--secondary) text-sm sm:text-base leading-relaxed">
-                        "{review.message}"
-                      </p>
+                      <p className="text-sm text-gray-600 leading-relaxed">"{review.message}"</p>
                     </div>
                   ))}
-                </div>
 
-                {reviews.length > reviewsPerPage && (
-                  <div className="flex justify-center items-center gap-4 mt-8">
-                    <button
-                      onClick={handleReviewPrev}
-                      className="text-(--primary) hover:text-(--primary-hover) transition"
-                      aria-label="Previous reviews"
-                    >
-                      <FaChevronLeft size={24} />
-                    </button>
-
-                    <div className="flex gap-3">
-                      {Array.from({ length: maxReviewIndex + 1 }).map(
-                        (_, idx) => (
+                  {reviews.length > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-5">
+                      <button
+                        onClick={handleReviewPrev}
+                        className="text-(--primary) hover:text-(--primary-hover) transition"
+                        aria-label="Previous review"
+                      >
+                        <FaChevronLeft size={20} />
+                      </button>
+                      <div className="flex gap-2">
+                        {Array.from({ length: maxReviewIndex + 1 }).map((_, idx) => (
                           <button
                             key={idx}
                             onClick={() => setReviewIndex(idx)}
-                            className={`w-3 h-3 rounded-full transition ${reviewIndex === idx
-                              ? "bg-(--primary)"
-                              : "bg-gray-300"
+                            className={`w-2 h-2 rounded-full transition ${reviewIndex === idx ? "bg-(--primary)" : "bg-gray-300"
                               }`}
-                            aria-label={`Go to page ${idx + 1}`}
+                            aria-label={`Go to review ${idx + 1}`}
                           />
-                        ),
-                      )}
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleReviewNext}
+                        className="text-(--primary) hover:text-(--primary-hover) transition"
+                        aria-label="Next review"
+                      >
+                        <FaChevronRight size={20} />
+                      </button>
                     </div>
+                  )}
+                </div>
+              )}
 
-                    <button
-                      onClick={handleReviewNext}
-                      className="text-(--primary) hover:text-(--primary-hover) transition"
-                      aria-label="Next reviews"
-                    >
-                      <FaChevronRight size={24} />
-                    </button>
+              {/* FAQ */}
+              {serviceData.faqs && serviceData.faqs.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 sm:p-6 md:p-8 h-full">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+                    Frequently Asked Questions
+                  </h2>
+                  <div className="space-y-3 max-h-[28rem] overflow-y-auto no-scrollbar">
+                    {serviceData.faqs.map((faq, index) => (
+                      <details
+                        key={index}
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
+                      >
+                        <summary className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 text-sm sm:text-base">
+                          {faq.question}
+                        </summary>
+                        <p className="mt-2 text-gray-600 text-sm leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </details>
+                    ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          </section>
+          </div>
         )}
 
         {/* Modal - triggers only when FAQ section is scrolled into view */}

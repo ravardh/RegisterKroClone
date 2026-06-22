@@ -8,6 +8,8 @@ import Contact from "../../components/Admin Dashboard/ContactManage";
 import Feedbacks from "../../components/Admin Dashboard/FeedbackManage";
 import BlogManage from "../../components/Admin Dashboard/BlogManage";
 import TeamManage from "../../components/Admin Dashboard/TeamManage";
+import CareersManage from "../../components/Admin Dashboard/CareersManage";
+import OfferManage from "../../components/Admin Dashboard/OfferManage";
 import SEOHelmet from "../../components/SEOHelmet";
 
 const ManagerDashboard = () => {
@@ -38,6 +40,8 @@ const ManagerDashboard = () => {
           {activeTab === "services" && <Services />}
           {activeTab === "feedbacks" && <Feedbacks />}
           {activeTab === "blogs" && <BlogManage />}
+          {activeTab === "careers" && <CareersManage />}
+          {activeTab === "specialOffer" && <OfferManage />}
           {activeTab === "ourTeam" && <TeamManage />}
         </div>
       </div>

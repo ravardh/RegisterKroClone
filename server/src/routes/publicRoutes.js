@@ -20,6 +20,7 @@ import {
   applyForJob,
 } from "../controllers/publicController.js";
 import { getPublicTeamMembers } from "../controllers/teamController.js";
+import { getPublicSpecialOffer } from "../controllers/offerController.js";
 import { uploadResume } from "../middleware/uploadMiddleware.js";
 import { getPublishedBlogBySlug, getPublishedBlogs } from "../controllers/blogController.js";
 
@@ -31,6 +32,7 @@ router.get("/track/:serviceId", TrackService);
 router.post("/feedback", PostFeedback);
 router.get("/feedback", getAllFeedback);
 router.get("/team", getPublicTeamMembers);
+router.get("/special-offer", getPublicSpecialOffer);
 router.get("/feedback/:id", getFeedbackByserviceId);
 router.get("/categories", getPublicCategories);
 router.get("/subcategories-grouped", getAllSubCategoriesGrouped);

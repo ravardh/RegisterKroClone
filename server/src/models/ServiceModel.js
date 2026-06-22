@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
 
-const serviceSchema = mongoose.Schema(
+const whyChooseUsCardSchema = new mongoose.Schema(
   {
+    title: { type: String, default: "" },
+    description: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
+const serviceSchema = mongoose.Schema(  {
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -130,6 +137,10 @@ const serviceSchema = mongoose.Schema(
         ref: "Service",
       },
     ],
+    whyChooseus: {
+      type: [whyChooseUsCardSchema],
+      default: [],
+    },
   },
   {
     timestamps: true,

@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 
 const EMPTY_PACKAGE = { name: "", price: "", description: "", includedFeatures: [""], isMostPopular: false };
 const EMPTY_DESCRIPTION_TAB = { tabs: "", content: "" };
+const EMPTY_WHY_CHOOSE_US = { title: "", description: "" };
+const DEFAULT_WHY_CHOOSE_US = Array.from({ length: 4 }, () => ({ ...EMPTY_WHY_CHOOSE_US }));
 
 const AddServiceModal = ({
   isOpen,
@@ -35,6 +37,7 @@ const AddServiceModal = ({
     documents: [],
     sequence: "",
     relatedServices: [{ category: "", subCategory: "", service: "" }],
+    whyChooseus: DEFAULT_WHY_CHOOSE_US.map((item) => ({ ...item })),
   });
   const [newDocuments, setNewDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -260,6 +263,10 @@ const AddServiceModal = ({
               service: s._id || s || ""
             }))
             : [{ category: "", subCategory: "", service: "" }],
+          whyChooseus: Array.from({ length: 4 }, (_, i) => ({
+            title: editingService.whyChooseus?.[i]?.title || "",
+            description: editingService.whyChooseus?.[i]?.description || "",
+          })),
         });
         setNewDocuments([]);
         setActiveDescTab(0);
@@ -653,6 +660,12 @@ const AddServiceModal = ({
         relatedServices: formData.relatedServices
           .filter(rs => rs.service)
           .map(rs => rs.service),
+        whyChooseus: formData.whyChooseus
+          .map((item) => ({
+            title: item.title?.trim() || "",
+            description: item.description?.trim() || "",
+          }))
+          .filter((item) => item.title || item.description),
       };
 
       // Validate at least one description tab has content
@@ -679,6 +692,7 @@ const AddServiceModal = ({
       formPayload.append("documents", JSON.stringify(submitData.documents));
       formPayload.append("sequence", submitData.sequence);
       formPayload.append("relatedServices", JSON.stringify(submitData.relatedServices));
+      formPayload.append("whyChooseus", JSON.stringify(submitData.whyChooseus));
 
       newDocuments.forEach((file) => {
         formPayload.append("documents", file);
@@ -723,6 +737,7 @@ const AddServiceModal = ({
       documents: [],
       sequence: "",
       relatedServices: [{ category: "", subCategory: "", service: "" }],
+      whyChooseus: DEFAULT_WHY_CHOOSE_US.map((item) => ({ ...item })),
     });
     setNewDocuments([]);
 
@@ -1322,20 +1337,6 @@ const AddServiceModal = ({
                       {desc.tabs?.trim() || `Tab ${index + 1}`}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        description: [...prev.description, { ...EMPTY_DESCRIPTION_TAB }],
-                      }));
-                      setActiveDescTab(formData.description.length);
-                    }}
-                    className="px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-t-lg flex items-center gap-1"
-                    disabled={!formData.subCategory}
-                  >
-                    <MdAdd /> Add Tab
-                  </button>
                 </div>
 
                 {/* Active tab content */}
@@ -1392,6 +1393,20 @@ const AddServiceModal = ({
                     />
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: [...prev.description, { ...EMPTY_DESCRIPTION_TAB }],
+                    }));
+                    setActiveDescTab(formData.description.length);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-3"
+                  disabled={!formData.subCategory}
+                >
+                  <MdAdd /> Add Tab
+                </button>
               </div>
             </div>
 
@@ -1529,21 +1544,68 @@ const AddServiceModal = ({
                           <MdDelete className="w-5 h-5" />
                         </button>
                       )}
-                      {index === formData.relatedServices.length - 1 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              relatedServices: [...prev.relatedServices, { category: "", subCategory: "", service: "" }],
-                            }));
-                          }}
-                          className="p-2 text-blue-500 hover:text-blue-600 border border-blue-200 hover:bg-blue-50 rounded-lg bg-white"
-                        >
-                          <MdAdd className="w-5 h-5" />
-                        </button>
-                      )}
                     </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    relatedServices: [...prev.relatedServices, { category: "", subCategory: "", service: "" }],
+                  }));
+                }}
+                disabled={!formData.subCategory}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm mt-3"
+              >
+                <MdAdd /> Add Related Service
+              </button>
+            </div>
+
+            {/* Section 8: Why Choose Us */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-5">
+              <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">
+                Why Choose Us
+              </h3>
+              <p className="text-sm text-gray-500">
+                Configure 4 cards shown at the bottom of the service details page.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {formData.whyChooseus.map((card, index) => (
+                  <div
+                    key={index}
+                    className="space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <span className="text-sm font-semibold text-gray-700">Card {index + 1}</span>
+                    <input
+                      type="text"
+                      value={card.title}
+                      onChange={(e) => {
+                        setFormData((prev) => {
+                          const updated = [...prev.whyChooseus];
+                          updated[index] = { ...updated[index], title: e.target.value };
+                          return { ...prev, whyChooseus: updated };
+                        });
+                      }}
+                      placeholder="Card title"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      disabled={!formData.subCategory}
+                    />
+                    <textarea
+                      rows="3"
+                      value={card.description}
+                      onChange={(e) => {
+                        setFormData((prev) => {
+                          const updated = [...prev.whyChooseus];
+                          updated[index] = { ...updated[index], description: e.target.value };
+                          return { ...prev, whyChooseus: updated };
+                        });
+                      }}
+                      placeholder="Card description"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      disabled={!formData.subCategory}
+                    />
                   </div>
                 ))}
               </div>

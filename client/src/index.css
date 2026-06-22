@@ -147,8 +147,8 @@ iframe {
 }
 
 .service-detail-content th {
-  background: #f1f6ff !important;
-  color: var(--primary) !important;
+  background: #f8f9fa !important;
+  color: #111827 !important;
   font-weight: 800 !important;
   text-align: center !important;
   letter-spacing: 0 !important;

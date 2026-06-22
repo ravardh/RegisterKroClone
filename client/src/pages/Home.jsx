@@ -12,6 +12,10 @@ import SEOHelmet from "../components/SEOHelmet";
 import WhyChooseUsSection from "../components/WhyChooseUsSection";
 import PromoBanner from "../components/PromoBanner";
 import { useAppData } from "../context/DataContext";
+import axios from "../config/api";
+
+const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+const assetUrl = (p) => (p ? `${backendBase}${p.startsWith("/") ? p : `/${p}`}` : "");
 
 const Home = () => {
   const homeSchemaData = {
@@ -42,6 +46,7 @@ const Home = () => {
 
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+  const [specialOffer, setSpecialOffer] = useState(null);
 
   const { categories: allCategoriesData, featuredServices: featuredData, reviews: reviewsData, isDataLoaded } = useAppData();
 
@@ -65,6 +70,22 @@ const Home = () => {
       setIsLoadingReviews(false);
     }
   }, [reviewsData, isDataLoaded]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchSpecialOffer = async () => {
+      try {
+        const res = await axios.get("/public/special-offer");
+        if (!cancelled) {
+          setSpecialOffer(res.data.data || null);
+        }
+      } catch {
+        if (!cancelled) setSpecialOffer(null);
+      }
+    };
+    fetchSpecialOffer();
+    return () => { cancelled = true; };
+  }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [servicesPerPage, setServicesPerPage] = useState(3);
@@ -152,8 +173,18 @@ const Home = () => {
 
   return (
     <>
-      {/* Floating promotional banner — renders only when /img/img.jpeg exists */}
-      <PromoBanner imageSrc="/img/img.jpeg" alt="Special Festival Offer" delay={1200} />
+      {specialOffer?.imageUrl && (
+        <PromoBanner
+          imageSrc={assetUrl(specialOffer.imageUrl)}
+          alt={specialOffer.alt}
+          badgeText={specialOffer.badgeText}
+          tabLabel={specialOffer.tabLabel}
+          tagline={specialOffer.tagline}
+          ctaText={specialOffer.ctaText}
+          ctaLink={specialOffer.ctaLink}
+          delay={specialOffer.delay ?? 1200}
+        />
+      )}
 
       <SEOHelmet
         title="TaxProSolution - Get Your Business Registered in 7 Days"

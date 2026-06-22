@@ -46,7 +46,6 @@ const Footer = () => {
         { label: "Business Search", to: "/services" },
         { label: "Track Application", to: "/trackStatus" },
         { label: "Events & Webinars", to: "/events-webinars" },
-        { label: "Developer Resources", to: "/about" },
       ],
     },
     {
@@ -65,6 +64,7 @@ const Footer = () => {
         { label: "Disclaimer Policy", to: "/disclaimer" },
         { label: "Sitemap", to: "/sitemap" },
         { label: "Feedback", to: "/feedback" },
+        { label: "Employee Login", to: "/login" },
       ],
     },
   ];

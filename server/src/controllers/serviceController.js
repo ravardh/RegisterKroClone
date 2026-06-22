@@ -79,6 +79,18 @@ const sanitizeFaqs = (faqs) => {
     .filter((faq) => faq.question && faq.answer);
 };
 
+const sanitizeWhyChooseUs = (whyChooseUsInput) => {
+  const items = parseMaybeJson(whyChooseUsInput, []);
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items.slice(0, 4).map((item) => ({
+    title: item?.title?.trim() || "",
+    description: item?.description?.trim() || "",
+  })).filter((item) => item.title || item.description);
+};
+
 // Service Management
 export const getAllServices = async (req, res, next) => {
   try {
@@ -112,6 +124,7 @@ export const createService = async (req, res, next) => {
     const packages = parseMaybeJson(req.body.packages, []);
     const Featured = parseMaybeJson(req.body.Featured, { isFeatured: false });
     const relatedServices = await sanitizeRelatedServices(req.body.relatedServices);
+    const whyChooseus = sanitizeWhyChooseUs(req.body.whyChooseus);
     const isActive = parseBoolean(req.body.isActive, true);
     const isVisible = parseBoolean(req.body.isVisible, true);
     const uploadedDocuments = mapUploadedDocuments(req.files);
@@ -180,6 +193,7 @@ export const createService = async (req, res, next) => {
       documents: uploadedDocuments,
       sequence: sequence || null,
       relatedServices: relatedServices || [],
+      whyChooseus,
       lastEditedBy: req.user._id,
     });
 
@@ -209,6 +223,9 @@ export const updateService = async (req, res, next) => {
     const documents = parseMaybeJson(req.body.documents, undefined);
     const relatedServices = req.body.relatedServices !== undefined
       ? await sanitizeRelatedServices(req.body.relatedServices)
+      : undefined;
+    const whyChooseus = req.body.whyChooseus !== undefined
+      ? sanitizeWhyChooseUs(req.body.whyChooseus)
       : undefined;
     const hasIsActive = req.body.isActive !== undefined;
     const hasIsVisible = req.body.isVisible !== undefined;
@@ -258,30 +275,32 @@ export const updateService = async (req, res, next) => {
       ? [...documents, ...uploadedDocuments]
       : [...(existingService.documents || []), ...uploadedDocuments];
 
-    const updatedService = await Service.findByIdAndUpdate(
-      id,
-      {
-        category: category || existingService.category,
-        subCategory: subCategory || existingService.subCategory,
-        serviceName: serviceName || existingService.serviceName,
-        OneLinner: OneLinner || existingService.OneLinner,
-        priceTag: priceTag || existingService.priceTag,
-        shortDescription: shortDescription || existingService.shortDescription,
-        topPointers: topPointers !== undefined ? topPointers : existingService.topPointers,
-        description: description !== undefined ? description : existingService.description,
-        faqs: sanitizedFaqs,
-        packages: packages !== undefined ? packages : existingService.packages,
-        isActive: hasIsActive ? parsedIsActive : existingService.isActive,
-        isVisible: hasIsVisible ? parsedIsVisible : existingService.isVisible,
-        Featured: Featured || existingService.Featured,
-        offer: offer !== undefined ? offer : existingService.offer,
-        sequence: sequence !== undefined ? sequence : existingService.sequence,
-        documents: finalDocuments,
-        relatedServices: relatedServices !== undefined ? relatedServices : existingService.relatedServices,
-        lastEditedBy: req.user.id,
-      },
-      { new: true, runValidators: true }
-    )
+    if (category) existingService.category = category;
+    if (subCategory) existingService.subCategory = subCategory;
+    if (serviceName) existingService.serviceName = serviceName;
+    if (OneLinner) existingService.OneLinner = OneLinner;
+    if (priceTag) existingService.priceTag = priceTag;
+    if (shortDescription) existingService.shortDescription = shortDescription;
+    if (topPointers !== undefined) existingService.topPointers = topPointers;
+    if (description !== undefined) existingService.description = description;
+    existingService.faqs = sanitizedFaqs;
+    if (packages !== undefined) existingService.packages = packages;
+    if (hasIsActive) existingService.isActive = parsedIsActive;
+    if (hasIsVisible) existingService.isVisible = parsedIsVisible;
+    if (Featured) existingService.Featured = Featured;
+    if (offer !== undefined) existingService.offer = offer;
+    if (sequence !== undefined) existingService.sequence = sequence;
+    existingService.documents = finalDocuments;
+    if (relatedServices !== undefined) existingService.relatedServices = relatedServices;
+    if (whyChooseus !== undefined) {
+      existingService.whyChooseus = whyChooseus;
+      existingService.markModified("whyChooseus");
+    }
+    existingService.lastEditedBy = req.user.id;
+
+    await existingService.save();
+
+    const updatedService = await Service.findById(id)
       .populate("category", "name")
       .populate("subCategory", "name")
       .populate("lastEditedBy", "fullName email");

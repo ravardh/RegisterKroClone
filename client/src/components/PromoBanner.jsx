@@ -19,6 +19,11 @@ import React, { useState, useEffect, useCallback } from "react";
 const PromoBanner = ({
   imageSrc = "/img/img.jpeg",
   alt = "Special Offer",
+  badgeText = "🎉 Special Offer",
+  tabLabel = "🎉 Offer",
+  tagline = "Limited time deal — don't miss it!",
+  ctaText = "Explore Now",
+  ctaLink = "/services",
   delay = 1000,
 }) => {
   const [mounted, setMounted]         = useState(false);  // DOM presence
@@ -107,7 +112,7 @@ const PromoBanner = ({
           >
             {/* Vertical label on the peek strip */}
             <span className="promo-peek-banner__tab-label" aria-hidden="true">
-              🎉 Offer
+              {tabLabel}
             </span>
             {/* Arrow chevron pointing left (inviting click) */}
             <svg
@@ -157,7 +162,7 @@ const PromoBanner = ({
 
           {/* Festive badge */}
           <div className="promo-peek-banner__badge" aria-hidden="true">
-            🎉 Special Offer
+            {badgeText}
           </div>
 
           {/* Banner image */}
@@ -174,14 +179,14 @@ const PromoBanner = ({
           {/* CTA row */}
           <div className="promo-peek-banner__footer">
             <p className="promo-peek-banner__tagline">
-              Limited time deal — don't miss it!
+              {tagline}
             </p>
             <a
-              href="/services"
+              href={ctaLink}
               className="promo-peek-banner__cta"
               id="promo-banner-cta-link"
             >
-              Explore Now
+              {ctaText}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"

@@ -5,6 +5,7 @@ import multer from "multer";
 const uploadDir = path.join(process.cwd(), "uploads", "service-documents");
 const blogImagesDir = path.join(process.cwd(), "uploads", "blog-images");
 const teamImagesDir = path.join(process.cwd(), "uploads", "team-images");
+const offerImagesDir = path.join(process.cwd(), "uploads", "offer-images");
 const resumesDir = path.join(process.cwd(), "uploads", "resumes");
 
 if (!fs.existsSync(uploadDir)) {
@@ -15,6 +16,9 @@ if (!fs.existsSync(blogImagesDir)) {
 }
 if (!fs.existsSync(teamImagesDir)) {
   fs.mkdirSync(teamImagesDir, { recursive: true });
+}
+if (!fs.existsSync(offerImagesDir)) {
+  fs.mkdirSync(offerImagesDir, { recursive: true });
 }
 if (!fs.existsSync(resumesDir)) {
   fs.mkdirSync(resumesDir, { recursive: true });
@@ -112,6 +116,29 @@ const teamImageUpload = multer({
 });
 
 export const uploadTeamImage = teamImageUpload.single("image");
+
+const offerImageStorage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, offerImagesDir),
+  filename: (_, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path
+      .basename(file.originalname, ext)
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9-_]/g, "");
+    cb(null, `${Date.now()}-${base || "offer"}${ext}`);
+  },
+});
+
+const offerImageUpload = multer({
+  storage: offerImageStorage,
+  fileFilter: imageFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+  },
+});
+
+export const uploadOfferImage = offerImageUpload.single("image");
 
 const resumeStorage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, resumesDir),

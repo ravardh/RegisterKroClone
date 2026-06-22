@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "../../config/api";
 import toast from "react-hot-toast";
 import { FaEdit, FaCheckCircle, FaDownload } from "react-icons/fa";
-import * as XLSX from "xlsx";
+import writeExcelFile from "write-excel-file/browser";
 import { useTable } from "../../hooks/useTable";
 import { SortableHeader, TablePagination, SearchBar } from "./TableComponents";
 import clsx from "clsx";
@@ -137,7 +137,7 @@ const LeadsManage = () => {
     (lead) => filterStage === "all" || getCurrentStage(lead) === filterStage
   );
 
-  const handleDownloadExcel = () => {
+  const handleDownloadExcel = async () => {
     const exportLeads = leads.filter((lead) => {
       if (exportStage !== "all" && getCurrentStage(lead) !== exportStage) return false;
       if (exportStartDate || exportEndDate) {
@@ -169,11 +169,13 @@ const LeadsManage = () => {
       "Close Remarks": lead.closeRemarks || "",
       "Created At": lead.createdAt ? new Date(lead.createdAt).toLocaleString() : "",
     }));
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    const headers = Object.keys(rows[0]);
+    const sheetData = [
+      headers,
+      ...rows.map((row) => headers.map((key) => row[key] ?? "")),
+    ];
     const fileName = `Leads_${exportStartDate || "all"}_to_${exportEndDate || "all"}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    await writeExcelFile(sheetData, { sheet: "Leads" }).toFile(fileName);
     toast.success(`Exported ${exportLeads.length} lead(s)`);
     setIsExportModalOpen(false);
     setExportStartDate("");

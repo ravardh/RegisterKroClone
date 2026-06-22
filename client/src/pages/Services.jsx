@@ -79,7 +79,10 @@ const Services = () => {
 
   // When active subcategory changes → load its services
   useEffect(() => {
-    if (!activeSubCategory) return;
+    if (!activeSubCategory) {
+      setServices([]);
+      return;
+    }
     setServices(servicesData[activeSubCategory._id] || []);
   }, [activeSubCategory, servicesData]);
 
@@ -328,22 +331,27 @@ const Services = () => {
                         {activeSubCategory?.name || activeCategory?.name}
                       </h2>
                       <p className="text-sm text-gray-500">
-                        {services.length} service
-                        {services.length !== 1 ? "s" : ""} available
+                        {subCategories.length === 0
+                          ? "No services available"
+                          : `${services.length} service${services.length !== 1 ? "s" : ""} available`}
                       </p>
                     </div>
                   </div>
 
                   <AnimatePresence mode="wait">
                     <motion.div
-                      key={activeSubCategory?._id}
+                      key={activeSubCategory?._id || activeCategory?._id || "empty"}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.22 }}
                       className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
                     >
-                      {services.length === 0 ? (
+                      {subCategories.length === 0 ? (
+                        <div className="col-span-full text-center py-20 text-gray-400">
+                          No subcategories or services available yet.
+                        </div>
+                      ) : services.length === 0 ? (
                         <div className="col-span-full text-center py-20 text-gray-400">
                           No services in this subcategory yet.
                         </div>
