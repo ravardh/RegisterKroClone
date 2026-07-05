@@ -644,6 +644,48 @@ iframe {
 
 
 /* ═══════════════════════════════════════════════════════════
+   Home — Testimonials auto-scroll marquee
+   ═══════════════════════════════════════════════════════════ */
+
+.testimonial-viewport {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+
+@keyframes testimonial-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.testimonial-track {
+  display: flex;
+  width: max-content;
+  animation: testimonial-marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.testimonial-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-track {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    Peek-from-right Promotional / Festival Banner
    ═══════════════════════════════════════════════════════════ */
 
