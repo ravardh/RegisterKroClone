@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoMenuSharp, IoClose, IoSearch } from "react-icons/io5";
+import { IoMenuSharp, IoClose } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import CommonData from "../assets/common.json";
+import toast from "react-hot-toast";
 import ServiceModal from "./ServiceModal.jsx";
 import { useAppData } from "../context/DataContext";
+import { useAuth } from "../context/AuthContext.jsx";
+import axios from "../config/api";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,26 +17,35 @@ const Header = () => {
     useState(null);
   const [mobileSubCategories, setMobileSubCategories] = useState([]);
   const [mobileServices, setMobileServices] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [allCategories, setAllCategories] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [subCategories, setSubCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState(null);
-  const [allServices, setAllServices] = useState([]);
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [isOtherServicesOpen, setIsOtherServicesOpen] = useState(false);
   const headerRef = useRef(null);
-  const searchDropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname.includes("Dashboard");
 
   const {
+    user,
+    isLoggedIn,
+    isAdmin,
+    isSuperAdmin,
+    isRM,
+    isBlogger,
+    setUser,
+    setIsLoggedIn,
+    setIsAdmin,
+    setIsRM,
+    setIsBlogger,
+  } = useAuth();
+
+  const {
     categories: allCategoriesData,
     subCategories: subCategoriesData,
     services: servicesData,
-    allServices: allServicesData,
   } = useAppData();
 
   // Get main categories (header order 1-5)
@@ -52,45 +63,6 @@ const Header = () => {
       return !isNaN(order) && order > 5;
     })
     .sort((a, b) => parseInt(a.headerOrder) - parseInt(b.headerOrder));
-
-  // Sync all services from DataContext
-  useEffect(() => {
-    if (allServicesData.length > 0) {
-      setAllServices(allServicesData);
-    }
-  }, [allServicesData]);
-
-  // Close search dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        searchDropdownRef.current &&
-        !searchDropdownRef.current.contains(event.target)
-      ) {
-        setIsSearchDropdownOpen(false);
-      }
-    };
-
-    if (isSearchDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isSearchDropdownOpen]);
-
-  // Filter services based on search query
-  const filteredSearchServices = allServices.filter(
-    (service) =>
-      service.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.category?.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      service.subCategory?.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-  );
 
   // Sync categories from DataContext
   useEffect(() => {
@@ -214,6 +186,34 @@ const Header = () => {
     setMobileExpandedSubcategory(null);
   };
 
+  const getDashboardLink = () => {
+    if (isSuperAdmin) return "/superAdminDashboard";
+    if (isAdmin) return "/managerDashboard";
+    if (isBlogger) return "/bloggerDashboard";
+    if (isRM) return "/rmDashboard";
+    return "/";
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("/auth/logout");
+      sessionStorage.removeItem("user");
+      setUser(null);
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      setIsRM(false);
+      setIsBlogger(false);
+      setIsMenuOpen(false);
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to logout");
+    }
+  };
+
+  const closeMobileMenu = () => setIsMenuOpen(false);
+
   const filteredOtherServices = otherCategories;
 
   return (
@@ -222,7 +222,7 @@ const Header = () => {
         ref={headerRef}
         className={`sticky z-50  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
           ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px] w-full max-w-none"
-          : "bg-white top-[34px] sm:top-[45px] rounded-2xl mb-4 shadow-xl w-full"
+          : "bg-white top-[60px] sm:top-[70px] rounded-2xl mb-4 shadow-xl w-full"
           }`}
       >
         <div
@@ -232,18 +232,7 @@ const Header = () => {
             } `}
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
-            {/* Logo */}
-            <div className="shrink-0 min-w-0">
-              <Link to="/" className="inline-flex items-center">
-                <img
-                  src="/taxpro-logo-rect.webp"
-                  alt={CommonData.companyName}
-                  className="site-logo"
-                />
-              </Link>
-            </div>
-
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Left Justified */}
             <nav
               className="hidden md:flex space-x-2 lg:space-x-3 items-center"
               onMouseLeave={closeDesktopMenus}
@@ -382,62 +371,22 @@ const Header = () => {
               )} */}
             </nav>
 
-            {/* Search Bar */}
-            <div className="relative hidden md:block" ref={searchDropdownRef}>
-              <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-                <IoSearch className="text-gray-500 mr-2" />
-                <input
-                  type="text"
-                  placeholder="Search services..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setIsSearchDropdownOpen(true);
-                  }}
-                  onFocus={() => {
-                    if (searchQuery.trim()) {
-                      setIsSearchDropdownOpen(true);
-                    }
-                  }}
-                  className="bg-gray-100 outline-none text-xs w-24 md:w-32 lg:w-60 min-w-0 text-(--text)"
-                />
-              </div>
-
-              {/* Search Results Dropdown */}
-              {isSearchDropdownOpen && searchQuery.trim() && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
-                  {filteredSearchServices.length > 0 ? (
-                    filteredSearchServices.map((service) => (
-                      <button
-                        key={service._id}
-                        onClick={() => {
-                          navigate(`/service/${service._id}`);
-                          setSearchQuery("");
-                          setIsSearchDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text) transition-colors"
-                      >
-                        <div className="font-semibold text-(--primary)">
-                          {service.serviceName}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {service.category?.name} → {service.subCategory?.name}
-                        </div>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-sm text-gray-500">
-                      No services found
-                    </div>
-                  )}
-                </div>
-              )}
+            {/* Track Status — desktop */}
+            <div className="hidden md:block">
+              <Link
+                to="/trackStatus"
+                className="bg-(--primary) text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-(--primary)/90 transition-colors duration-200 whitespace-nowrap"
+              >
+                Track Status
+              </Link>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile: menu left, Track Status right */}
             <button
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 sm:p-2 rounded-md text-gray-700 hover:text-(--primary) hover:bg-gray-100"
+              className="rounded-md p-1.5 text-gray-700 hover:bg-gray-100 hover:text-(--primary) sm:p-2 md:hidden"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? (
                 <IoClose className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -445,6 +394,13 @@ const Header = () => {
                 <IoMenuSharp className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
+
+            <Link
+              to="/trackStatus"
+              className="bg-(--primary) px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg text-white transition-colors duration-200 hover:bg-(--primary)/90 sm:px-3 sm:text-sm md:hidden"
+            >
+              Track Status
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -453,60 +409,6 @@ const Header = () => {
               className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[min(85dvh,calc(100svh-9rem))] overflow-y-auto overscroll-y-contain scroll-touch touch-pan-y"
             >
               <div className="flex flex-col p-4 space-y-2 pb-6">
-                {/* Mobile Search */}
-                <div className="relative mb-2">
-                  <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-                    <IoSearch className="text-gray-500 mr-2" />
-                    <input
-                      type="text"
-                      placeholder="Search services..."
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setIsSearchDropdownOpen(true);
-                      }}
-                      className="bg-gray-100 outline-none text-sm flex-1 text-(--text)"
-                    />
-                  </div>
-
-                  {isSearchDropdownOpen &&
-                    searchQuery.trim() &&
-                    filteredSearchServices.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
-                        {filteredSearchServices.map((service) => (
-                          <button
-                            key={service._id}
-                            onClick={() => {
-                              navigate(`/service/${service._id}`);
-                              setSearchQuery("");
-                              setIsSearchDropdownOpen(false);
-                              setIsMenuOpen(false);
-                            }}
-                            className="w-full text-left px-4 py-2.5 hover:bg-blue-50 border-b last:border-b-0 text-sm text-(--text)"
-                          >
-                            <div className="font-semibold text-(--primary) text-xs">
-                              {service.serviceName}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {service.category?.name} →{" "}
-                              {service.subCategory?.name}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                </div>
-
-                {/* Mobile Static Links */}
-                <div className="flex flex-col border-b border-gray-200 pb-2 mb-2 space-y-1">
-                  <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Home</Link>
-                  <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">About</Link>
-                  <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Contact</Link>
-                  <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Blog</Link>
-                  <Link to="/trackStatus" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm">Track Status</Link>
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="text-(--primary) hover:bg-gray-50 font-bold px-3 py-2 rounded-md text-sm">Login / Account</Link>
-                </div>
-
                 {/* Mobile Tabs */}
                 {mainCategories.map((category) => (
                   <div key={category._id} className="flex flex-col">
@@ -571,11 +473,64 @@ const Header = () => {
                   <Link
                     to="/services"
                     className="text-gray-700 hover:text-(--primary) hover:bg-gray-50 font-medium px-3 py-2 rounded-md text-sm"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     Other Services
                   </Link>
                 )}
+
+                {/* Divider + Top Header links (mobile only) */}
+                <div className="my-2 border-t border-gray-200" aria-hidden />
+
+                <nav className="flex flex-col space-y-1">
+                  <Link
+                    to="/about"
+                    onClick={closeMobileMenu}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary)"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    to="/services"
+                    onClick={closeMobileMenu}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary)"
+                  >
+                    Services
+                  </Link>
+                  <Link
+                    to="/contact"
+                    onClick={closeMobileMenu}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary)"
+                  >
+                    Contact Us
+                  </Link>
+                  <Link
+                    to="/blog"
+                    onClick={closeMobileMenu}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary)"
+                  >
+                    Blog
+                  </Link>
+
+                  {isLoggedIn && (
+                    <>
+                      <Link
+                        to={getDashboardLink()}
+                        onClick={closeMobileMenu}
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary)"
+                      >
+                        {user?.fullName || user?.email || "Dashboard"}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  )}
+                </nav>
               </div>
             </div>
           )}

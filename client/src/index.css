@@ -989,7 +989,7 @@ iframe {
   }
 }
 
-/* ── Mobile (< 640px): bottom sheet, 25% visible ── */
+/* ── Mobile (< 640px): bottom sheet — tab peeks, tap opens full offer ── */
 @media (max-width: 639px) {
   .promo-peek-banner {
     top: auto;
@@ -997,51 +997,79 @@ iframe {
     right: 0;
     left: 0;
     width: 100%;
+    max-height: min(85dvh, 640px);
     border-radius: 1rem 1rem 0 0;
-    flex-direction: column-reverse;
+    /* Tab first in DOM = on top. translateY hides panel below, leaves tab visible. */
+    flex-direction: column;
     translate: 0 0;
+    transform: translateY(calc(100% - 56px));
   }
 
   .promo-peek-banner--peeking {
-    animation: promo-mobile-peek-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-               promo-mobile-nudge 3.5s ease-in-out 0.8s infinite;
+    animation: promo-mobile-peek-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               promo-mobile-nudge 3.2s ease-in-out 0.7s infinite;
   }
 
   .promo-peek-banner--expanded {
-    animation: none;
-    transform: translateY(0);
+    animation: none !important;
+    transform: translateY(0) !important;
   }
 
+  /* Reveal only the top tab strip (~56px) */
   @keyframes promo-mobile-peek-in {
     from { transform: translateY(100%); }
-    to   { transform: translateY(75%); }   /* 25% visible at bottom */
+    to   { transform: translateY(calc(100% - 56px)); }
   }
 
   @keyframes promo-mobile-nudge {
-    0%,  100% { transform: translateY(75%); }
-    40%        { transform: translateY(70%); }
+    0%, 100% { transform: translateY(calc(100% - 56px)); }
+    40%      { transform: translateY(calc(100% - 64px)); }
   }
 
   .promo-peek-banner__tab {
     width: 100%;
-    height: 52px;
+    height: 56px;
     flex-direction: row;
     writing-mode: horizontal-tb;
     border-radius: 1rem 1rem 0 0;
+    pointer-events: auto;
+    touch-action: manipulation;
+    gap: 0.65rem;
+    z-index: 3;
   }
 
   .promo-peek-banner__tab-label {
     writing-mode: horizontal-tb;
     transform: none;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
   }
 
+  /* Point arrow UP to invite opening */
   .promo-peek-banner__tab-arrow {
-    transform: rotate(90deg);
+    width: 20px;
+    height: 20px;
+    animation: promo-mobile-tab-arrow-bounce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes promo-mobile-tab-arrow-bounce {
+    0%, 100% { transform: rotate(90deg) translateX(0); }
+    50%      { transform: rotate(90deg) translateX(5px); }
+  }
+
+  .promo-peek-banner__panel {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .promo-peek-banner__img-wrap {
-    max-height: 40vw;
+    max-height: 38vh;
+    min-height: 140px;
+  }
+
+  .promo-peek-banner:not(.promo-peek-banner--expanded) .promo-peek-banner__panel {
+    pointer-events: none;
   }
 }
 
@@ -1065,6 +1093,15 @@ iframe {
   .promo-peek-banner__tab-arrow,
   .promo-peek-banner__img-shimmer::after {
     animation: none !important;
+  }
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: reduce) {
+  .promo-peek-banner--peeking {
+    transform: translateY(calc(100% - 56px)) !important;
+  }
+  .promo-peek-banner--expanded {
+    transform: translateY(0) !important;
   }
 }
 

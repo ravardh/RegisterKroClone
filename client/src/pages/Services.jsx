@@ -42,7 +42,7 @@ const Services = () => {
   } = useAppData();
 
   const stats = [
-    { number: "5000+", label: "Happy Clients" },
+    { number: "2000+", label: "Happy Clients" },
     { number: "50+", label: "Expert Team" },
     { number: "98%", label: "Success Rate" },
     { number: "15+", label: "Years Experience" },

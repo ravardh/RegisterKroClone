@@ -1,0 +1,71 @@
+import React from "react";
+import { FaPhoneAlt } from "react-icons/fa";
+import { FaArrowRightLong } from "react-icons/fa6";
+import { IoMdStar } from "react-icons/io";
+import { Link } from "react-router-dom";
+import commondata from "../../assets/common.json";
+
+const heroStats = [
+  { value: "2000+", label: "Businesses Served" },
+  { value: "4.8", label: "Average Rating" },
+  { value: "7 Days", label: "Avg. Turnaround" },
+  { value: "98%", label: "Success Rate" },
+];
+
+const HeroSection = () => {
+  return (
+    <section className="relative -mt-20 overflow-hidden bg-linear-to-b from-[color-mix(in_srgb,var(--brand-pale)_60%,white)] via-white to-white sm:-mt-24">
+      <div
+        className="pointer-events-none absolute -top-10 -right-16 h-80 w-80 rounded-full bg-(--primary)/15 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute top-40 -left-24 h-72 w-72 rounded-full bg-(--brand-light)/25 blur-3xl"
+        aria-hidden
+      />
+
+      <div className="container relative mx-auto px-6 pt-28 pb-16 text-center sm:px-12 sm:pt-32 md:px-20 md:pt-40 md:pb-20 lg:px-32">
+        <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-(--primary)/20 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-(--primary) shadow-sm backdrop-blur-sm">
+          <IoMdStar className="text-sm" />
+          Trusted by 2000+ businesses
+        </span>
+
+        <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-(--brand-ink) sm:text-5xl md:text-6xl">
+          Launch Your Business in Just{" "}
+          <span className="bg-linear-to-r from-(--primary) to-(--accent) bg-clip-text text-transparent">
+            7 Days
+          </span>
+        </h1>
+
+        <p className="mx-auto mt-5 max-w-2xl text-base text-(--secondary) sm:text-lg md:text-xl">
+          Fast, reliable, and tailored online business solutions with free expert
+          consultation—from registration to compliance, we handle it all.
+        </p>
+
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-2 rounded-2xl bg-(--primary) px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-(--primary)/30 transition hover:bg-(--primary-hover) hover:shadow-xl sm:text-base"
+          >
+            Get Started <FaArrowRightLong className="h-4 w-4" />
+          </Link>
+          
+        </div>
+
+        <div className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-3 sm:mt-14 sm:grid-cols-4 sm:gap-4">
+          {heroStats.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-(--primary)/10 bg-white/80 px-4 py-4 shadow-sm backdrop-blur-sm"
+            >
+              <p className="text-2xl font-extrabold text-(--primary) sm:text-3xl">{stat.value}</p>
+              <p className="mt-1 text-xs text-(--secondary) sm:text-sm">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;

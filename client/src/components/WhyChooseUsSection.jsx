@@ -57,7 +57,7 @@ const reasons = [
 ];
 
 const stats = [
-  { value: "5000+", label: "Happy Clients" },
+  { value: "2000+", label: "Happy Clients" },
   { value: "98%", label: "Success Rate" },
   { value: "50+", label: "Expert Team" },
   { value: "7 Days", label: "Avg. Turnaround" },

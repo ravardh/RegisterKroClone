@@ -21,7 +21,7 @@ import {
 } from "react-icons/fa";
 
 const highlights = [
-  { icon: FaUsers, value: "5000+", label: "Happy Clients" },
+  { icon: FaUsers, value: "2000+", label: "Happy Clients" },
   { icon: FaChartLine, value: "98%", label: "Success Rate" },
   { icon: FaShieldAlt, value: "50+", label: "Expert Team" },
 ];
