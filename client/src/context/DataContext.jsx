@@ -12,78 +12,82 @@ export const DataProvider = ({ children }) => {
   const [reviews, setReviews] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [featuredLoaded, setFeaturedLoaded] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
+  // Critical nav + home data in one parallel burst
   useEffect(() => {
+    let cancelled = false;
+
     const initializeData = async () => {
       try {
-        const [categoriesRes, subCategoriesRes, servicesRes] =
-          await Promise.all([
-            axiosInstance.get("/public/categories"),
-            axiosInstance.get("/public/subcategories-grouped"),
-            axiosInstance.get("/public/services-grouped"),
-          ]);
+        const [
+          categoriesRes,
+          subCategoriesRes,
+          servicesRes,
+          featuredRes,
+          reviewsRes,
+        ] = await Promise.all([
+          axiosInstance.get("/public/categories"),
+          axiosInstance.get("/public/subcategories-grouped"),
+          axiosInstance.get("/public/services-grouped"),
+          axiosInstance
+            .get("/public/services/featured")
+            .catch(() => ({ data: { data: [] } })),
+          axiosInstance
+            .get("/public/feedback")
+            .catch(() => ({ data: { data: [] } })),
+        ]);
+
+        if (cancelled) return;
 
         setCategories(categoriesRes.data.data || []);
         setSubCategories(subCategoriesRes.data.data || {});
         setServices(servicesRes.data.data || {});
-
-        try {
-          const teamRes = await axiosInstance.get("/public/team");
-          setTeamMembers(teamRes.data.data || []);
-        } catch (teamErr) {
-          console.error("Failed to fetch team:", teamErr);
-        }
-
+        setFeaturedServices(featuredRes.data.data || []);
+        setReviews(reviewsRes.data.data || []);
+        setFeaturedLoaded(true);
+        setReviewsLoaded(true);
         setIsDataLoaded(true);
+
+        // Non-critical: load after first paint / when idle
+        const loadDeferred = () => {
+          axiosInstance
+            .get("/public/team")
+            .then((teamRes) => {
+              if (!cancelled) setTeamMembers(teamRes.data.data || []);
+            })
+            .catch((teamErr) => console.error("Failed to fetch team:", teamErr));
+
+          axiosInstance
+            .get("/public/services")
+            .then((response) => {
+              if (!cancelled) setAllServices(response.data.data || []);
+            })
+            .catch((error) =>
+              console.error("Failed to fetch all services:", error)
+            );
+        };
+
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+          window.requestIdleCallback(loadDeferred, { timeout: 2500 });
+        } else {
+          setTimeout(loadDeferred, 800);
+        }
       } catch (error) {
         console.error("Error initializing app data:", error);
-        setIsDataLoaded(true); // Still mark as loaded so UI doesn't hang
+        if (!cancelled) {
+          setFeaturedLoaded(true);
+          setReviewsLoaded(true);
+          setIsDataLoaded(true);
+        }
       }
     };
 
     initializeData();
-  }, []);
-
-  // Fetch all services (flat list for search) - separate call
-  useEffect(() => {
-    const fetchAllServices = async () => {
-      try {
-        const response = await axiosInstance.get("/public/services");
-        setAllServices(response.data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch all services:", error);
-      }
+    return () => {
+      cancelled = true;
     };
-
-    fetchAllServices();
-  }, []);
-
-  // Fetch featured services
-  useEffect(() => {
-    const fetchFeaturedServices = async () => {
-      try {
-        const response = await axiosInstance.get("/public/services/featured");
-        setFeaturedServices(response.data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch featured services:", error);
-      }
-    };
-
-    fetchFeaturedServices();
-  }, []);
-
-  // Fetch reviews/feedback
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await axiosInstance.get("/public/feedback");
-        setReviews(response.data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch reviews:", error);
-      }
-    };
-
-    fetchReviews();
   }, []);
 
   const contextValue = {
@@ -95,6 +99,8 @@ export const DataProvider = ({ children }) => {
     reviews,
     teamMembers,
     isDataLoaded,
+    featuredLoaded,
+    reviewsLoaded,
   };
 
   return (

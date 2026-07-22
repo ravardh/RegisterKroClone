@@ -21,14 +21,13 @@ const FeaturedServicesSection = () => {
   const [featuredPaused, setFeaturedPaused] = useState(false);
   const [featuredOffset, setFeaturedOffset] = useState(220);
 
-  const { featuredServices: featuredData, isDataLoaded } = useAppData();
+  const { featuredServices: featuredData, featuredLoaded } = useAppData();
 
   useEffect(() => {
-    if (isDataLoaded) {
-      setFeaturedServices(featuredData);
-      setIsLoadingFeatured(false);
-    }
-  }, [featuredData, isDataLoaded]);
+    if (!featuredLoaded) return;
+    setFeaturedServices(featuredData || []);
+    setIsLoadingFeatured(false);
+  }, [featuredData, featuredLoaded]);
 
   useEffect(() => {
     const onResize = () => {

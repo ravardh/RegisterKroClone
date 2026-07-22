@@ -6,14 +6,13 @@ const TestimonialsSection = () => {
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
 
-  const { reviews: reviewsData, isDataLoaded } = useAppData();
+  const { reviews: reviewsData, reviewsLoaded } = useAppData();
 
   useEffect(() => {
-    if (isDataLoaded) {
-      setReviews(reviewsData);
-      setIsLoadingReviews(false);
-    }
-  }, [reviewsData, isDataLoaded]);
+    if (!reviewsLoaded) return;
+    setReviews(reviewsData || []);
+    setIsLoadingReviews(false);
+  }, [reviewsData, reviewsLoaded]);
 
   const reviewBase = (() => {
     if (!reviews.length) return [];
