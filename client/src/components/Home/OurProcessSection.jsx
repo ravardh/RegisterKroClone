@@ -47,10 +47,10 @@ const OurProcessSection = () => {
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-8 md:pb-12">
       <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
-        <h2 className="mb-3 text-center text-2xl font-bold tracking-tight text-(--brand-ink) sm:text-3xl md:text-4xl">
+        <h2 className="mb-3 text-center text-2xl font-bold tracking-tight text-(--heading) sm:text-3xl md:text-4xl">
           Our Process
         </h2>
-        <p className="mx-auto mb-4 max-w-2xl text-center text-base leading-relaxed text-(--secondary) sm:text-lg md:mb-5">
+        <p className="mx-auto mb-4 max-w-2xl text-center text-base leading-relaxed text-(--text) sm:text-lg md:mb-5">
           A simple, transparent journey—crafted around your business every step of the way.
         </p>
 
@@ -76,7 +76,7 @@ const OurProcessSection = () => {
                 fontWeight="800"
                 initial={false}
                 animate={{
-                  fill: desktopInView ? "#2b34e8" : "#E5E7EB",
+                  fill: desktopInView ? "var(--primary)" : "var(--border)",
                   opacity: desktopInView ? 0.2 : 0.45,
                 }}
                 transition={{
@@ -90,16 +90,16 @@ const OurProcessSection = () => {
             ))}
 
             {/* Empty track */}
-            <path d={PATH_D} stroke="#E5E7EB" strokeWidth="8" strokeLinecap="round" />
+            <path d={PATH_D} stroke="var(--border)" strokeWidth="8" strokeLinecap="round" />
 
             {/* Path fills on scroll */}
             <motion.path
               d={PATH_D}
-              stroke="#2b34e8"
+              stroke="var(--primary)"
               strokeWidth="8"
               strokeLinecap="round"
               fill="none"
-              style={{ filter: "drop-shadow(0 4px 8px rgba(43,52,232,0.25))" }}
+              style={{ filter: "drop-shadow(0 4px 8px rgba(0,99,176,0.25))" }}
               initial={false}
               animate={{ pathLength: desktopInView ? 1 : 0 }}
               transition={{ duration: PATH_DURATION, ease: "easeInOut" }}
@@ -119,7 +119,7 @@ const OurProcessSection = () => {
                   initial={false}
                   animate={{
                     fill: desktopInView ? "#ffffff" : "#F3F4F6",
-                    stroke: desktopInView ? "#e5e7eb" : "#D1D5DB",
+                    stroke: desktopInView ? "var(--border)" : "#D1D5DB",
                   }}
                   transition={{
                     duration: 0.4,
@@ -132,7 +132,7 @@ const OurProcessSection = () => {
                   cy={step.node.cy}
                   r="10"
                   initial={false}
-                  animate={{ fill: desktopInView ? "#16a34a" : "#9CA3AF" }}
+                  animate={{ fill: desktopInView ? "var(--success)" : "#9CA3AF" }}
                   transition={{
                     duration: 0.4,
                     ease: "easeOut",
@@ -165,8 +165,8 @@ const OurProcessSection = () => {
                 delay: desktopInView ? step.delay : 0,
               }}
             >
-              <h3 className="mb-2 text-xl font-bold text-(--brand-ink)">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-(--secondary) md:text-[15px]">
+              <h3 className="mb-2 text-xl font-bold text-(--heading)">{step.title}</h3>
+              <p className="text-sm leading-relaxed text-(--text) md:text-[15px]">
                 {step.desc}
               </p>
             </motion.div>
@@ -176,7 +176,7 @@ const OurProcessSection = () => {
         {/* Mobile vertical timeline */}
         <div ref={mobileRef} className="relative mx-auto max-w-md lg:hidden">
           <motion.div
-            className="absolute bottom-4 left-[27px] top-4 w-0.5 origin-top bg-linear-to-b from-(--primary) to-(--accent)"
+            className="absolute bottom-4 left-[27px] top-4 w-0.5 origin-top bg-gradient-to-b from-(--primary) to-(--primary-hover)"
             aria-hidden
             initial={false}
             animate={{ scaleY: mobileInView ? 1 : 0 }}
@@ -199,12 +199,12 @@ const OurProcessSection = () => {
                   delay: mobileInView ? index * 0.35 : 0,
                 }}
               >
-                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-(--primary) to-(--accent) text-xl font-extrabold text-white shadow-md shadow-(--primary)/30">
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-(--primary) to-(--primary-hover) text-xl font-extrabold text-white shadow-md shadow-(--primary)/30">
                   {step.no}
                 </div>
                 <div className="pt-1">
-                  <h3 className="mb-1.5 text-lg font-bold text-(--brand-ink)">{step.title}</h3>
-                  <p className="text-sm leading-relaxed text-(--secondary)">{step.desc}</p>
+                  <h3 className="mb-1.5 text-lg font-bold text-(--heading)">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-(--text)">{step.desc}</p>
                 </div>
               </motion.div>
             ))}

@@ -30,7 +30,7 @@ const HeroSection = () => {
           Trusted by 2000+ businesses
         </span>
 
-        <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-(--brand-ink) sm:text-5xl md:text-6xl">
+        <h1 className="mx-auto max-w-5xl text-4xl font-extrabold leading-tight tracking-tight text-(--brand-ink) sm:text-5xl md:text-6xl">
           Launch Your Business in Just{" "}
           <span className="bg-linear-to-r from-(--primary) to-(--accent) bg-clip-text text-transparent">
             7 Days

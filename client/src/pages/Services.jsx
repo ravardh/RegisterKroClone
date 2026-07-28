@@ -128,7 +128,7 @@ const Services = () => {
         structuredData={servicesSchema}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 -mt-20">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 -mt-20">
         {/* ── Hero Banner ── */}
         <div
           className="relative overflow-hidden pt-28 pb-16 px-4"
@@ -258,7 +258,7 @@ const Services = () => {
                               : {
                                   background: "#fff",
                                   color: "#374151",
-                                  border: "1px solid #e5e7eb",
+                                  border: "1px solid var(--border)",
                                 }
                           }
                         >
@@ -310,7 +310,7 @@ const Services = () => {
                                       fontWeight: 700,
                                     }
                                   : {
-                                      color: "#6b7280",
+                                      color: "var(--text-light)",
                                     }
                               }
                             >

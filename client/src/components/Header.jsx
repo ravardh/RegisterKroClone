@@ -221,8 +221,8 @@ const Header = () => {
       <header
         ref={headerRef}
         className={`sticky z-50  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
-          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-[32px] sm:top-[40px] w-full max-w-none"
-          : "bg-white top-[60px] sm:top-[70px] rounded-2xl mb-4 shadow-xl w-full"
+          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-6 sm:top-8 w-full max-w-none"
+          : "bg-white top-13 sm:top-15 rounded-2xl mb-4 shadow-xl w-full"
           }`}
       >
         <div

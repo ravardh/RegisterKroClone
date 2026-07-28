@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-/* Layout: prevent horizontal scroll; respect mobile viewports */
+/* ═══════════════════════════════════════════════════════════
+   Global Styles & Reset
+   ═══════════════════════════════════════════════════════════ */
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -18,41 +21,10 @@ body {
   overflow-x: clip;
 }
 
-img:not(.site-logo),
+img:not([class*="logo"]),
 video {
   max-width: 100%;
   height: auto;
-}
-
-.site-logo {
-  display: block;
-  width: auto;
-  max-width: min(220px, 58vw);
-  height: 2.75rem;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .site-logo {
-    max-width: 260px;
-    height: 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .site-logo {
-    max-width: 280px;
-    height: 3.25rem;
-  }
-}
-
-.site-logo--footer {
-  max-width: 280px;
-  height: 3.5rem;
-  background: #ffffff;
-  border-radius: 0.375rem;
-  padding: 0.35rem 0.65rem;
 }
 
 iframe {
@@ -71,10 +43,10 @@ iframe {
   background: transparent;
 }
 
-/*
- * Quill list markers live on li > .ql-ui::before. Sanitized/stored HTML often drops .ql-ui,
- * so restore normal bullets / numbers for those items only (does not affect items that still have .ql-ui).
- */
+/* ═══════════════════════════════════════════════════════════
+   Quill Editor Styles
+   ═══════════════════════════════════════════════════════════ */
+
 .ql-editor ul > li:not(:has(> .ql-ui)),
 .ql-editor ol > li:not(:has(> .ql-ui)) {
   list-style-position: outside !important;
@@ -106,16 +78,17 @@ iframe {
   margin-bottom: 0.2em;
 }
 
+/* Dynamic content table styling */
 .service-detail-content table {
   width: 100% !important;
   table-layout: fixed !important;
   margin: 1.25rem 0 !important;
   border-collapse: collapse !important;
-  border: 1px solid #d8e4f7 !important;
+  border: 1px solid #E5E7EB !important;
   border-radius: 0.75rem !important;
   overflow: hidden !important;
   background: #ffffff !important;
-  box-shadow: 0 10px 24px -18px rgba(13, 77, 184, 0.45) !important;
+  box-shadow: 0 10px 24px -18px rgba(0, 99, 176, 0.45) !important;
   font-size: 0.92rem !important;
   line-height: 1.35 !important;
 }
@@ -141,7 +114,7 @@ iframe {
 
 .service-detail-content th,
 .service-detail-content td {
-  border: 1px solid #d8e4f7 !important;
+  border: 1px solid #E5E7EB !important;
   padding: 0.65rem 0.85rem !important;
   vertical-align: middle !important;
 }
@@ -189,61 +162,52 @@ iframe {
   line-height: 1.35 !important;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   CSS Variables
+   ═══════════════════════════════════════════════════════════ */
+
 :root {
-  /* Tax Pro Solution brand tokens */
-  --brand-royal: #0d4db8;
-  --brand-sky: #2f7bef;
-  --brand-light: #73afff;
-  --brand-pale: #b7d4ff;
+  /* === BRAND === */
+  --primary: #0063B0;      /* Main Brand Blue */
+  --primary-hover: #004D8C;   /* Darker on Hover */
+
+  --accent: #66b1ea;   /* Lighter Brand Blue */
+
+  --secondary: #26384D;       /* Dark Navy */
+
+  --success: #2E7D32;         /* Premium Green Button */
+  --success-hover: #1B5E20;   /* Hover Green */
+
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+
+  /* === TEXT === */
+  --heading: #111111;         /* Almost Black */
+  --text: #3F4752;            /* Dark Grey (easy to read) */
+  --text-light: #6B7280;
+
+  /* === LINKS === */
+  --link: #0063B0;
+  --link-hover: #004D8C;
+
+  /* === BORDERS === */
+  --border: #E5E7EB;
+
+  /* Legacy brand variables (mapped to new colors for compatibility) */
+  --brand-royal: #0063B0;
+  --brand-sky: #0063B0;
+  --brand-light: #E5E7EB;
+  --brand-pale: #F8FAFC;
   --brand-text: #111111;
   --brand-black: #000000;
-  --brand-white: #ffffff;
-  --brand-muted: #f5f5f5;
-
-  /* App semantic tokens (used via bg-(--primary), text-(--text), etc.) */
-  --primary: var(--brand-royal);
-  --primary-light: var(--brand-light);
-  --primary-hover: #0a3e96;
-  --secondary: var(--brand-sky);
-  --background: #f9fafb;
-  --surface: var(--brand-white);
-  --text: var(--brand-text);
-  --accent: var(--brand-sky);
+  --brand-white: #FFFFFF;
+  --brand-muted: #F8FAFC;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  display: block;
-}
+/* ═══════════════════════════════════════════════════════════
+   Animation Keyframes (Keep as CSS - cannot be easily inlined)
+   ═══════════════════════════════════════════════════════════ */
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--brand-pale);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-light);
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Momentum scrolling for overflow panels on iOS (mobile nav, drawers) */
-.scroll-touch {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Our Team section — entrance + hover; respects reduced motion */
 @keyframes our-team-header-in {
   from {
     opacity: 0;
@@ -256,25 +220,13 @@ iframe {
 }
 
 @keyframes our-team-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes our-team-avatar-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.06);
-  }
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
 }
 
 .our-team-header {
@@ -312,7 +264,6 @@ iframe {
   animation: home-team-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Our Team carousel — slide pane */
 @keyframes home-team-pane-in {
   from {
     opacity: 0;
@@ -332,27 +283,6 @@ iframe {
   animation-duration: 0.45s;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .our-team-header,
-  .our-team-blob,
-  .our-team-avatar-glow {
-    animation: none;
-  }
-
-  .home-team-card {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-
-  .home-team-carousel-pane {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Why Choose Us (Home) — card entrance */
 @keyframes why-choose-rise {
   from {
     opacity: 0;
@@ -368,15 +298,6 @@ iframe {
   animation: why-choose-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .why-choose-card {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Home CTA — Call Us Now button */
 @keyframes call-cta-enter {
   from {
     opacity: 0;
@@ -389,23 +310,13 @@ iframe {
 }
 
 @keyframes call-cta-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(13, 77, 184, 0.35);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(13, 77, 184, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 99, 176, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 99, 176, 0); }
 }
 
 @keyframes call-cta-phone-ring {
-  0%,
-  100% {
-    transform: rotate(-8deg);
-  }
-  50% {
-    transform: rotate(8deg);
-  }
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
 }
 
 .call-cta-btn {
@@ -426,15 +337,6 @@ iframe {
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .call-cta-btn,
-  .call-cta-icon-wrap,
-  .call-cta-phone {
-    animation: none;
-  }
-}
-
-/* About page — creative sections */
 @keyframes about-fade-up {
   from {
     opacity: 0;
@@ -447,165 +349,58 @@ iframe {
 }
 
 @keyframes about-hero-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(3deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
 }
 
 @keyframes about-scroll-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(5px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
 }
 
 @keyframes about-float-card {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes about-image-glow {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.03);
-  }
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
 }
 
 @keyframes about-timeline-grow {
-  from {
-    transform: scaleY(0);
-    transform-origin: top;
-  }
-  to {
-    transform: scaleY(1);
-    transform-origin: top;
-  }
+  from { transform: scaleY(0); transform-origin: top; }
+  to { transform: scaleY(1); transform-origin: top; }
 }
 
-.about-animate-in {
-  animation: about-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
+.about-animate-in { animation: about-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-animate-in--delay-1 { animation-delay: 0.1s; }
+.about-animate-in--delay-2 { animation-delay: 0.2s; }
+.about-animate-in--delay-3 { animation-delay: 0.3s; }
+.about-card { animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-service-card { animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-timeline-item { animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-hero-blob { animation: about-hero-float 10s ease-in-out infinite; }
+.about-hero-blob--delay { animation-delay: -5s; }
+.about-hero-icon { animation: about-hero-float 7s ease-in-out infinite; }
+.about-hero-icon--1 { animation-delay: 0s; }
+.about-hero-icon--2 { animation-delay: -2s; }
+.about-hero-icon--3 { animation-delay: -4s; }
+.about-scroll-hint svg { animation: about-scroll-bounce 1.8s ease-in-out infinite; }
+.about-float-card { animation: about-float-card 4s ease-in-out infinite; }
+.about-image-glow { animation: about-image-glow 5s ease-in-out infinite; }
+.about-timeline-line { animation: about-timeline-grow 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-badge-story { animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-badge-journey { animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both; }
+.about-timeline-shine { animation: about-timeline-grow 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-timeline-node { animation: about-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-story-card { animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.about-story-reel-card { animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-.about-animate-in--delay-1 {
-  animation-delay: 0.1s;
-}
-
-.about-animate-in--delay-2 {
-  animation-delay: 0.2s;
-}
-
-.about-animate-in--delay-3 {
-  animation-delay: 0.3s;
-}
-
-.about-card {
-  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-service-card {
-  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-timeline-item {
-  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-hero-blob {
-  animation: about-hero-float 10s ease-in-out infinite;
-}
-
-.about-hero-blob--delay {
-  animation-delay: -5s;
-}
-
-.about-hero-icon {
-  animation: about-hero-float 7s ease-in-out infinite;
-}
-
-.about-hero-icon--1 {
-  animation-delay: 0s;
-}
-
-.about-hero-icon--2 {
-  animation-delay: -2s;
-}
-
-.about-hero-icon--3 {
-  animation-delay: -4s;
-}
-
-.about-scroll-hint svg {
-  animation: about-scroll-bounce 1.8s ease-in-out infinite;
-}
-
-.about-float-card {
-  animation: about-float-card 4s ease-in-out infinite;
-}
-
-.about-image-glow {
-  animation: about-image-glow 5s ease-in-out infinite;
-}
-
-.about-timeline-line {
-  animation: about-timeline-grow 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-badge-story {
-  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-badge-journey {
-  animation: about-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
-}
-
-.about-timeline-shine {
-  animation: about-timeline-grow 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-timeline-node {
-  animation: about-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-story-card {
-  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-story-reel-card {
-  animation: about-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.about-story-section .about-timeline-item:nth-child(1) .about-timeline-node {
-  animation-delay: 0.15s;
-}
-
-.about-story-section .about-timeline-item:nth-child(2) .about-timeline-node {
-  animation-delay: 0.25s;
-}
-
-.about-story-section .about-timeline-item:nth-child(3) .about-timeline-node {
-  animation-delay: 0.35s;
-}
-
-.about-story-section .about-timeline-item:nth-child(4) .about-timeline-node {
-  animation-delay: 0.45s;
-}
+.about-story-section .about-timeline-item:nth-child(1) .about-timeline-node { animation-delay: 0.15s; }
+.about-story-section .about-timeline-item:nth-child(2) .about-timeline-node { animation-delay: 0.25s; }
+.about-story-section .about-timeline-item:nth-child(3) .about-timeline-node { animation-delay: 0.35s; }
+.about-story-section .about-timeline-item:nth-child(4) .about-timeline-node { animation-delay: 0.45s; }
 
 .about-stat-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -613,60 +408,17 @@ iframe {
 
 .about-stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px -12px rgba(13, 77, 184, 0.35);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .about-animate-in,
-  .about-animate-in--delay-1,
-  .about-animate-in--delay-2,
-  .about-animate-in--delay-3,
-  .about-card,
-  .about-service-card,
-  .about-timeline-item,
-  .about-hero-blob,
-  .about-hero-icon,
-  .about-scroll-hint svg,
-  .about-float-card,
-  .about-image-glow,
-  .about-timeline-line,
-  .about-badge-story,
-  .about-badge-journey,
-  .about-timeline-shine,
-  .about-timeline-node,
-  .about-story-card,
-  .about-story-reel-card {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-
-/* ═══════════════════════════════════════════════════════════
-   Home — Testimonials auto-scroll marquee
-   ═══════════════════════════════════════════════════════════ */
-
-.testimonial-viewport {
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 8%,
-    #000 92%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 8%,
-    #000 92%,
-    transparent 100%
-  );
+  box-shadow: 0 12px 28px -12px rgba(0, 99, 176, 0.35);
 }
 
 @keyframes testimonial-marquee {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  to { transform: translateX(-50%); }
+}
+
+.testimonial-viewport {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
 }
 
 .testimonial-track {
@@ -679,44 +431,37 @@ iframe {
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .testimonial-track {
-    animation: none;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   Peek-from-right Promotional / Festival Banner
-   ═══════════════════════════════════════════════════════════ */
-
-/* ── Keyframes ── */
-
-/* Banner slides/peeks in from right edge */
 @keyframes promo-peek-in {
   from { transform: translateX(100%); }
-  to   { transform: translateX(80%); }   /* 20% visible */
+  to { transform: translateX(80%); }
 }
 
-/* Gentle nudge left-right on the peek strip to invite clicks */
 @keyframes promo-peek-nudge {
-  0%,  100% { transform: translateX(80%); }
-  25%        { transform: translateX(76%); }
-  75%        { transform: translateX(82%); }
+  0%, 100% { transform: translateX(80%); }
+  25% { transform: translateX(76%); }
+  75% { transform: translateX(82%); }
 }
 
-/* Shimmer sweep across the image */
 @keyframes promo-shimmer {
-  0%   { left: -60%; }
+  0% { left: -60%; }
   100% { left: 120%; }
 }
 
-/* Festive badge bob */
 @keyframes promo-badge-bob {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-4px); }
+  50% { transform: translateY(-4px); }
 }
 
-/* ── Backdrop overlay (expanded only) ── */
+@keyframes promo-overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes promo-tab-arrow-bounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+
 .promo-peek-overlay {
   position: fixed;
   inset: 0;
@@ -727,51 +472,34 @@ iframe {
   animation: promo-overlay-fade 0.35s ease forwards;
 }
 
-@keyframes promo-overlay-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* ── Main banner wrapper ── */
 .promo-peek-banner {
   position: fixed;
   top: 50%;
   right: 0;
   z-index: 999;
-
-  /* Panel is 340px wide; translateX(80%) means 272px off-screen, 68px visible (≈20%) */
   width: 340px;
-  transform: translateX(100%);   /* hidden initially */
-  translate: 0 -50%;             /* vertical centre */
-
+  transform: translateX(100%);
+  translate: 0 -50%;
   display: flex;
   flex-direction: row;
   border-radius: 1rem 0 0 1rem;
   overflow: hidden;
-
-  box-shadow:
-    -6px 0 32px rgba(13, 77, 184, 0.22),
-    0 20px 48px rgba(0, 0, 0, 0.14);
-
+  box-shadow: -6px 0 32px rgba(0, 99, 176, 0.22), 0 20px 48px rgba(0, 0, 0, 0.14);
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── Peek state: 20% visible, nudge animation ── */
 .promo-peek-banner--peeking {
-  animation: promo-peek-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-             promo-peek-nudge 3.5s ease-in-out 0.8s infinite;
+  animation: promo-peek-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards, promo-peek-nudge 3.5s ease-in-out 0.8s infinite;
 }
 
-/* ── Expanded state: fully open, stop nudge ── */
 .promo-peek-banner--expanded {
   animation: none;
   transform: translateX(0);
 }
 
-/* ── Peek tab (left strip visible when collapsed) ── */
 .promo-peek-banner__tab {
   flex-shrink: 0;
-  width: 68px;          /* this is the 20% that shows */
+  width: 68px;
   background: linear-gradient(180deg, var(--brand-royal) 0%, #2563eb 60%, #1d4ed8 100%);
   border: none;
   cursor: pointer;
@@ -811,12 +539,6 @@ iframe {
   animation: promo-tab-arrow-bounce 1.8s ease-in-out infinite;
 }
 
-@keyframes promo-tab-arrow-bounce {
-  0%, 100% { transform: translateX(0); }
-  50%       { transform: translateX(-4px); }
-}
-
-/* ── Full panel content area ── */
 .promo-peek-banner__panel {
   flex: 1;
   background: #ffffff;
@@ -827,14 +549,12 @@ iframe {
   min-width: 0;
 }
 
-/* ── Top gradient accent strip ── */
 .promo-peek-banner__strip {
   height: 4px;
   flex-shrink: 0;
-  background: linear-gradient(90deg, var(--brand-royal) 0%, #2f7bef 50%, #f59e0b 100%);
+  background: linear-gradient(90deg, #0063B0 0%, #004D8C 50%, #f59e0b 100%);
 }
 
-/* ── Close button ── */
 .promo-peek-banner__close {
   position: absolute;
   top: 0.6rem;
@@ -848,7 +568,7 @@ iframe {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
   color: #374151;
-  border: 1.5px solid rgba(13, 77, 184, 0.15);
+  border: 1.5px solid rgba(0, 99, 176, 0.15);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: background 0.2s ease, color 0.2s ease, transform 0.25s ease;
@@ -861,7 +581,6 @@ iframe {
   border-color: transparent;
 }
 
-/* ── Festive badge ── */
 .promo-peek-banner__badge {
   display: inline-flex;
   align-items: center;
@@ -881,7 +600,6 @@ iframe {
   animation: promo-badge-bob 2.8s ease-in-out infinite;
 }
 
-/* ── Image wrapper ── */
 .promo-peek-banner__img-wrap {
   position: relative;
   width: 100%;
@@ -903,7 +621,6 @@ iframe {
   transform: scale(1.04);
 }
 
-/* ── Shimmer on image ── */
 .promo-peek-banner__img-shimmer {
   position: absolute;
   inset: 0;
@@ -918,20 +635,14 @@ iframe {
   left: -60%;
   width: 40%;
   height: 100%;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.28) 50%,
-    transparent 60%
-  );
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.28) 50%, transparent 60%);
   animation: promo-shimmer 3.2s ease-in-out infinite 1.2s;
 }
 
-/* ── Footer / CTA ── */
 .promo-peek-banner__footer {
   padding: 0.7rem 0.85rem 0.85rem;
   background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%);
-  border-top: 1px solid rgba(13, 77, 184, 0.08);
+  border-top: 1px solid rgba(0, 99, 176, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -957,8 +668,8 @@ iframe {
   font-size: 0.75rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(135deg, var(--brand-royal) 0%, #2f7bef 100%);
-  box-shadow: 0 4px 12px rgba(13, 77, 184, 0.35);
+  background: linear-gradient(135deg, #0063B0 0%, #004D8C 100%);
+  box-shadow: 0 4px 12px rgba(0, 99, 176, 0.35);
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
@@ -967,10 +678,9 @@ iframe {
 
 .promo-peek-banner__cta:hover {
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 7px 18px rgba(13, 77, 184, 0.45);
+  box-shadow: 0 7px 18px rgba(0, 99, 176, 0.45);
 }
 
-/* ── Tablet (< 1024px): narrower panel ── */
 @media (max-width: 1023px) {
   .promo-peek-banner {
     width: 300px;
@@ -978,18 +688,8 @@ iframe {
   .promo-peek-banner__tab {
     width: 60px;
   }
-  @keyframes promo-peek-in {
-    from { transform: translateX(100%); }
-    to   { transform: translateX(80%); }
-  }
-  @keyframes promo-peek-nudge {
-    0%,  100% { transform: translateX(80%); }
-    25%        { transform: translateX(75%); }
-    75%        { transform: translateX(83%); }
-  }
 }
 
-/* ── Mobile (< 640px): bottom sheet — tab peeks, tap opens full offer ── */
 @media (max-width: 639px) {
   .promo-peek-banner {
     top: auto;
@@ -999,15 +699,13 @@ iframe {
     width: 100%;
     max-height: min(85dvh, 640px);
     border-radius: 1rem 1rem 0 0;
-    /* Tab first in DOM = on top. translateY hides panel below, leaves tab visible. */
     flex-direction: column;
     translate: 0 0;
     transform: translateY(calc(100% - 56px));
   }
 
   .promo-peek-banner--peeking {
-    animation: promo-mobile-peek-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-               promo-mobile-nudge 3.2s ease-in-out 0.7s infinite;
+    animation: promo-mobile-peek-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards, promo-mobile-nudge 3.2s ease-in-out 0.7s infinite;
   }
 
   .promo-peek-banner--expanded {
@@ -1015,15 +713,14 @@ iframe {
     transform: translateY(0) !important;
   }
 
-  /* Reveal only the top tab strip (~56px) */
   @keyframes promo-mobile-peek-in {
     from { transform: translateY(100%); }
-    to   { transform: translateY(calc(100% - 56px)); }
+    to { transform: translateY(calc(100% - 56px)); }
   }
 
   @keyframes promo-mobile-nudge {
     0%, 100% { transform: translateY(calc(100% - 56px)); }
-    40%      { transform: translateY(calc(100% - 64px)); }
+    40% { transform: translateY(calc(100% - 64px)); }
   }
 
   .promo-peek-banner__tab {
@@ -1045,7 +742,6 @@ iframe {
     letter-spacing: 0.08em;
   }
 
-  /* Point arrow UP to invite opening */
   .promo-peek-banner__tab-arrow {
     width: 20px;
     height: 20px;
@@ -1054,7 +750,7 @@ iframe {
 
   @keyframes promo-mobile-tab-arrow-bounce {
     0%, 100% { transform: rotate(90deg) translateX(0); }
-    50%      { transform: rotate(90deg) translateX(5px); }
+    50% { transform: rotate(90deg) translateX(5px); }
   }
 
   .promo-peek-banner__panel {
@@ -1073,253 +769,56 @@ iframe {
   }
 }
 
-/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
+  .our-team-header,
+  .our-team-blob,
+  .our-team-avatar-glow,
+  .home-team-card,
+  .home-team-carousel-pane,
+  .why-choose-card,
+  .about-animate-in,
+  .about-card,
+  .about-service-card,
+  .about-timeline-item,
+  .about-hero-blob,
+  .about-hero-icon,
+  .about-scroll-hint svg,
+  .about-float-card,
+  .about-image-glow,
+  .about-timeline-line,
+  .about-badge-story,
+  .about-badge-journey,
+  .about-timeline-shine,
+  .about-timeline-node,
+  .about-story-card,
+  .about-story-reel-card,
+  .call-cta-btn,
+  .call-cta-icon-wrap,
+  .call-cta-phone,
+  .testimonial-track,
   .promo-peek-banner,
   .promo-peek-banner--peeking,
   .promo-peek-banner--expanded,
   .promo-peek-banner__tab,
   .promo-peek-banner__img,
   .promo-peek-banner__cta,
-  .promo-peek-banner__close {
+  .promo-peek-banner__close,
+  .promo-peek-banner__badge,
+  .promo-peek-banner__tab-arrow {
     animation: none !important;
-    transition: none !important;
+    opacity: 1;
+    transform: none !important;
   }
 
-  .promo-peek-banner--peeking  { transform: translateX(80%); }
+  .promo-peek-banner--peeking { transform: translateX(80%); }
   .promo-peek-banner--expanded { transform: translateX(0); }
 
-  .promo-peek-banner__badge,
-  .promo-peek-banner__tab-arrow,
-  .promo-peek-banner__img-shimmer::after {
-    animation: none !important;
+  @media (max-width: 639px) {
+    .promo-peek-banner--peeking {
+      transform: translateY(calc(100% - 56px)) !important;
+    }
+    .promo-peek-banner--expanded {
+      transform: translateY(0) !important;
+    }
   }
-}
-
-@media (max-width: 639px) and (prefers-reduced-motion: reduce) {
-  .promo-peek-banner--peeking {
-    transform: translateY(calc(100% - 56px)) !important;
-  }
-  .promo-peek-banner--expanded {
-    transform: translateY(0) !important;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   Light Footer  (IndiaFilings-style)
-   ═══════════════════════════════════════════════════════════ */
-
-.footer-root {
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
-  font-family: inherit;
-}
-
-.footer-top-divider {
-  height: 1px;
-  background: #e5e7eb;
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 0;
-}
-
-/* 5-column grid: logo | col1 | col2 | col3 | col4 */
-.footer-grid {
-  display: grid;
-  grid-template-columns: 220px repeat(4, 1fr);
-  gap: 2rem 2.5rem;
-  align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: 200px repeat(4, 1fr);
-    gap: 1.75rem 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem 1.5rem;
-  }
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
-  .footer-brand {
-    grid-column: unset;
-  }
-}
-
-/* ── Brand block ── */
-.footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.footer-logo-link {
-  display: inline-block;
-  line-height: 0;
-}
-
-/* Light-mode logo: no white background box needed */
-.site-logo--footer-light {
-  height: 3rem;
-  width: auto;
-  max-width: 180px;
-  object-fit: contain;
-}
-
-.footer-tagline {
-  font-size: 0.82rem;
-  line-height: 1.55;
-  color: #374151;
-  margin: 0;
-}
-
-.footer-tagline a {
-  color: var(--brand-royal);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.footer-tagline a:hover {
-  text-decoration: underline;
-}
-
-/* ── Nav column ── */
-.footer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.footer-col-title {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 0.35rem;
-  letter-spacing: 0;
-}
-
-.footer-col-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.footer-link {
-  font-size: 0.82rem;
-  color: #6b7280;
-  text-decoration: none;
-  transition: color 0.18s ease;
-  display: inline-block;
-}
-
-.footer-link:hover {
-  color: var(--brand-royal);
-}
-
-/* ── Divider between main and bottom bar ── */
-.footer-bottom-divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin-top: 2.25rem;
-}
-
-/* ── Bottom bar ── */
-.footer-bottom-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 0.9rem 0 1.1rem;
-  text-align: center;
-}
-
-.footer-copyright {
-  font-size: 0.78rem;
-  color: #6b7280;
-  text-align: center;
-}
-
-/* ── Developed-by row (above divider) ── */
-.footer-developed-by-wrap {
-  text-align: center;
-  padding: 0.75rem 0 0;
-}
-
-.footer-developed-by {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  text-align: center;
-}
-
-.footer-dev-link {
-  color: #6b7280;
-  text-decoration: none;
-  transition: color 0.18s ease;
-}
-
-.footer-dev-link:hover {
-  color: var(--brand-royal);
-  text-decoration: underline;
-}
-
-/* ── Social icon row ── */
-.footer-socials {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.footer-social-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  font-size: 0.95rem;
-  text-decoration: none;
-  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
-}
-
-.footer-social-icon:hover {
-  border-color: var(--brand-royal);
-  color: var(--brand-royal);
-  background: #eff6ff;
-}
-
-@media (max-width: 480px) {
-  .footer-bottom-bar {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-}
-
-/* ── Map embed ── */
-.footer-map-wrap {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  margin-top: 0.25rem;
 }

@@ -1,5 +1,5 @@
-const primaryColor = "#1e40af";
-const primaryHoverColor = "#1e3a8a";
+const primaryColor = "#0063B0";
+const primaryHoverColor = "#004D8C";
 const accentColor = "#fbbf24";
 const textColor = "#374151";
 const lightBg = "#f9fafb";
