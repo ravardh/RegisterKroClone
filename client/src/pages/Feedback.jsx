@@ -186,8 +186,8 @@ const Feedback = () => {
   return (
     <>
       <SEOHelmet
-        title="Share Your Feedback - TaxProSolution"
-        description="Help us improve! Share your feedback and rating about TaxProSolution's business services, registration, and support."
+        title="Share Your Feedback - Tax Pro Solutions"
+        description="Help us improve! Share your feedback and rating about Tax Pro Solutions's business services, registration, and support."
         keywords="feedback, review, rating, customer feedback, testimonial"
         canonicalUrl="https://taxprosolution.co.in/feedback"
         structuredData={feedbackSchema}

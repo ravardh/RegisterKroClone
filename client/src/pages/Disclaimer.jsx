@@ -9,14 +9,14 @@ const Disclaimer = () => {
     "@type": "WebPage",
     name: "Disclaimer",
     description:
-      "Disclaimer for TaxProSolution - informational content, professional services, and client responsibilities.",
+      "Disclaimer for Tax Pro Solutions - informational content, professional services, and client responsibilities.",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Disclaimer - TaxProSolution"
-        description="Read the TaxProSolution disclaimer for website information, professional service limits, government processing, and client responsibilities."
+        title="Disclaimer - Tax Pro Solutions"
+        description="Read the Tax Pro Solutions disclaimer for website information, professional service limits, government processing, and client responsibilities."
         keywords="disclaimer, tax services disclaimer, compliance disclaimer"
         canonicalUrl="https://taxprosolution.co.in/disclaimer"
         structuredData={disclaimerSchema}

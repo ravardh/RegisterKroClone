@@ -121,7 +121,7 @@ const Services = () => {
   return (
     <>
       <SEOHelmet
-        title="Our Services - Business Registration, GST & Compliance | TaxProSolution"
+        title="Our Services - Business Registration, GST & Compliance | Tax Pro Solutions"
         description="Explore our comprehensive business services including company registration, GST filing, compliance, and tax solutions."
         keywords="business services, company registration, GST filing, tax compliance"
         canonicalUrl="https://taxprosolution.co.in/services"

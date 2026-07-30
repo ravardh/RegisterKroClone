@@ -12,7 +12,7 @@ const ContactForm = () => {
     "@context": "https://schema.org",
     "@type": "ContactPage",
     "name": "Contact Us",
-    "description": "Get in touch with TaxProSolution for business consulting and support"
+    "description": "Get in touch with Tax Pro Solutions for business consulting and support"
   };
   const [contactData, setContactData] = useState({
     name: "",
@@ -89,8 +89,8 @@ const ContactForm = () => {
   return (
     <>
       <SEOHelmet
-        title="Contact TaxProSolution - Expert Business Consultation"
-        description="Reach out to TaxProSolution for expert business consultation, tax advice, and registration services. Our team is ready to help your business grow."
+        title="Contact Tax Pro Solutions - Expert Business Consultation"
+        description="Reach out to Tax Pro Solutions for expert business consultation, tax advice, and registration services. Our team is ready to help your business grow."
         keywords="contact, business consultation, tax advice, support, customer service"
         canonicalUrl="https://taxprosolution.co.in/contact"
         structuredData={contactSchema}
@@ -238,7 +238,7 @@ const ContactForm = () => {
             className="border-0 w-full aspect-[4/3] min-h-[220px] sm:min-h-[280px] md:aspect-video md:min-h-[320px]"
             width="100%"
             height="300"
-            title="TaxProSolution office location"
+            title="Tax Pro Solutions office location"
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

@@ -100,16 +100,16 @@ const Footer = () => {
           <div className="flex flex-col gap-3">
             <Link to="/" className="inline-block leading-none">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
+                <div className="w-24 h-10 sm:w-32 sm:h-12 flex items-center justify-center  p-1 rounded bg-(--surface)">
                 <img
-                  src="/TaxProLogo.png"
+                  src="/Tax_Pro_Solutions_Rectange.png"
                   alt={CommonData.companyName}
                   className="w-full h-full object-cover "
                 />
               </div>
-              <h2 className="text-(--primary) text-md sm:text-lg font-semibold">
+              {/* <h2 className="text-(--primary) text-md sm:text-lg font-semibold">
                 {CommonData.companyName}
-              </h2>
+              </h2> */}
               </div>
             </Link>
             <p className="text-sm leading-6 text-(--surface) m-0">{CommonData.tagline}</p>

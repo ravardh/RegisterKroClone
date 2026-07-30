@@ -9,14 +9,14 @@ const CookiePolicy = () => {
     "@type": "WebPage",
     name: "Cookie Policy",
     description:
-      "Cookie Policy for TaxProSolution - how cookies support service forms, analytics, and website performance.",
+      "Cookie Policy for Tax Pro Solutions - how cookies support service forms, analytics, and website performance.",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Cookie Policy - TaxProSolution"
-        description="Learn how TaxProSolution uses cookies and similar technologies to improve website performance, service forms, analytics, and user experience."
+        title="Cookie Policy - Tax Pro Solutions"
+        description="Learn how Tax Pro Solutions uses cookies and similar technologies to improve website performance, service forms, analytics, and user experience."
         keywords="cookie policy, website cookies, analytics, user preferences"
         canonicalUrl="https://taxprosolution.co.in/cookie-policy"
         structuredData={cookieSchema}

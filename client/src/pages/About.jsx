@@ -110,16 +110,16 @@ const About = () => {
   const aboutSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    name: "About TaxProSolution",
+    name: "About Tax Pro Solutions",
     description:
-      "Learn about TaxProSolution - your trusted partner in business registration and compliance",
+      "Learn about Tax Pro Solutions - your trusted partner in business registration and compliance",
   };
 
   return (
     <>
       <SEOHelmet
-        title="About TaxProSolution - Your Business Growth Partner"
-        description="Discover TaxProSolution's mission to simplify business registration and compliance. We're your trusted partner for GST, company registration, and tax solutions."
+        title="About Tax Pro Solutions - Your Business Growth Partner"
+        description="Discover Tax Pro Solutions's mission to simplify business registration and compliance. We're your trusted partner for GST, company registration, and tax solutions."
         keywords="about us, business solutions, company registration, tax services, compliance"
         canonicalUrl="https://taxprosolution.co.in/about"
         structuredData={aboutSchema}

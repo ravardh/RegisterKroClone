@@ -20,7 +20,7 @@ const SuperAdminDashboard = () => {
   return (
     <>
       <SEOHelmet
-        title="Super Admin Dashboard - TaxProSolution"
+        title="Super Admin Dashboard - Tax Pro Solutions"
         description="Manage services, leads, categories, employees, and customer feedback from your super admin dashboard."
         keywords="super admin dashboard, service management, lead management, business admin"
         canonicalUrl="https://taxprosolution.co.in/superAdminDashboard"

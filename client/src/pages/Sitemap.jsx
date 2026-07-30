@@ -18,7 +18,7 @@ const Sitemap = () => {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Sitemap",
-    description: "Sitemap of all pages available on TaxProSolution",
+    description: "Sitemap of all pages available on Tax Pro Solutions",
   };
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,8 +56,8 @@ const Sitemap = () => {
   return (
     <>
       <SEOHelmet
-        title="Sitemap - TaxProSolution Website Navigation"
-        description="Browse the complete sitemap of TaxProSolution. Find all pages, services, and navigation links to explore our website."
+        title="Sitemap - Tax Pro Solutions Website Navigation"
+        description="Browse the complete sitemap of Tax Pro Solutions. Find all pages, services, and navigation links to explore our website."
         keywords="sitemap, navigation, site map, pages"
         canonicalUrl="https://taxprosolution.co.in/sitemap"
         structuredData={sitemapSchema}
