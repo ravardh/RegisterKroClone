@@ -36,7 +36,7 @@ const SectionFallback = memo(function SectionFallback() {
 const homeSchemaData = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  name: "Tax Pro Solutions",
+  name: "Tax Pro Solution",
   description: "Professional tax and registration services for businesses",
   url: "https://taxprosolution.co.in",
   telephone: commondata.phones?.phone || "+91-XXXXXXXXXX",
@@ -64,7 +64,7 @@ const Home = () => {
       </Suspense>
 
       <SEOHelmet
-        title="Tax Pro Solutions - Get Your Business Registered in 7 Days"
+        title="Tax Pro Solution - Get Your Business Registered in 7 Days"
         description="Fast, reliable business registration and setup services. Get your business registered in just 7 days with expert consultation. Trusted by 2000+ happy clients."
         keywords="business registration, company registration, GST registration, startup registration, business setup"
         canonicalUrl="https://taxprosolution.co.in/"

@@ -16,14 +16,14 @@ const EventsWebinars = () => {
     "@type": "WebPage",
     name: "Events and Webinars",
     description:
-      "Events and webinars by Tax Pro Solutions for business registration, tax filing, GST, compliance, and trademark awareness.",
+      "Events and webinars by Tax Pro Solution for business registration, tax filing, GST, compliance, and trademark awareness.",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Events & Webinar - Tax Pro Solutions"
-        description="Join Tax Pro Solutions events and webinars on business setup, GST, tax filing, compliance, accounting, and trademark protection."
+        title="Events & Webinar - Tax Pro Solution"
+        description="Join Tax Pro Solution events and webinars on business setup, GST, tax filing, compliance, accounting, and trademark protection."
         keywords="events, webinars, tax webinar, GST webinar, business registration event"
         canonicalUrl="https://taxprosolution.co.in/events-webinars"
         structuredData={eventsSchema}

@@ -9,15 +9,15 @@ const MediaPress = () => {
     "@type": "WebPage",
     name: "Media and Press",
     description:
-      "Media and press information for Tax Pro Solutions, including company overview, service focus, and press contact.",
+      "Media and press information for Tax Pro Solution, including company overview, service focus, and press contact.",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Media & Press - Tax Pro Solutions"
-        description="Find Tax Pro Solutions media information, company overview, service focus, and press contact details."
-        keywords="media, press, Tax Pro Solutions, company information, press contact"
+        title="Media & Press - Tax Pro Solution"
+        description="Find Tax Pro Solution media information, company overview, service focus, and press contact details."
+        keywords="media, press, Tax Pro Solution, company information, press contact"
         canonicalUrl="https://taxprosolution.co.in/media-press"
         structuredData={mediaSchema}
       />

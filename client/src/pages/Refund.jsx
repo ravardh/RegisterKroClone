@@ -9,14 +9,14 @@ const Refund = () => {
     "@type": "WebPage",
     name: "Refund Policy",
     description:
-      "Tax Pro Solutions Refund Policy - How refunds are handled for our business services",
+      "Tax Pro Solution Refund Policy - How refunds are handled for our business services",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Refund Policy - Tax Pro Solutions"
-        description="Read Tax Pro Solutions's refund policy to understand eligibility, timelines, and how refund requests are processed."
+        title="Refund Policy - Tax Pro Solution"
+        description="Read Tax Pro Solution's refund policy to understand eligibility, timelines, and how refund requests are processed."
         keywords="refund policy, cancellation, refund eligibility, payment refund"
         canonicalUrl="https://taxprosolution.co.in/refund"
         structuredData={refundSchema}

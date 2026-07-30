@@ -10,7 +10,7 @@ const BloggerDashboard = () => {
   return (
     <>
       <SEOHelmet
-        title="Blogger Dashboard - Tax Pro Solutions"
+        title="Blogger Dashboard - Tax Pro Solution"
         description="Manage blog posts from your blogger dashboard."
         keywords="blogger dashboard, blog management"
         canonicalUrl="https://taxprosolution.co.in/bloggerDashboard"

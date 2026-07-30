@@ -58,8 +58,8 @@ const BlogDetail = () => {
   return (
     <>
       <SEOHelmet
-        title={`${blog.title} - Tax Pro Solutions Blog`}
-        description={blog.summary || "Read this article from Tax Pro Solutions blog."}
+        title={`${blog.title} - Tax Pro Solution Blog`}
+        description={blog.summary || "Read this article from Tax Pro Solution blog."}
         keywords={`${blog.category || "blog"}, tax, compliance, registration`}
         canonicalUrl={`https://taxprosolution.co.in/blog/${blog.slug}`}
       />

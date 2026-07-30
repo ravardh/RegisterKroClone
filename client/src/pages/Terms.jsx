@@ -9,14 +9,14 @@ const Terms = () => {
     "@type": "WebPage",
     name: "Terms and Conditions",
     description:
-      "Tax Pro Solutions Terms and Conditions - Our service terms and user obligations",
+      "Tax Pro Solution Terms and Conditions - Our service terms and user obligations",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Terms & Conditions - Tax Pro Solutions"
-        description="Read our Terms and Conditions to understand your rights and obligations when using Tax Pro Solutions's services."
+        title="Terms & Conditions - Tax Pro Solution"
+        description="Read our Terms and Conditions to understand your rights and obligations when using Tax Pro Solution's services."
         keywords="terms, conditions, terms of service, legal terms"
         canonicalUrl="https://taxprosolution.co.in/terms"
         structuredData={termsSchema}

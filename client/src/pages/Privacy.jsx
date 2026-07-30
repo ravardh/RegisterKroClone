@@ -9,14 +9,14 @@ const Privacy = () => {
     "@type": "WebPage",
     name: "Privacy Policy",
     description:
-      "Tax Pro Solutions Privacy Policy - How we protect your personal information",
+      "Tax Pro Solution Privacy Policy - How we protect your personal information",
   };
 
   return (
     <>
       <SEOHelmet
-        title="Privacy Policy - Tax Pro Solutions"
-        description="Read Tax Pro Solutions's privacy policy to understand how we collect, use, and protect your personal information."
+        title="Privacy Policy - Tax Pro Solution"
+        description="Read Tax Pro Solution's privacy policy to understand how we collect, use, and protect your personal information."
         keywords="privacy policy, data protection, personal information, privacy"
         canonicalUrl="https://taxprosolution.co.in/privacy"
         structuredData={privacySchema}

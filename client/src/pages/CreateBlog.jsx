@@ -314,8 +314,8 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
   return (
     <>
       <SEOHelmet
-        title="Create Blog - Tax Pro Solutions"
-        description="Create a new blog post for Tax Pro Solutions."
+        title="Create Blog - Tax Pro Solution"
+        description="Create a new blog post for Tax Pro Solution."
         keywords="create blog, blog post, admin blog"
         canonicalUrl="https://taxprosolution.co.in/create-blog"
       />

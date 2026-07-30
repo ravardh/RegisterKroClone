@@ -11,7 +11,7 @@ const TrackStatus = () => {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Track Application Status",
-    "description": "Track the status of your business application with Tax Pro Solutions"
+    "description": "Track the status of your business application with Tax Pro Solution"
   };
   const [serviceIdInput, setServiceIdInput] = useState("");
   const [trackingData, setTrackingData] = useState(null);
@@ -93,8 +93,8 @@ const TrackStatus = () => {
   return (
     <>
       <SEOHelmet
-        title="Track Your Application Status - Tax Pro Solutions"
-        description="Track the real-time status of your business registration and service applications with Tax Pro Solutions. Monitor progress at every step."
+        title="Track Your Application Status - Tax Pro Solution"
+        description="Track the real-time status of your business registration and service applications with Tax Pro Solution. Monitor progress at every step."
         keywords="track status, application tracking, progress monitoring, application status"
         canonicalUrl="https://taxprosolution.co.in/track-status"
         structuredData={trackStatusSchema}

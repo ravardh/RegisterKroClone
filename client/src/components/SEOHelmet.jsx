@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 const SEOHelmet = ({
-  title = 'Tax Pro Solutions - Professional Tax & Registration Services',
+  title = 'Tax Pro Solution - Professional Tax & Registration Services',
   description = 'Expert tax and registration services with 15+ years experience. Trusted by 2000+ businesses.',
   keywords = 'tax services, business registration, GST, corporate registration',
   canonicalUrl = 'https://taxprosolution.com/',

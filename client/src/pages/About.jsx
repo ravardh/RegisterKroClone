@@ -75,7 +75,7 @@ const storyChapters = [
     title: "The Beginning",
     icon: FaLightbulb,
     accent: "from-amber-400 to-orange-500",
-    text: "TaxPro Solution started with one idea—starting a business in India should feel simple, not stressful.",
+    text: "Tax Pro Solution started with one idea—starting a business in India should feel simple, not stressful.",
   },
   {
     step: "02",
@@ -110,16 +110,16 @@ const About = () => {
   const aboutSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    name: "About Tax Pro Solutions",
+    name: "About Tax Pro Solution",
     description:
-      "Learn about Tax Pro Solutions - your trusted partner in business registration and compliance",
+      "Learn about Tax Pro Solution - your trusted partner in business registration and compliance",
   };
 
   return (
     <>
       <SEOHelmet
-        title="About Tax Pro Solutions - Your Business Growth Partner"
-        description="Discover Tax Pro Solutions's mission to simplify business registration and compliance. We're your trusted partner for GST, company registration, and tax solutions."
+        title="About Tax Pro Solution - Your Business Growth Partner"
+        description="Discover Tax Pro Solution's mission to simplify business registration and compliance. We're your trusted partner for GST, company registration, and tax solutions."
         keywords="about us, business solutions, company registration, tax services, compliance"
         canonicalUrl="https://taxprosolution.co.in/about"
         structuredData={aboutSchema}
@@ -148,7 +148,7 @@ const About = () => {
         </div>
 
         <div className="about-animate-in relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-12 md:px-20">
-          <SectionBadge>About TaxPro Solution</SectionBadge>
+          <SectionBadge>About Tax Pro Solution</SectionBadge>
           <h1 className="mb-4 text-3xl font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
             About Us
           </h1>
@@ -180,7 +180,7 @@ const About = () => {
                 About Us
               </h2>
               <p className="text-(--secondary) text-base sm:text-lg leading-relaxed mb-4">
-                TaxPro Solution is a leading business services platform
+                Tax Pro Solution is a leading business services platform
                 dedicated to helping entrepreneurs navigate company registration,
                 compliance, and legal documentation with confidence.
               </p>
@@ -216,7 +216,7 @@ const About = () => {
               <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-indigo-300/30 ring-1 ring-white/60">
                 <img
                   src={About1}
-                  alt="About TaxPro Solution"
+                  alt="About Tax Pro Solution"
                   className="w-full h-auto object-cover transition duration-700 hover:scale-105"
                 />
               </div>

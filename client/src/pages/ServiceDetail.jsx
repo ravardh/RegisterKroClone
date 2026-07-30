@@ -536,7 +536,7 @@ const ServiceDetail = () => {
             serviceData?.shortDescription || "Professional business service",
           provider: {
             "@type": "Organization",
-            name: "Tax Pro Solutions",
+            name: "Tax Pro Solution",
           },
         }}
       />

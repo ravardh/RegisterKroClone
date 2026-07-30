@@ -19,7 +19,7 @@ const ManagerDashboard = () => {
   return (
     <>
       <SEOHelmet
-        title="Admin Dashboard - Tax Pro Solutions"
+        title="Admin Dashboard - Tax Pro Solution"
         description="Manage services, leads, categories, and customer feedback from your admin dashboard."
         keywords="admin dashboard, service management, lead management, business admin"
         canonicalUrl="https://taxprosolution.co.in/managerDashboard"

@@ -42,7 +42,7 @@ const HowItWorksSection = () => {
       <div className="container relative mx-auto px-6 sm:px-12 md:px-20 lg:px-25">
         <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
           <h2 className="mb-4 text-2xl font-bold tracking-tight text-(--brand-ink) sm:text-3xl md:text-4xl">
-            How Does TaxPro Solution Work?
+            How Does Tax Pro Solution Work?
           </h2>
           <p className="text-base leading-relaxed text-(--secondary) sm:text-lg">
             Simple, guided, and fully online—from application to completion, we handle everything for you.

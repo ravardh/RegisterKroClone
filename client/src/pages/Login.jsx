@@ -11,7 +11,7 @@ const Login = () => {
   const loginSchema = {
     "@context": "https://schema.org",
     "@type": "LoginAction",
-    "name": "Login to Tax Pro Solutions",
+    "name": "Login to Tax Pro Solution",
     "description": "Secure login for registered users"
   };
   const { setUser, setIsLoggedIn, setIsAdmin, setIsRM } = useAuth();
@@ -73,8 +73,8 @@ const Login = () => {
   return (
     <>
       <SEOHelmet
-        title="Login - Tax Pro Solutions Dashboard"
-        description="Login to your Tax Pro Solutions account to manage applications, track status, and access personalized services."
+        title="Login - Tax Pro Solution Dashboard"
+        description="Login to your Tax Pro Solution account to manage applications, track status, and access personalized services."
         keywords="login, signin, account, dashboard access"
         canonicalUrl="https://taxprosolution.co.in/login"
         structuredData={loginSchema}

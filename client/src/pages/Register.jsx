@@ -13,7 +13,7 @@ const Register = () => {
     "@context": "https://schema.org",
     "@type": "CreateAction",
     "name": "Create Account",
-    "description": "Register for a new Tax Pro Solutions account"
+    "description": "Register for a new Tax Pro Solution account"
   };
 
   const navigate = useNavigate();
@@ -108,8 +108,8 @@ const Register = () => {
   return (
     <>
       <SEOHelmet
-        title="Register - Create Your Tax Pro Solutions Account"
-        description="Sign up for Tax Pro Solutions and get started with your business registration, GST filing, and compliance services."
+        title="Register - Create Your Tax Pro Solution Account"
+        description="Sign up for Tax Pro Solution and get started with your business registration, GST filing, and compliance services."
         keywords="register, signup, create account, new user"
         canonicalUrl="https://taxprosolution.co.in/register"
         structuredData={registerSchema}

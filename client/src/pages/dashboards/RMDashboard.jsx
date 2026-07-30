@@ -11,7 +11,7 @@ const RMDashboard = () => {
   return (
     <>
       <SEOHelmet
-        title="RM Dashboard - Tax Pro Solutions"
+        title="RM Dashboard - Tax Pro Solution"
         description="Manage your assigned leads, track lead status, and monitor your sales activities from your personal dashboard."
         keywords="rm dashboard, lead management, sales dashboard, relationship manager"
         canonicalUrl="https://taxprosolution.co.in/rmDashboard"
