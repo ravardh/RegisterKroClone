@@ -1,9 +1,7 @@
-import React from "react";
-import { FaPhoneAlt } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoMdStar } from "react-icons/io";
 import { Link } from "react-router-dom";
-import commondata from "../../assets/common.json";
 
 const heroStats = [
   { value: "2000+", label: "Businesses Served" },
@@ -11,6 +9,62 @@ const heroStats = [
   { value: "7 Days", label: "Avg. Turnaround" },
   { value: "98%", label: "Success Rate" },
 ];
+
+const parseAnimatedValue = (value) => {
+  const match = value.match(/^(\d+(?:\.\d+)?)(.*)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  const numberPart = match[1];
+  const suffix = match[2] ?? "";
+  const decimals = numberPart.includes(".") ? numberPart.split(".")[1].length : 0;
+
+  return {
+    number: Number(numberPart),
+    suffix,
+    decimals,
+  };
+};
+
+const AnimatedStatValue = ({ value, duration = 2000 }) => {
+  const parsed = useMemo(() => parseAnimatedValue(value), [value]);
+  const [displayValue, setDisplayValue] = useState(value);
+
+  useEffect(() => {
+    if (!parsed) {
+      setDisplayValue(value);
+      return undefined;
+    }
+
+    let frameId;
+    const startTime = performance.now();
+
+    const updateValue = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const currentValue = parsed.number * progress;
+
+      const formattedNumber =
+        parsed.decimals > 0
+          ? currentValue.toFixed(parsed.decimals)
+          : String(Math.floor(currentValue));
+
+      setDisplayValue(`${formattedNumber}${parsed.suffix}`);
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(updateValue);
+      }
+    };
+
+    setDisplayValue(`${parsed.decimals > 0 ? (0).toFixed(parsed.decimals) : "0"}${parsed.suffix}`);
+    frameId = requestAnimationFrame(updateValue);
+
+    return () => cancelAnimationFrame(frameId);
+  }, [duration, parsed, value]);
+
+  return displayValue;
+};
 
 const HeroSection = () => {
   return (
@@ -24,13 +78,13 @@ const HeroSection = () => {
         aria-hidden
       />
 
-      <div className="container relative mx-auto px-6 pt-28 pb-16 text-center sm:px-12 sm:pt-32 md:px-20 md:pt-40 md:pb-20 lg:px-32">
-        <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-(--primary)/20 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-(--primary) shadow-sm backdrop-blur-sm">
+      <div className="container relative mx-auto px-4 pt-24 pb-14 text-center sm:px-12 sm:pt-32 sm:pb-16 md:px-20 md:pt-40 md:pb-20 lg:px-32">
+        <span className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-(--primary)/20 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-(--primary) shadow-sm backdrop-blur-sm">
           <IoMdStar className="text-sm" />
           Trusted by 2000+ businesses
         </span>
 
-        <h1 className="mx-auto max-w-5xl text-4xl font-extrabold leading-tight tracking-tight text-(--brand-ink) sm:text-5xl md:text-6xl">
+        <h1 className="mx-auto max-w-5xl text-3xl font-extrabold leading-tight tracking-tight text-(--brand-ink) sm:text-5xl md:text-6xl">
           Launch Your Business in Just{" "}
           <span className="bg-linear-to-r from-(--primary) to-(--accent) bg-clip-text text-transparent">
             7 Days
@@ -45,7 +99,7 @@ const HeroSection = () => {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           <Link
             to="/services"
-            className="inline-flex items-center gap-2 rounded-2xl bg-(--primary) px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-(--primary)/30 transition hover:bg-(--primary-hover) hover:shadow-xl sm:text-base"
+            className="inline-flex items-center gap-2 rounded-2xl bg-(--success) px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-(--success)/30 transition hover:bg-(--success-hover) hover:shadow-xl sm:text-base"
           >
             Get Started <FaArrowRightLong className="h-4 w-4" />
           </Link>
@@ -58,7 +112,9 @@ const HeroSection = () => {
               key={stat.label}
               className="rounded-2xl border border-(--primary)/10 bg-white/80 px-4 py-4 shadow-sm backdrop-blur-sm"
             >
-              <p className="text-2xl font-extrabold text-(--primary) sm:text-3xl">{stat.value}</p>
+              <p className="text-2xl font-extrabold text-(--base-black) sm:text-3xl">
+                <AnimatedStatValue value={stat.value} duration={2000} />
+              </p>
               <p className="mt-1 text-xs text-(--secondary) sm:text-sm">{stat.label}</p>
             </div>
           ))}

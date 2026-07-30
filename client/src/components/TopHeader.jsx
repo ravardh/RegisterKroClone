@@ -105,17 +105,17 @@ const TopHeader = () => {
             {/* Logo - Left */}
 
             <div
-              className="rounded-xl cursor-pointer overflow-hidden flex items-center justify-center gap-2"
+              className="rounded cursor-pointer overflow-hidden flex items-center justify-center gap-2"
               onClick={() => navigate("/")}
             >
-             <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
+             <div className="w-24 h-10 sm:w-32 sm:h-12 flex items-center justify-center p-0.5 bg-white">
                <img
-                src="/TaxProLogo.png"
+                src="/Tax_Pro_Solutions_Rectange.png"
                 alt={CommonData.companyName}
                 className="w-full h-full object-cover "
               />
              </div>
-             <h2 className="text-white text-lg sm:text-xl font-semibold">{CommonData.companyName}</h2>
+             {/* <h2 className="text-white text-lg sm:text-xl font-semibold">{CommonData.companyName}</h2> */}
             </div>
 
             {/* Search Bar - Center */}

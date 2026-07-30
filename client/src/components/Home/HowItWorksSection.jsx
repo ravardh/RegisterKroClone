@@ -53,7 +53,7 @@ const HowItWorksSection = () => {
           {processSteps.map((step, index) => (
             <motion.div
               key={step.title}
-              className={`relative flex flex-col items-center text-center ${
+              className={`relative flex flex-col items-center text-center group ${
                 index % 2 === 1 ? "lg:mt-28" : ""
               }`}
               initial="muted"
@@ -76,13 +76,13 @@ const HowItWorksSection = () => {
                 },
               }}
             >
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-(--primary)/15 to-(--brand-light)/25 text-(--primary) shadow-md shadow-(--primary)/10 ring-1 ring-(--primary)/10">
+              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-(--primary)/15 to-(--brand-light)/25 text-(--base-black) group-hover:text-(--primary) shadow-md shadow-(--primary)/10 ring-1 ring-(--primary)/10">
                 <step.icon className="h-8 w-8" />
               </div>
-              <span className="mb-1 text-2xl font-extrabold tracking-wide text-(--primary)">
+              <span className="mb-1 text-2xl font-extrabold tracking-wide text-(--base-black) group-hover:text-(--primary)">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="mb-2 text-lg font-bold text-(--brand-ink)">{step.title}</h3>
+              <h3 className="mb-2 text-lg font-bold text-(--brand-black) group-hover:text-(--primary)">{step.title}</h3>
               <p className="max-w-xs text-sm leading-relaxed text-(--secondary)">{step.description}</p>
             </motion.div>
           ))}
@@ -91,7 +91,7 @@ const HowItWorksSection = () => {
         <div className="mt-10 flex justify-center md:mt-12">
           <Link
             to="/services"
-            className="inline-flex items-center gap-2 rounded-2xl bg-(--primary) px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-(--primary)/30 transition hover:bg-(--primary-hover) sm:text-base"
+            className="inline-flex items-center gap-2 rounded-2xl bg-(--success) px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-(--success)/30 transition hover:bg-(--success-hover) hover:shadow-xl sm:text-base"
           >
             Start Your Application <FaArrowRightLong className="h-4 w-4" />
           </Link>

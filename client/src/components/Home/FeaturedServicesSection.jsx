@@ -20,6 +20,7 @@ const FeaturedServicesSection = () => {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [featuredPaused, setFeaturedPaused] = useState(false);
   const [featuredOffset, setFeaturedOffset] = useState(220);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { featuredServices: featuredData, featuredLoaded } = useAppData();
 
@@ -32,6 +33,7 @@ const FeaturedServicesSection = () => {
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
+      setIsMobile(w < 640);
       setFeaturedOffset(w < 640 ? 150 : w < 1024 ? 190 : 230);
     };
     onResize();
@@ -89,7 +91,7 @@ const FeaturedServicesSection = () => {
                       prev <= 0 ? featuredServices.length - 1 : prev - 1
                     )
                   }
-                  className="absolute -left-8 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-20 lg:-left-32"
+                  className="absolute left-2 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-20 lg:-left-32"
                   aria-label="Previous featured service"
                 >
                   <FaChevronLeft size={18} />
@@ -101,7 +103,7 @@ const FeaturedServicesSection = () => {
                       prev >= featuredServices.length - 1 ? 0 : prev + 1
                     )
                   }
-                  className="absolute -right-8 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-20 lg:-right-32"
+                  className="absolute right-2 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-20 lg:-right-32"
                   aria-label="Next featured service"
                 >
                   <FaChevronRight size={18} />
@@ -109,12 +111,13 @@ const FeaturedServicesSection = () => {
               </>
             )}
 
-            <div className="relative flex min-h-[20rem] items-center justify-center sm:min-h-[21rem] md:min-h-[22rem]">
+            <div className="relative flex min-h-80 items-center justify-center overflow-hidden px-10 sm:min-h-84 sm:px-0 md:min-h-88">
               {featuredServices.map((service, index) => {
                 let diff = index - featuredIndex;
                 if (diff > featuredServices.length / 2) diff -= featuredServices.length;
                 if (diff < -featuredServices.length / 2) diff += featuredServices.length;
-                if (Math.abs(diff) > 2) return null;
+                if (isMobile && ![0].includes(diff)) return null;
+                if (!isMobile && Math.abs(diff) > 2) return null;
 
                 const isActive = diff === 0;
                 const zIndex = 30 - Math.abs(diff);
@@ -129,13 +132,13 @@ const FeaturedServicesSection = () => {
                     initial={false}
                     animate={{ x: translateX, scale, zIndex, opacity }}
                     transition={{ type: "spring", stiffness: 260, damping: 26 }}
-                    className="absolute w-[15rem] cursor-pointer sm:w-[17rem] md:w-[19rem]"
+                    className="absolute w-full max-w-70 cursor-pointer sm:w-68 sm:max-w-none md:w-76"
                     onClick={() => {
                       if (!isActive) setFeaturedIndex(index);
                     }}
                   >
                     <div
-                      className={`relative flex h-[19rem] flex-col overflow-hidden rounded-2xl bg-white transition-all duration-300 ${
+                      className={`relative flex h-76 flex-col overflow-hidden rounded-2xl bg-white transition-all duration-300 ${
                         isActive ? "shadow-2xl ring-1 ring-(--primary)/10" : "shadow-md"
                       }`}
                     >

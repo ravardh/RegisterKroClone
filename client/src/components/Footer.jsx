@@ -112,7 +112,7 @@ const Footer = () => {
               </h2>
               </div>
             </Link>
-            <p className="text-sm leading-6 text-(--text-light) m-0">{CommonData.tagline}</p>
+            <p className="text-sm leading-6 text-(--surface) m-0">{CommonData.tagline}</p>
             {/* Google Maps Embed – coordinates configured via .env */}
             <div className="w-full overflow-hidden rounded-lg border border-(--border) mt-1">
               <iframe
@@ -135,7 +135,7 @@ const Footer = () => {
               <ul className="list-none m-0 p-0 flex flex-col gap-1.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="text-sm text-(--text-light) no-underline transition-colors duration-150 inline-block hover:text-(--primary)">
+                    <Link to={link.to} className="text-sm text-(--surface) no-underline transition-colors duration-150 inline-block hover:underline hover:text-(--accent)">
                       {link.label}
                     </Link>
                   </li>

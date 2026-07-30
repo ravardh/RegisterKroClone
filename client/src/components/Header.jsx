@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoMenuSharp, IoClose } from "react-icons/io5";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { GiPathDistance } from "react-icons/gi";
 import toast from "react-hot-toast";
 import ServiceModal from "./ServiceModal.jsx";
 import { useAppData } from "../context/DataContext";
@@ -93,11 +94,19 @@ const Header = () => {
     setSelectedSubcategory(null);
 
     setActiveTab(category.name);
-    const sortedSubCats = [...(subCategoriesData[category._id] || [])].sort((a, b) => {
-      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
-      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
-      return seqA - seqB;
-    });
+    const sortedSubCats = [...(subCategoriesData[category._id] || [])].sort(
+      (a, b) => {
+        const seqA =
+          a.sequence != null && a.sequence !== ""
+            ? Number(a.sequence)
+            : Infinity;
+        const seqB =
+          b.sequence != null && b.sequence !== ""
+            ? Number(b.sequence)
+            : Infinity;
+        return seqA - seqB;
+      },
+    );
     setSubCategories(sortedSubCats);
   };
 
@@ -121,11 +130,19 @@ const Header = () => {
 
     setSelectedSubcategory(subcategory);
     setIsSubMenuOpen(true);
-    const sortedServices = [...(servicesData[subcategory._id] || [])].sort((a, b) => {
-      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
-      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
-      return seqA - seqB;
-    });
+    const sortedServices = [...(servicesData[subcategory._id] || [])].sort(
+      (a, b) => {
+        const seqA =
+          a.sequence != null && a.sequence !== ""
+            ? Number(a.sequence)
+            : Infinity;
+        const seqB =
+          b.sequence != null && b.sequence !== ""
+            ? Number(b.sequence)
+            : Infinity;
+        return seqA - seqB;
+      },
+    );
     setSubCategoryServices(sortedServices);
   };
 
@@ -157,9 +174,17 @@ const Header = () => {
         (c) => c.name.toLowerCase() === tabName.toLowerCase(),
       );
       if (category) {
-        const sortedMobileSubCats = [...(subCategoriesData[category._id] || [])].sort((a, b) => {
-          const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
-          const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+        const sortedMobileSubCats = [
+          ...(subCategoriesData[category._id] || []),
+        ].sort((a, b) => {
+          const seqA =
+            a.sequence != null && a.sequence !== ""
+              ? Number(a.sequence)
+              : Infinity;
+          const seqB =
+            b.sequence != null && b.sequence !== ""
+              ? Number(b.sequence)
+              : Infinity;
           return seqA - seqB;
         });
         setMobileSubCategories(sortedMobileSubCats);
@@ -171,9 +196,13 @@ const Header = () => {
     setMobileExpandedSubcategory(
       mobileExpandedSubcategory === subcategory._id ? null : subcategory._id,
     );
-    const sortedMobileServices = [...(servicesData[subcategory._id] || [])].sort((a, b) => {
-      const seqA = a.sequence != null && a.sequence !== '' ? Number(a.sequence) : Infinity;
-      const seqB = b.sequence != null && b.sequence !== '' ? Number(b.sequence) : Infinity;
+    const sortedMobileServices = [
+      ...(servicesData[subcategory._id] || []),
+    ].sort((a, b) => {
+      const seqA =
+        a.sequence != null && a.sequence !== "" ? Number(a.sequence) : Infinity;
+      const seqB =
+        b.sequence != null && b.sequence !== "" ? Number(b.sequence) : Infinity;
       return seqA - seqB;
     });
     setMobileServices(sortedMobileServices);
@@ -220,21 +249,23 @@ const Header = () => {
     <>
       <header
         ref={headerRef}
-        className={`sticky z-50  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${isDashboard
-          ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-6 sm:top-8 w-full max-w-none"
-          : "bg-white top-13 sm:top-15 rounded-2xl mb-4 shadow-xl w-full"
-          }`}
+        className={`sticky z-50 border border-(--background)  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${
+          isDashboard
+            ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-6 sm:top-8 w-full max-w-none"
+            : "bg-white top-15 sm:top-17 rounded-2xl mb-4 shadow-xl w-full"
+        }`}
       >
         <div
-          className={`relative ${isDashboard
-            ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
-            : "px-3 sm:px-4 md:px-6 lg:px-8"
-            } `}
+          className={`relative ${
+            isDashboard
+              ? "px-3 sm:px-4 md:px-6 lg:px-8 rounded-2xl shadow-md bg-white w-[90%] mx-auto"
+              : "px-3 sm:px-4 md:px-6 lg:px-8"
+          } `}
         >
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Desktop Navigation - Left Justified */}
             <nav
-              className="hidden md:flex space-x-2 lg:space-x-3 items-center"
+              className="hidden md:flex space-x-2 md:space-x-6 lg:space-x-10 items-center"
               onMouseLeave={closeDesktopMenus}
             >
               {/* Main Tabs */}
@@ -244,87 +275,99 @@ const Header = () => {
                     const opensToLeft = index >= mainCategories.length - 2;
 
                     return (
-                    <div key={category._id} className="relative">
-                      {/* Tab Button */}
-                      <button
-                        type="button"
-                        onMouseEnter={() => showDesktopCategoryMenu(category)}
-                        onFocus={() => showDesktopCategoryMenu(category)}
-                        aria-expanded={activeTab === category.name}
-                        className={`font-medium text-xs lg:text-sm text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl cursor-pointer ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
-                      >
-                        {category.name}
-                      </button>
+                      <div key={category._id} className="relative">
+                        {/* Tab Button */}
+                        <button
+                          type="button"
+                          onMouseEnter={() => showDesktopCategoryMenu(category)}
+                          onFocus={() => showDesktopCategoryMenu(category)}
+                          aria-expanded={activeTab === category.name}
+                          className={`font-medium text-xs md:text-md lg:text-base text-(--text) hover:text-(--primary) transition-colors duration-200 py-3 px-2 border-b-2 border-transparent hover:bg-(--primary)/10 hover:rounded-xl cursor-pointer ${activeTab === category.name && "bg-(--primary)/10 rounded-xl"}`}
+                        >
+                          {category.name}
+                        </button>
 
-                      {/* Subcategories Dropdown */}
-                      {activeTab === category.name &&
-                        subCategories.length > 0 && (
-                          <div className={`absolute ${opensToLeft ? "right-0" : "left-0"} top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}>
-                            <div className="p-3 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                              {subCategories.map((subCat) => (
-                                <div key={subCat._id} className="relative">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleSubcategoryClick(subCat)
-                                    }
-                                    aria-expanded={
-                                      selectedSubcategory?._id === subCat._id
-                                    }
-                                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 cursor-pointer ${selectedSubcategory?._id === subCat._id
-                                      ? "text-(--primary) bg-blue-50"
-                                      : ""
+                        {/* Subcategories Dropdown */}
+                        {activeTab === category.name &&
+                          subCategories.length > 0 && (
+                            <div
+                              className={`absolute ${opensToLeft ? "right-0" : "left-0"} top-full w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 animate-in fade-in duration-200 overflow-visible before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}
+                            >
+                              <div className="p-3 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                                {subCategories.map((subCat) => (
+                                  <div key={subCat._id} className="relative">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleSubcategoryClick(subCat)
+                                      }
+                                      aria-expanded={
+                                        selectedSubcategory?._id === subCat._id
+                                      }
+                                      className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 mb-1 cursor-pointer ${
+                                        selectedSubcategory?._id === subCat._id
+                                          ? "text-(--primary) bg-blue-50"
+                                          : ""
                                       }`}
-                                  >
-                                    <span className="flex items-center justify-between w-full">
-                                      {subCat.name}{" "}
-                                      <span className="text-(--primary) text-base leading-none">
-                                        {selectedSubcategory?._id === subCat._id ? "-" : "+"}
+                                    >
+                                      <span className="flex items-center justify-between w-full">
+                                        {subCat.name}{" "}
+                                        <span className="text-(--primary) text-base leading-none">
+                                          {selectedSubcategory?._id ===
+                                          subCat._id
+                                            ? "-"
+                                            : "+"}
+                                        </span>
                                       </span>
-                                    </span>
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
 
-                            {/* Services Submenu - Outside overflow container */}
-                            {isSubMenuOpen &&
-                              selectedSubcategory &&
-                              subCategoryServices.length > 0 &&
-                              (() => {
-                                const hasManyServices =
-                                  subCategoryServices.length > 10;
-                                const servicesPanelWidth = hasManyServices
-                                  ? "w-[min(36rem,calc(100vw-2rem))]"
-                                  : "w-80";
-                                return (
-                                  <div
-                                    className={`absolute top-0 ${opensToLeft ? "right-full mr-2" : "left-full ml-2"} ${servicesPanelWidth} bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200 before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}
-                                  >
-                                    <div className="p-4">
-                                      <h3 className="font-semibold text-sm mb-3 text-(--primary)">
-                                        {selectedSubcategory.name}
-                                      </h3>
-                                      <div className={`${hasManyServices ? "grid grid-cols-2 gap-1" : "space-y-2"} max-h-[calc(100vh-9rem)] overflow-y-auto`}>
-                                        {subCategoryServices.map((service) => (
-                                          <button
-                                            key={service._id}
-                                            onClick={() =>
-                                              handleServiceClick(service._id)
-                                            }
-                                            className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 cursor-pointer"
-                                          >
-                                            {service.serviceName}
-                                          </button>
-                                        ))}
+                              {/* Services Submenu - Outside overflow container */}
+                              {isSubMenuOpen &&
+                                selectedSubcategory &&
+                                subCategoryServices.length > 0 &&
+                                (() => {
+                                  const hasManyServices =
+                                    subCategoryServices.length > 10;
+                                  const servicesPanelWidth = hasManyServices
+                                    ? "w-[min(36rem,calc(100vw-2rem))]"
+                                    : "w-80";
+                                  return (
+                                    <div
+                                      className={`absolute top-0 ${opensToLeft ? "right-full mr-2" : "left-full ml-2"} ${servicesPanelWidth} bg-white border border-gray-200 rounded-xl shadow-2xl z-60 animate-in fade-in duration-200 before:absolute before:-inset-4 before:-z-10 before:bg-transparent`}
+                                    >
+                                      <div className="p-4">
+                                        <h3 className="font-semibold text-sm mb-3 text-(--primary)">
+                                          {selectedSubcategory.name}
+                                        </h3>
+                                        <div
+                                          className={`${hasManyServices ? "grid grid-cols-2 gap-1" : "space-y-2"} max-h-[calc(100vh-9rem)] overflow-y-auto`}
+                                        >
+                                          {subCategoryServices.map(
+                                            (service) => (
+                                              <button
+                                                key={service._id}
+                                                onClick={() =>
+                                                  handleServiceClick(
+                                                    service._id,
+                                                  )
+                                                }
+                                                className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 cursor-pointer"
+                                              >
+                                                {service.serviceName}
+                                              </button>
+                                            ),
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                );
-                              })()}
-                          </div>
-                        )}
-                    </div>
+                                  );
+                                })()}
+                            </div>
+                          )}
+                      </div>
                     );
                   })}
                 </>
@@ -375,9 +418,10 @@ const Header = () => {
             <div className="hidden md:block">
               <Link
                 to="/trackStatus"
-                className="bg-(--primary) text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-(--primary)/90 transition-colors duration-200 whitespace-nowrap"
+                className="bg-(--primary) text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-(--primary)/90 transition-colors duration-200 whitespace-nowrap flex items-center gap-3"
               >
-                Track Status
+                <GiPathDistance className="text-lg text-(--surface)" /> Track
+                Status
               </Link>
             </div>
 
@@ -397,17 +441,16 @@ const Header = () => {
 
             <Link
               to="/trackStatus"
-              className="bg-(--primary) px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg text-white transition-colors duration-200 hover:bg-(--primary)/90 sm:px-3 sm:text-sm md:hidden"
+              className="bg-(--primary) px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg text-white transition-colors duration-200 hover:bg-(--primary)/90 sm:px-3 sm:text-sm md:hidden flex items-center gap-2"
             >
-              Track Status
+              <GiPathDistance className="text-lg text-(--surface)" /> Track
+              Status
             </Link>
           </div>
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div
-              className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[min(85dvh,calc(100svh-9rem))] overflow-y-auto overscroll-y-contain scroll-touch touch-pan-y"
-            >
+            <div className="md:hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[min(85dvh,calc(100svh-9rem))] overflow-y-auto overscroll-y-contain scroll-touch touch-pan-y">
               <div className="flex flex-col p-4 space-y-2 pb-6">
                 {/* Mobile Tabs */}
                 {mainCategories.map((category) => (
@@ -440,7 +483,9 @@ const Header = () => {
                                 <span
                                   className={`transform transition-transform ${mobileExpandedSubcategory === subCat._id ? "rotate-180" : "text-(--accent)"}`}
                                 >
-                                  {mobileExpandedSubcategory === subCat._id ? "-" : "+"}
+                                  {mobileExpandedSubcategory === subCat._id
+                                    ? "-"
+                                    : "+"}
                                 </span>
                               </button>
 

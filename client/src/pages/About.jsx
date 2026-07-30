@@ -1,6 +1,6 @@
 import React from "react";
-import About1 from "../assets/about1.webp";
-import About2 from "../assets/about2.webp";
+import About1 from "../assets/about1.png";
+import About2 from "../assets/about2.png";
 import SEOHelmet from "../components/SEOHelmet";
 import OurTeamSection from "../components/OurTeamSection";
 import {

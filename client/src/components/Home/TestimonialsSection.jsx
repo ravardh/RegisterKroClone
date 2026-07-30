@@ -44,7 +44,7 @@ const TestimonialsSection = () => {
       ) : reviews.length === 0 ? (
         <div className="py-12 text-center text-lg text-(--secondary)">No reviews available yet.</div>
       ) : (
-        <div className="testimonial-viewport w-7xl overflow-hidden py-4 mx-auto">
+        <div className="testimonial-viewport mx-auto w-full max-w-7xl overflow-hidden px-2 py-4 sm:px-0">
           <div
             className="testimonial-track"
             style={{ "--marquee-duration": `${marqueeDuration}s` }}
@@ -52,7 +52,7 @@ const TestimonialsSection = () => {
             {marqueeReviews.map((review, index) => (
               <div
                 key={`${review._id || review.fullName}-${index}`}
-                className="mx-3 flex w-[300px] shrink-0 flex-col rounded-3xl border border-(--primary)/10 bg-linear-to-br from-[color-mix(in_srgb,var(--brand-pale)_35%,white)] to-white p-6 shadow-sm sm:w-[350px]"
+                className="mx-2.5 flex w-65 shrink-0 flex-col rounded-3xl border border-(--primary)/10 bg-linear-to-br from-[color-mix(in_srgb,var(--brand-pale)_35%,white)] to-white p-5 shadow-sm sm:mx-3 sm:w-87.5 sm:p-6"
               >
                 <div className="mb-4 flex shrink-0 items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-(--primary) to-(--accent) text-2xl font-bold text-white">

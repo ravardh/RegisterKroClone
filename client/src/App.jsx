@@ -164,7 +164,7 @@ const Layout = () => {
           href={`https://wa.me/${CommonData.phones.whatsapp}?text=Hi%20There%0AI%20went%20through%20your%20website%20and%20found%20it%20to%20be%20interesting.%0AI%20want%20more%20information%20about%20the%20services%20you%20offer.%0AThank%20You`}
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-4 left-4 z-50 max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:left-[max(1rem,env(safe-area-inset-left))] sm:bottom-5 sm:left-5"
+          className="fixed bottom-4 right-4 z-50 max-sm:bottom-[max(1rem,env(safe-area-inset-bottom))] max-sm:right-[max(1rem,env(safe-area-inset-right))] sm:bottom-5 sm:right-5"
           aria-label="Chat on WhatsApp"
         >
           <img
