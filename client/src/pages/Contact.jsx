@@ -211,7 +211,7 @@ const ContactForm = () => {
                 <div>
                   <button
                     type="submit"
-                    className="bg-(--primary) rounded-2xl w-full py-4 px-8 text-white text-lg font-medium hover:bg-(--primary-hover) transition-colors duration-200"
+                    className="bg-(--success) rounded-2xl w-full py-4 px-8 text-white text-lg font-medium hover:bg-(--success-hover) transition-colors duration-200"
                   >
                     Submit
                   </button>

@@ -288,7 +288,7 @@ const OfferManage = () => {
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-md disabled:opacity-60"
+            className="px-6 py-2.5 rounded-xl bg-(--success) text-white font-semibold hover:bg-(--success-hover) transition shadow-md disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save settings"}
           </button>

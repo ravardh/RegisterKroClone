@@ -123,7 +123,7 @@ const TrackStatus = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-(--primary) hover:bg-(--primary-hover) disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg hover:shadow-xl text-sm md:text-base flex items-center justify-center gap-2"
+                      className="w-full bg-(--success) hover:bg-(--success-hover) disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg hover:shadow-xl text-sm md:text-base flex items-center justify-center gap-2"
                     >
                       {loading && <FaSpinner className="animate-spin" />}
                       {loading ? "Tracking..." : "Get Status"}

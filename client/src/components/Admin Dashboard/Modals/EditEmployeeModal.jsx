@@ -189,7 +189,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onUpdateEmployee, employee }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-lg font-medium transition duration-200 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-(--success) hover:bg-(--success-hover) text-white rounded-lg font-medium transition duration-200 disabled:opacity-50"
             >
               {loading ? "Updating..." : "Update Employee"}
             </button>

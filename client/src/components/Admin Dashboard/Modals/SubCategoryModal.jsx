@@ -175,7 +175,7 @@ const SubCategoryModal = ({ isOpen, onClose, onSave, editingSubCategory = null }
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-blue-300"
+              className="flex-1 px-6 py-2.5 bg-(--success) text-white rounded-lg hover:bg-(--success-hover) transition font-medium disabled:bg-(--success)/50"
               disabled={loading}
             >
               {loading ? 'Saving...' : (editingSubCategory ? 'Update' : 'Create')}

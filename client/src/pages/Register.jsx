@@ -247,8 +247,8 @@ const Register = () => {
               disabled={!termsAccepted}
               className={`w-full py-2 rounded-lg text-white font-medium transition-opacity ${
                 termsAccepted
-                  ? 'bg-(--primary) hover:bg-(--primary-hover) cursor-pointer'
-                  : 'bg-(--primary) cursor-not-allowed opacity-50'
+                  ? 'bg-(--success) hover:bg-(--success-hover) cursor-pointer'
+                  : 'bg-(--success) cursor-not-allowed opacity-50'
               }`}
             >
               Create account

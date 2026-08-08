@@ -821,7 +821,7 @@ const ServiceDetail = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-(--primary) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70"
+                    className="w-full bg-(--success) text-base sm:text-lg text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl font-semibold hover:bg-(--success-hover) transition-colors disabled:opacity-70"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Application"}
                   </button>
@@ -1253,7 +1253,7 @@ const ServiceDetail = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-(--primary) text-white px-6 py-4 rounded-xl font-black hover:bg-(--primary-hover) shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 disabled:opacity-70 text-base mt-auto"
+                      className="w-full bg-(--success) text-white px-6 py-4 rounded-xl font-black hover:bg-(--success-hover) shadow-xl shadow-(--success)/20 hover:shadow-(--success)/40 transition-all duration-300 disabled:opacity-70 text-base mt-auto"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Request Now"}
                     </button>
@@ -1282,7 +1282,7 @@ const ServiceDetail = () => {
                   block: "center",
                 })
               }
-              className="shrink-0 bg-(--primary) text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-(--primary-hover) transition-colors"
+              className="shrink-0 bg-(--success) text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-(--success-hover) transition-colors"
             >
               Get Started
             </button>
@@ -1679,7 +1679,7 @@ const ServiceDetail = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-(--primary) text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-(--primary-hover) transition-colors disabled:opacity-70 text-sm"
+                  className="w-full bg-(--success) text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-(--success-hover) transition-colors disabled:opacity-70 text-sm"
                 >
                   {isSubmitting ? "Submitting..." : "Submit Request"}
                 </button>

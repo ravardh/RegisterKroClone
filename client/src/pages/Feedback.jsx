@@ -326,7 +326,7 @@ const Feedback = () => {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full bg-(--primary) text-white rounded-3xl py-3 text-lg font-semibold shadow-lg shadow-(--primary)/40 transition-colors duration-200 hover:bg-(--primary-hover) disabled:opacity-70"
+                          className="w-full bg-(--success) text-white rounded-3xl py-3 text-lg font-semibold shadow-lg shadow-(--success)/40 transition-colors duration-200 hover:bg-(--success-hover) disabled:opacity-70"
                         >
                           {isSubmitting
                             ? "Sending feedback..."

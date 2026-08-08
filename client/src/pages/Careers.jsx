@@ -228,7 +228,7 @@ const Careers = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-(--primary) cursor-pointer text-white py-4 rounded-xl font-black shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-70 disabled:translate-y-0"
+                  className="w-full bg-(--success) cursor-pointer text-white py-4 rounded-xl font-black shadow-xl shadow-(--success)/20 hover:shadow-(--success)/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-70 disabled:translate-y-0"
                 >
                   {isSubmitting ? "Submitting Application..." : "Submit Application"}
                 </button>

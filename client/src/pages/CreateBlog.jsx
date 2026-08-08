@@ -432,7 +432,7 @@ const CreateBlog = ({ blog = null, isAdminEmbedded = false, apiPrefix = "/admin"
               <button
                 type="submit"
                 disabled={isSubmitting || isUploadingImage}
-                className="inline-flex items-center gap-2 rounded-lg bg-(--primary) px-5 py-2.5 text-sm font-semibold text-white hover:bg-(--primary-hover) disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-lg bg-(--success) px-5 py-2.5 text-sm font-semibold text-white hover:bg-(--success-hover) disabled:cursor-not-allowed disabled:opacity-70"
               >
                 <MdSave className="h-5 w-5" />
                 {isUploadingImage

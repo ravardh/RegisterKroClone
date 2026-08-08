@@ -270,7 +270,7 @@ const TeamManage = () => {
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-md"
+              className="px-6 py-2.5 rounded-xl bg-(--success) text-white font-semibold hover:bg-(--success-hover) transition shadow-md"
             >
               {selected ? "Save changes" : "Add member"}
             </button>
