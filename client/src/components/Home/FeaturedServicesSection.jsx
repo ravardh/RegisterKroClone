@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoMdStar } from "react-icons/io";
@@ -23,6 +23,22 @@ const FeaturedServicesSection = () => {
   const [isMobile, setIsMobile] = useState(false);
   const mobileTrackRef = useRef(null);
   const mobileCardRefs = useRef([]);
+  const isAutoScrollingRef = useRef(false);
+  const scrollUnlockTimerRef = useRef(null);
+  const loopSnapPendingRef = useRef(false);
+
+  const hasMobileLoop = featuredServices.length > 1;
+  const mobileSlides = useMemo(() => {
+    if (!hasMobileLoop) return featuredServices;
+    const first = featuredServices[0];
+    const last = featuredServices[featuredServices.length - 1];
+    return [last, ...featuredServices, first];
+  }, [featuredServices, hasMobileLoop]);
+  const shouldLockDesktopFeatured = !isMobile && featuredServices.length <= 3;
+  const desktopFeaturedVisibleDepth = featuredServices.length === 4 ? 1 : 2;
+  const showFeaturedArrows = isMobile
+    ? featuredServices.length > 1
+    : featuredServices.length > 3;
 
   const { featuredServices: featuredData, featuredLoaded } = useAppData();
 
@@ -50,32 +66,148 @@ const FeaturedServicesSection = () => {
   }, [featuredServices.length]);
 
   useEffect(() => {
-    if (featuredPaused || featuredServices.length <= 1) return;
+    if (shouldLockDesktopFeatured) {
+      setFeaturedIndex(0);
+    }
+  }, [shouldLockDesktopFeatured]);
+
+  useEffect(() => {
+    return () => clearTimeout(scrollUnlockTimerRef.current);
+  }, []);
+
+  const loopFromEndToStartOnMobile = () => {
+    const container = mobileTrackRef.current;
+    const firstRealCard = mobileCardRefs.current[1];
+
+    if (!container || !firstRealCard || featuredServices.length <= 1) {
+      setFeaturedIndex(0);
+      return;
+    }
+
+    const gap = 8;
+    const step = firstRealCard.offsetWidth + gap;
+    const cloneFirstVisualIndex = featuredServices.length + 1;
+
+    isAutoScrollingRef.current = true;
+    loopSnapPendingRef.current = true;
+    clearTimeout(scrollUnlockTimerRef.current);
+    container.scrollTo({ left: cloneFirstVisualIndex * step, behavior: "smooth" });
+
+    // Fallback in case a browser does not emit enough scroll events at the end.
+    scrollUnlockTimerRef.current = setTimeout(() => {
+      container.scrollTo({ left: step, behavior: "auto" });
+      loopSnapPendingRef.current = false;
+      setFeaturedIndex(0);
+      isAutoScrollingRef.current = false;
+    }, 700);
+  };
+
+  useEffect(() => {
+    if (featuredServices.length <= 1) return;
+    if (shouldLockDesktopFeatured) return;
+    if (!isMobile && featuredPaused) return;
+
     const timer = setTimeout(() => {
+      if (isMobile && hasMobileLoop && featuredIndex >= featuredServices.length - 1) {
+        loopFromEndToStartOnMobile();
+        return;
+      }
+
       setFeaturedIndex((prev) =>
         prev >= featuredServices.length - 1 ? 0 : prev + 1
       );
     }, 3000);
+
     return () => clearTimeout(timer);
-  }, [featuredIndex, featuredPaused, featuredServices.length]);
+  }, [featuredIndex, featuredPaused, featuredServices.length, isMobile, hasMobileLoop, shouldLockDesktopFeatured]);
 
   useEffect(() => {
     if (!isMobile) return;
-    const card = mobileCardRefs.current[featuredIndex];
-    if (card) {
-      card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-    }
-  }, [featuredIndex, isMobile]);
+
+    const releaseAutoScrollLock = (delay = 450) => {
+      clearTimeout(scrollUnlockTimerRef.current);
+      scrollUnlockTimerRef.current = setTimeout(() => {
+        isAutoScrollingRef.current = false;
+      }, delay);
+    };
+
+    const container = mobileTrackRef.current;
+    const firstCard = mobileCardRefs.current[hasMobileLoop ? 1 : 0];
+    if (!container || !firstCard) return;
+
+    const cardWidth = firstCard.offsetWidth;
+    const gap = 8;
+    const baseIndex = hasMobileLoop ? 1 : 0;
+    const left = (featuredIndex + baseIndex) * (cardWidth + gap);
+    isAutoScrollingRef.current = true;
+    container.scrollTo({ left, behavior: "smooth" });
+    releaseAutoScrollLock();
+
+    return () => clearTimeout(scrollUnlockTimerRef.current);
+  }, [featuredIndex, hasMobileLoop, isMobile]);
+
+  useEffect(() => {
+    if (!isMobile || !hasMobileLoop) return;
+    const container = mobileTrackRef.current;
+    const firstRealCard = mobileCardRefs.current[1];
+    if (!container || !firstRealCard) return;
+
+    const cardWidth = firstRealCard.offsetWidth;
+    const gap = 8;
+    container.scrollTo({ left: cardWidth + gap, behavior: "auto" });
+  }, [isMobile, hasMobileLoop, mobileSlides.length]);
 
   const handleMobileTrackScroll = () => {
     if (!isMobile || !mobileTrackRef.current || featuredServices.length <= 1) return;
+
     const container = mobileTrackRef.current;
-    const firstCard = mobileCardRefs.current[0];
+    const firstCard = mobileCardRefs.current[hasMobileLoop ? 1 : 0];
     if (!firstCard) return;
+
+    const releaseAutoScrollLock = (delay = 120) => {
+      clearTimeout(scrollUnlockTimerRef.current);
+      scrollUnlockTimerRef.current = setTimeout(() => {
+        isAutoScrollingRef.current = false;
+      }, delay);
+    };
+
     const cardWidth = firstCard.offsetWidth;
-    const gap = 12;
-    const nextIndex = Math.round(container.scrollLeft / (cardWidth + gap));
-    const boundedIndex = Math.max(0, Math.min(nextIndex, featuredServices.length - 1));
+    const gap = 8;
+
+    const step = cardWidth + gap;
+    const visualIndex = Math.round(container.scrollLeft / step);
+
+    if (loopSnapPendingRef.current) {
+      if (visualIndex >= mobileSlides.length - 1) {
+        isAutoScrollingRef.current = true;
+        container.scrollTo({ left: step, behavior: "auto" });
+        loopSnapPendingRef.current = false;
+        setFeaturedIndex(0);
+        releaseAutoScrollLock();
+      }
+      return;
+    }
+
+    if (isAutoScrollingRef.current) return;
+
+    if (hasMobileLoop && visualIndex <= 0) {
+      isAutoScrollingRef.current = true;
+      container.scrollTo({ left: featuredServices.length * step, behavior: "auto" });
+      setFeaturedIndex(featuredServices.length - 1);
+      releaseAutoScrollLock();
+      return;
+    }
+
+    if (hasMobileLoop && visualIndex >= mobileSlides.length - 1) {
+      isAutoScrollingRef.current = true;
+      container.scrollTo({ left: step, behavior: "auto" });
+      setFeaturedIndex(0);
+      releaseAutoScrollLock();
+      return;
+    }
+
+    const logicalIndex = hasMobileLoop ? visualIndex - 1 : visualIndex;
+    const boundedIndex = Math.max(0, Math.min(logicalIndex, featuredServices.length - 1));
     if (boundedIndex !== featuredIndex) {
       setFeaturedIndex(boundedIndex);
     }
@@ -102,11 +234,15 @@ const FeaturedServicesSection = () => {
           <div className="py-12 text-center text-lg text-(--secondary)">No featured services available.</div>
         ) : (
           <div
-            className="relative mx-auto max-w-5xl"
-            onMouseEnter={() => setFeaturedPaused(true)}
-            onMouseLeave={() => setFeaturedPaused(false)}
+            className="relative mx-auto max-w-6xl lg:max-w-7xl"
+            onMouseEnter={() => {
+              if (!isMobile) setFeaturedPaused(true);
+            }}
+            onMouseLeave={() => {
+              if (!isMobile) setFeaturedPaused(false);
+            }}
           >
-            {featuredServices.length > 1 && (
+            {showFeaturedArrows && (
               <>
                 <button
                   type="button"
@@ -115,7 +251,7 @@ const FeaturedServicesSection = () => {
                       prev <= 0 ? featuredServices.length - 1 : prev - 1
                     )
                   }
-                  className="absolute left-2 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-20 lg:-left-32"
+                  className="absolute -left-5 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-6 lg:-left-8"
                   aria-label="Previous featured service"
                 >
                   <FaChevronLeft size={18} />
@@ -127,7 +263,7 @@ const FeaturedServicesSection = () => {
                       prev >= featuredServices.length - 1 ? 0 : prev + 1
                     )
                   }
-                  className="absolute right-2 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-20 lg:-right-32"
+                  className="absolute -right-5 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/85 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-6 lg:-right-8"
                   aria-label="Next featured service"
                 >
                   <FaChevronRight size={18} />
@@ -138,20 +274,18 @@ const FeaturedServicesSection = () => {
             {isMobile ? (
               <div
                 ref={mobileTrackRef}
-                className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 no-scrollbar"
+                className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-0 pb-2 no-scrollbar"
                 onScroll={handleMobileTrackScroll}
-                onTouchStart={() => setFeaturedPaused(true)}
-                onTouchEnd={() => setFeaturedPaused(false)}
               >
-                {featuredServices.map((service, index) => {
+                {mobileSlides.map((service, index) => {
                   const gradient = coverGradients[index % coverGradients.length];
                   return (
                     <div
-                      key={service._id}
+                      key={`${service._id}-${index}`}
                       ref={(el) => {
                         mobileCardRefs.current[index] = el;
                       }}
-                      className="min-w-[48%] snap-start"
+                      className="min-w-[85%] max-w-[85%] snap-start"
                     >
                       <div className="relative flex h-72 flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-(--primary)/10">
                         <div
@@ -194,7 +328,7 @@ const FeaturedServicesSection = () => {
                 let diff = index - featuredIndex;
                 if (diff > featuredServices.length / 2) diff -= featuredServices.length;
                 if (diff < -featuredServices.length / 2) diff += featuredServices.length;
-                if (!isMobile && Math.abs(diff) > 2) return null;
+                if (!isMobile && Math.abs(diff) > desktopFeaturedVisibleDepth) return null;
 
                 const isActive = diff === 0;
                 const zIndex = 30 - Math.abs(diff);
@@ -211,7 +345,7 @@ const FeaturedServicesSection = () => {
                     transition={{ type: "spring", stiffness: 260, damping: 26 }}
                     className="absolute w-full max-w-70 cursor-pointer sm:w-68 sm:max-w-none md:w-76"
                     onClick={() => {
-                      if (!isActive) setFeaturedIndex(index);
+                      if (!isActive && featuredServices.length > 3) setFeaturedIndex(index);
                     }}
                   >
                     <div
@@ -244,7 +378,9 @@ const FeaturedServicesSection = () => {
                         <Link
                           to={`/service/${service._id}`}
                           onClick={(e) => {
-                            if (!isActive) e.preventDefault();
+                            if (!isActive && featuredServices.length > 3) {
+                              e.preventDefault();
+                            }
                           }}
                           className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-4 py-2 text-sm font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
                         >

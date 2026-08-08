@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 
 /* Coordinates kept as manually fixed — circle, number & text form one step block */
@@ -41,8 +41,31 @@ const PATH_DURATION = 1.8;
 const OurProcessSection = () => {
   const desktopRef = useRef(null);
   const mobileRef = useRef(null);
+  const mobileTimelineRef = useRef(null);
+  const mobileNodeRefs = useRef([]);
+  const [mobileLineStyle, setMobileLineStyle] = useState({ top: 28, height: 0 });
   const desktopInView = useInView(desktopRef, { once: false, amount: 0.35 });
   const mobileInView = useInView(mobileRef, { once: false, amount: 0.3 });
+
+  useEffect(() => {
+    const updateMobileLine = () => {
+      const container = mobileTimelineRef.current;
+      const nodes = mobileNodeRefs.current.filter(Boolean);
+      if (!container || nodes.length < 2) return;
+
+      const firstNodeRect = nodes[0].getBoundingClientRect();
+      const lastNodeRect = nodes[nodes.length - 1].getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      const top = firstNodeRect.top - containerRect.top + firstNodeRect.height / 2;
+      const bottom = lastNodeRect.top - containerRect.top + lastNodeRect.height / 2;
+      setMobileLineStyle({ top, height: Math.max(0, bottom - top) });
+    };
+
+    updateMobileLine();
+    window.addEventListener("resize", updateMobileLine);
+    return () => window.removeEventListener("resize", updateMobileLine);
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-8 md:pb-12">
@@ -175,39 +198,47 @@ const OurProcessSection = () => {
 
         {/* Mobile vertical timeline */}
         <div ref={mobileRef} className="relative mx-auto max-w-md lg:hidden">
-          <motion.div
-            className="absolute left-[27px] top-4 bottom-16 w-0.5 origin-top bg-gradient-to-b from-(--primary) to-(--primary-hover)"
-            aria-hidden
-            initial={false}
-            animate={{ scaleY: mobileInView ? 1 : 0 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-          />
-          <div className="space-y-8">
-            {journeySteps.map((step, index) => (
-              <motion.div
-                key={step.no}
-                className="relative flex gap-5"
-                initial={false}
-                animate={
-                  mobileInView
-                    ? { opacity: 1, filter: "grayscale(0)", x: 0 }
-                    : { opacity: 0.4, filter: "grayscale(1)", x: 0 }
-                }
-                transition={{
-                  duration: 0.45,
-                  ease: "easeOut",
-                  delay: mobileInView ? index * 0.35 : 0,
-                }}
-              >
-                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-(--primary) to-(--primary-hover) text-xl font-extrabold text-white shadow-md shadow-(--primary)/30">
-                  {step.no}
-                </div>
-                <div className="pt-1">
-                  <h3 className="mb-1.5 text-lg font-bold text-(--heading)">{step.title}</h3>
-                  <p className="text-sm leading-relaxed text-(--text)">{step.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+          <div ref={mobileTimelineRef} className="relative">
+            <motion.div
+              className="pointer-events-none absolute left-[27px] w-0.5 origin-top bg-gradient-to-b from-(--primary) to-(--primary-hover)"
+              style={{ top: `${mobileLineStyle.top}px`, height: `${mobileLineStyle.height}px` }}
+              aria-hidden
+              initial={false}
+              animate={{ scaleY: mobileInView ? 1 : 0 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+            />
+            <div className="space-y-8">
+              {journeySteps.map((step, index) => (
+                <motion.div
+                  key={step.no}
+                  className="relative flex gap-5"
+                  initial={false}
+                  animate={
+                    mobileInView
+                      ? { opacity: 1, filter: "grayscale(0)", x: 0 }
+                      : { opacity: 0.4, filter: "grayscale(1)", x: 0 }
+                  }
+                  transition={{
+                    duration: 0.45,
+                    ease: "easeOut",
+                    delay: mobileInView ? index * 0.35 : 0,
+                  }}
+                >
+                  <div
+                    ref={(el) => {
+                      mobileNodeRefs.current[index] = el;
+                    }}
+                    className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-(--primary) to-(--primary-hover) text-xl font-extrabold text-white shadow-md shadow-(--primary)/30"
+                  >
+                    {step.no}
+                  </div>
+                  <div className="pt-1">
+                    <h3 className="mb-1.5 text-lg font-bold text-(--heading)">{step.title}</h3>
+                    <p className="text-sm leading-relaxed text-(--text)">{step.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -252,7 +252,7 @@ const Header = () => {
         className={`sticky z-50 border border-(--background)  max-w-[min(90%,calc(100vw-1rem))] mx-auto ${
           isDashboard
             ? "bg-[url('/hero.webp')] bg-cover bg-left bg-fixed p-1 top-6 sm:top-8 w-full max-w-none"
-            : "bg-white top-15 sm:top-17 rounded-2xl mb-4 shadow-xl w-full"
+            : "bg-white top-14 sm:top-17 rounded-2xl mb-4 shadow-xl w-full"
         }`}
       >
         <div
@@ -262,7 +262,7 @@ const Header = () => {
               : "px-3 sm:px-4 md:px-6 lg:px-8"
           } `}
         >
-          <div className="flex justify-between items-center h-14 sm:h-16">
+          <div className="flex justify-between items-center h-12 sm:h-16">
             {/* Desktop Navigation - Left Justified */}
             <nav
               className="hidden md:flex space-x-2 md:space-x-6 lg:space-x-10 items-center"
@@ -429,7 +429,7 @@ const Header = () => {
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="rounded-md p-1.5 text-gray-700 hover:bg-gray-100 hover:text-(--primary) sm:p-2 md:hidden"
+              className="rounded-md p-1 text-gray-700 hover:bg-gray-100 hover:text-(--primary) sm:p-2 md:hidden"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? (
@@ -441,7 +441,7 @@ const Header = () => {
 
             <Link
               to="/trackStatus"
-              className="bg-(--primary) px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg text-white transition-colors duration-200 hover:bg-(--primary)/90 sm:px-3 sm:text-sm md:hidden flex items-center gap-2"
+              className="bg-(--primary) px-2.5 py-1 text-xs font-semibold whitespace-nowrap rounded-lg text-white transition-colors duration-200 hover:bg-(--primary)/90 sm:px-3 sm:py-1.5 sm:text-sm md:hidden flex items-center gap-2"
             >
               <GiPathDistance className="text-lg text-(--surface)" /> Track
               Status

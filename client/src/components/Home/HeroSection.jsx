@@ -113,7 +113,7 @@ const HeroSection = () => {
               className="rounded-2xl border border-(--primary)/10 bg-white/80 px-4 py-4 shadow-sm backdrop-blur-sm"
             >
               <p className="text-2xl font-extrabold text-(--base-black) sm:text-3xl">
-                <AnimatedStatValue value={stat.value} duration={2000} />
+                <AnimatedStatValue value={stat.value} duration={5000} />
               </p>
               <p className="mt-1 text-xs text-(--secondary) sm:text-sm">{stat.label}</p>
             </div>

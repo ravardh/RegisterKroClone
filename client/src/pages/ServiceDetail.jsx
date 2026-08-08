@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { SiTicktick } from "react-icons/si";
 import { FaChevronLeft, FaChevronRight, FaChevronDown, FaTrophy, FaUsers, FaStar, FaStarHalfAlt } from "react-icons/fa";
@@ -140,6 +140,22 @@ const ServiceDetail = () => {
   const tabScrollRef = useRef(null);
   const relatedMobileTrackRef = useRef(null);
   const relatedMobileCardRefs = useRef([]);
+  const isRelatedAutoScrollingRef = useRef(false);
+  const relatedScrollUnlockTimerRef = useRef(null);
+  const relatedLoopSnapPendingRef = useRef(false);
+
+  const hasRelatedMobileLoop = relatedServices.length > 1;
+  const relatedMobileSlides = useMemo(() => {
+    if (!hasRelatedMobileLoop) return relatedServices;
+    const first = relatedServices[0];
+    const last = relatedServices[relatedServices.length - 1];
+    return [last, ...relatedServices, first];
+  }, [relatedServices, hasRelatedMobileLoop]);
+  const shouldLockDesktopRelated = !isRelatedMobile && relatedServices.length <= 3;
+  const desktopRelatedVisibleDepth = relatedServices.length === 4 ? 1 : 2;
+  const showRelatedArrows = isRelatedMobile
+    ? relatedServices.length > 1
+    : relatedServices.length > 3;
 
   // Track top form visibility for mobile sticky bar
   useEffect(() => {
@@ -289,15 +305,70 @@ const ServiceDetail = () => {
 
   useEffect(() => {
     if (!isRelatedMobile) return;
-    const card = relatedMobileCardRefs.current[relatedServicesIndex];
-    if (card) {
-      card.scrollIntoView({
-        behavior: "smooth",
-        inline: "start",
-        block: "nearest",
-      });
+
+    const releaseAutoScrollLock = (delay = 450) => {
+      clearTimeout(relatedScrollUnlockTimerRef.current);
+      relatedScrollUnlockTimerRef.current = setTimeout(() => {
+        isRelatedAutoScrollingRef.current = false;
+      }, delay);
+    };
+
+    const container = relatedMobileTrackRef.current;
+    const firstCard = relatedMobileCardRefs.current[hasRelatedMobileLoop ? 1 : 0];
+    if (!container || !firstCard) return;
+
+    const cardWidth = firstCard.offsetWidth;
+    const gap = 8;
+    const baseIndex = hasRelatedMobileLoop ? 1 : 0;
+    const left = (relatedServicesIndex + baseIndex) * (cardWidth + gap);
+    isRelatedAutoScrollingRef.current = true;
+    container.scrollTo({ left, behavior: "smooth" });
+    releaseAutoScrollLock();
+
+    return () => clearTimeout(relatedScrollUnlockTimerRef.current);
+  }, [relatedServicesIndex, isRelatedMobile, hasRelatedMobileLoop]);
+
+  useEffect(() => {
+    if (!isRelatedMobile || !hasRelatedMobileLoop) return;
+    const container = relatedMobileTrackRef.current;
+    const firstRealCard = relatedMobileCardRefs.current[1];
+    if (!container || !firstRealCard) return;
+
+    const cardWidth = firstRealCard.offsetWidth;
+    const gap = 8;
+    container.scrollTo({ left: cardWidth + gap, behavior: "auto" });
+  }, [isRelatedMobile, hasRelatedMobileLoop, relatedMobileSlides.length]);
+
+  useEffect(() => {
+    return () => clearTimeout(relatedScrollUnlockTimerRef.current);
+  }, []);
+
+  const loopFromEndToStartOnRelatedMobile = () => {
+    const container = relatedMobileTrackRef.current;
+    const firstRealCard = relatedMobileCardRefs.current[1];
+
+    if (!container || !firstRealCard || relatedServices.length <= 1) {
+      setRelatedServicesIndex(0);
+      return;
     }
-  }, [relatedServicesIndex, isRelatedMobile]);
+
+    const gap = 8;
+    const step = firstRealCard.offsetWidth + gap;
+    const cloneFirstVisualIndex = relatedServices.length + 1;
+
+    isRelatedAutoScrollingRef.current = true;
+    relatedLoopSnapPendingRef.current = true;
+    clearTimeout(relatedScrollUnlockTimerRef.current);
+    container.scrollTo({ left: cloneFirstVisualIndex * step, behavior: "smooth" });
+
+    // Fallback in case a browser does not emit enough scroll events at the end.
+    relatedScrollUnlockTimerRef.current = setTimeout(() => {
+      container.scrollTo({ left: step, behavior: "auto" });
+      relatedLoopSnapPendingRef.current = false;
+      setRelatedServicesIndex(0);
+      isRelatedAutoScrollingRef.current = false;
+    }, 700);
+  };
 
   const handleRelatedMobileScroll = () => {
     if (
@@ -308,16 +379,52 @@ const ServiceDetail = () => {
       return;
 
     const container = relatedMobileTrackRef.current;
-    const firstCard = relatedMobileCardRefs.current[0];
+    const firstCard = relatedMobileCardRefs.current[hasRelatedMobileLoop ? 1 : 0];
     if (!firstCard) return;
 
+    const releaseAutoScrollLock = (delay = 120) => {
+      clearTimeout(relatedScrollUnlockTimerRef.current);
+      relatedScrollUnlockTimerRef.current = setTimeout(() => {
+        isRelatedAutoScrollingRef.current = false;
+      }, delay);
+    };
+
     const cardWidth = firstCard.offsetWidth;
-    const gap = 12;
-    const nextIndex = Math.round(container.scrollLeft / (cardWidth + gap));
-    const boundedIndex = Math.max(
-      0,
-      Math.min(nextIndex, relatedServices.length - 1),
-    );
+    const gap = 8;
+    const step = cardWidth + gap;
+    const visualIndex = Math.round(container.scrollLeft / step);
+
+    if (relatedLoopSnapPendingRef.current) {
+      if (visualIndex >= relatedMobileSlides.length - 1) {
+        isRelatedAutoScrollingRef.current = true;
+        container.scrollTo({ left: step, behavior: "auto" });
+        relatedLoopSnapPendingRef.current = false;
+        setRelatedServicesIndex(0);
+        releaseAutoScrollLock();
+      }
+      return;
+    }
+
+    if (isRelatedAutoScrollingRef.current) return;
+
+    if (hasRelatedMobileLoop && visualIndex <= 0) {
+      isRelatedAutoScrollingRef.current = true;
+      container.scrollTo({ left: relatedServices.length * step, behavior: "auto" });
+      setRelatedServicesIndex(relatedServices.length - 1);
+      releaseAutoScrollLock();
+      return;
+    }
+
+    if (hasRelatedMobileLoop && visualIndex >= relatedMobileSlides.length - 1) {
+      isRelatedAutoScrollingRef.current = true;
+      container.scrollTo({ left: step, behavior: "auto" });
+      setRelatedServicesIndex(0);
+      releaseAutoScrollLock();
+      return;
+    }
+
+    const logicalIndex = hasRelatedMobileLoop ? visualIndex - 1 : visualIndex;
+    const boundedIndex = Math.max(0, Math.min(logicalIndex, relatedServices.length - 1));
 
     if (boundedIndex !== relatedServicesIndex) {
       setRelatedServicesIndex(boundedIndex);
@@ -331,20 +438,39 @@ const ServiceDetail = () => {
   }, [relatedServices.length]);
 
   useEffect(() => {
+    if (shouldLockDesktopRelated) {
+      setRelatedServicesIndex(0);
+    }
+  }, [shouldLockDesktopRelated]);
+
+  useEffect(() => {
     setRelatedServicesIndex(0);
     setIsOfferOpen(false);
   }, [serviceId]);
 
   // Auto-slide for Related Services
   useEffect(() => {
-    if (relatedServices.length <= 1 || isHoveringRelated) return;
+    if (relatedServices.length <= 1) return;
+    if (shouldLockDesktopRelated) return;
+    if (!isRelatedMobile && isHoveringRelated) return;
+
     const timer = setTimeout(() => {
+      if (
+        isRelatedMobile &&
+        hasRelatedMobileLoop &&
+        relatedServicesIndex >= relatedServices.length - 1
+      ) {
+        loopFromEndToStartOnRelatedMobile();
+        return;
+      }
+
       setRelatedServicesIndex((prev) =>
         prev >= relatedServices.length - 1 ? 0 : prev + 1
       );
     }, 3000);
+
     return () => clearTimeout(timer);
-  }, [relatedServicesIndex, relatedServices.length, isHoveringRelated]);
+  }, [relatedServicesIndex, relatedServices.length, isHoveringRelated, isRelatedMobile, hasRelatedMobileLoop, shouldLockDesktopRelated]);
 
   // Intersection Observer for FAQ section - auto show modal (only once)
   useEffect(() => {
@@ -1385,11 +1511,15 @@ const ServiceDetail = () => {
                 </div>
               ) : (
                 <div
-                  className="relative mx-auto max-w-5xl"
-                  onMouseEnter={() => setIsHoveringRelated(true)}
-                  onMouseLeave={() => setIsHoveringRelated(false)}
+                  className="relative mx-auto max-w-6xl lg:max-w-7xl"
+                  onMouseEnter={() => {
+                    if (!isRelatedMobile) setIsHoveringRelated(true);
+                  }}
+                  onMouseLeave={() => {
+                    if (!isRelatedMobile) setIsHoveringRelated(false);
+                  }}
                 >
-                  {relatedServices.length > 1 && (
+                  {showRelatedArrows && (
                     <>
                       <button
                         type="button"
@@ -1398,7 +1528,7 @@ const ServiceDetail = () => {
                             prev <= 0 ? relatedServices.length - 1 : prev - 1
                           )
                         }
-                        className="absolute -left-8 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-20 lg:-left-32"
+                        className="absolute -left-5 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-left-6 lg:-left-8"
                         aria-label="Previous related service"
                       >
                         <FaChevronLeft size={18} />
@@ -1410,7 +1540,7 @@ const ServiceDetail = () => {
                             prev >= relatedServices.length - 1 ? 0 : prev + 1
                           )
                         }
-                        className="absolute -right-8 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-20 lg:-right-32"
+                        className="absolute -right-5 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/80 p-2.5 text-(--primary) shadow-md backdrop-blur-sm transition hover:bg-(--primary) hover:text-white sm:-right-6 lg:-right-8"
                         aria-label="Next related service"
                       >
                         <FaChevronRight size={18} />
@@ -1421,21 +1551,19 @@ const ServiceDetail = () => {
                   {isRelatedMobile ? (
                     <div
                       ref={relatedMobileTrackRef}
-                      className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 no-scrollbar"
+                      className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-0 pb-2 no-scrollbar"
                       onScroll={handleRelatedMobileScroll}
-                      onTouchStart={() => setIsHoveringRelated(true)}
-                      onTouchEnd={() => setIsHoveringRelated(false)}
                     >
-                      {relatedServices.map((service, index) => {
+                      {relatedMobileSlides.map((service, index) => {
                         const gradient =
                           coverGradients[index % coverGradients.length];
                         return (
                           <div
-                            key={service._id}
+                            key={`${service._id}-${index}`}
                             ref={(el) => {
                               relatedMobileCardRefs.current[index] = el;
                             }}
-                            className="min-w-[48%] snap-start"
+                            className="min-w-[85%] max-w-[85%] snap-start"
                           >
                             <div className="relative flex h-72 flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-(--primary)/10">
                               <div
@@ -1487,7 +1615,7 @@ const ServiceDetail = () => {
                           diff -= relatedServices.length;
                         if (diff < -relatedServices.length / 2)
                           diff += relatedServices.length;
-                        if (Math.abs(diff) > 2) return null;
+                        if (Math.abs(diff) > desktopRelatedVisibleDepth) return null;
 
                         const isActive = diff === 0;
                         const zIndex = 30 - Math.abs(diff);
@@ -1510,7 +1638,9 @@ const ServiceDetail = () => {
                             }}
                             className="absolute w-[15rem] cursor-pointer sm:w-[17rem] md:w-[19rem]"
                             onClick={() => {
-                              if (!isActive) setRelatedServicesIndex(index);
+                              if (!isActive && relatedServices.length > 3) {
+                                setRelatedServicesIndex(index);
+                              }
                             }}
                           >
                             <div
@@ -1550,7 +1680,9 @@ const ServiceDetail = () => {
                                 <Link
                                   to={`/service/${service._id}`}
                                   onClick={(e) => {
-                                    if (!isActive) e.preventDefault();
+                                    if (!isActive && relatedServices.length > 3) {
+                                      e.preventDefault();
+                                    }
                                   }}
                                   className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-4 py-2 text-sm font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
                                 >
