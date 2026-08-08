@@ -133,10 +133,13 @@ const ServiceDetail = () => {
   const [relatedServices, setRelatedServices] = useState([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const [relatedOffset, setRelatedOffset] = useState(220);
+  const [isRelatedMobile, setIsRelatedMobile] = useState(false);
   const { reviews: allReviews } = useAppData();
   const faqSectionRef = useRef(null);
   const pageContainerRef = useRef(null);
   const tabScrollRef = useRef(null);
+  const relatedMobileTrackRef = useRef(null);
+  const relatedMobileCardRefs = useRef([]);
 
   // Track top form visibility for mobile sticky bar
   useEffect(() => {
@@ -276,12 +279,50 @@ const ServiceDetail = () => {
   useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
+      setIsRelatedMobile(w < 640);
       setRelatedOffset(w < 640 ? 150 : w < 1024 ? 190 : 230);
     };
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  useEffect(() => {
+    if (!isRelatedMobile) return;
+    const card = relatedMobileCardRefs.current[relatedServicesIndex];
+    if (card) {
+      card.scrollIntoView({
+        behavior: "smooth",
+        inline: "start",
+        block: "nearest",
+      });
+    }
+  }, [relatedServicesIndex, isRelatedMobile]);
+
+  const handleRelatedMobileScroll = () => {
+    if (
+      !isRelatedMobile ||
+      !relatedMobileTrackRef.current ||
+      relatedServices.length <= 1
+    )
+      return;
+
+    const container = relatedMobileTrackRef.current;
+    const firstCard = relatedMobileCardRefs.current[0];
+    if (!firstCard) return;
+
+    const cardWidth = firstCard.offsetWidth;
+    const gap = 12;
+    const nextIndex = Math.round(container.scrollLeft / (cardWidth + gap));
+    const boundedIndex = Math.max(
+      0,
+      Math.min(nextIndex, relatedServices.length - 1),
+    );
+
+    if (boundedIndex !== relatedServicesIndex) {
+      setRelatedServicesIndex(boundedIndex);
+    }
+  };
 
   useEffect(() => {
     setRelatedServicesIndex((prev) =>
@@ -1377,106 +1418,153 @@ const ServiceDetail = () => {
                     </>
                   )}
 
-                  <div className="relative flex min-h-[20rem] items-center justify-center sm:min-h-[21rem] md:min-h-[22rem]">
-                    {relatedServices.map((service, index) => {
-                      let diff = index - relatedServicesIndex;
-                      if (diff > relatedServices.length / 2)
-                        diff -= relatedServices.length;
-                      if (diff < -relatedServices.length / 2)
-                        diff += relatedServices.length;
-                      if (Math.abs(diff) > 2) return null;
-
-                      const isActive = diff === 0;
-                      const zIndex = 30 - Math.abs(diff);
-                      const scale = isActive ? 1 : 1 - Math.abs(diff) * 0.12;
-                      const translateX = diff * relatedOffset;
-                      const opacity =
-                        isActive ? 1 : Math.abs(diff) === 1 ? 0.85 : 0.6;
-                      const gradient =
-                        coverGradients[index % coverGradients.length];
-
-                      return (
-                        <motion.div
-                          key={service._id}
-                          initial={false}
-                          animate={{ x: translateX, scale, zIndex, opacity }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 260,
-                            damping: 26,
-                          }}
-                          className="absolute w-[15rem] cursor-pointer sm:w-[17rem] md:w-[19rem]"
-                          onClick={() => {
-                            if (!isActive) setRelatedServicesIndex(index);
-                          }}
-                        >
+                  {isRelatedMobile ? (
+                    <div
+                      ref={relatedMobileTrackRef}
+                      className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 no-scrollbar"
+                      onScroll={handleRelatedMobileScroll}
+                      onTouchStart={() => setIsHoveringRelated(true)}
+                      onTouchEnd={() => setIsHoveringRelated(false)}
+                    >
+                      {relatedServices.map((service, index) => {
+                        const gradient =
+                          coverGradients[index % coverGradients.length];
+                        return (
                           <div
-                            className={`relative flex h-[19rem] flex-col overflow-hidden rounded-2xl bg-white transition-all duration-300 ${isActive
-                                ? "shadow-2xl ring-1 ring-(--primary)/10"
-                                : "shadow-md"
-                              }`}
+                            key={service._id}
+                            ref={(el) => {
+                              relatedMobileCardRefs.current[index] = el;
+                            }}
+                            className="min-w-[48%] snap-start"
                           >
-                            <div
-                              className="h-1.5 w-full shrink-0"
-                              style={{
-                                background: `linear-gradient(90deg, ${gradient.from}, ${gradient.to})`,
-                              }}
-                              aria-hidden
-                            />
-                            <div className="flex flex-1 flex-col p-5 sm:p-6">
-                              <div className="mb-3 flex items-start justify-between">
-                                <h3 className="line-clamp-2 flex-1 text-lg font-bold text-(--brand-ink) sm:text-xl">
-                                  {service.serviceName}
-                                </h3>
-                                <span
-                                  className="ml-2 text-xl"
-                                  style={{ color: gradient.from }}
-                                >
-                                  <IoMdStar />
-                                </span>
-                              </div>
-                              <p className="mb-4 line-clamp-3 flex-1 text-sm text-(--secondary)">
-                                {service.shortDescription ||
-                                  "Comprehensive service for your business needs."}
-                              </p>
-                              <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
-                                <span className="rounded-full bg-(--primary)/10 px-3 py-1 font-medium text-(--primary)">
-                                  {service.category?.name || "Category"}
-                                </span>
-                              </div>
-                              <Link
-                                to={`/service/${service._id}`}
-                                onClick={(e) => {
-                                  if (!isActive) e.preventDefault();
+                            <div className="relative flex h-72 flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-(--primary)/10">
+                              <div
+                                className="h-1.5 w-full shrink-0"
+                                style={{
+                                  background: `linear-gradient(90deg, ${gradient.from}, ${gradient.to})`,
                                 }}
-                                className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-4 py-2 text-sm font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
-                              >
-                                View Details{" "}
-                                <FaArrowRightLong className="h-4 w-4" />
-                              </Link>
+                                aria-hidden
+                              />
+                              <div className="flex flex-1 flex-col p-4">
+                                <div className="mb-2 flex items-start justify-between">
+                                  <h3 className="line-clamp-2 flex-1 text-base font-bold text-(--brand-ink)">
+                                    {service.serviceName}
+                                  </h3>
+                                  <span
+                                    className="ml-2 text-lg"
+                                    style={{ color: gradient.from }}
+                                  >
+                                    <IoMdStar />
+                                  </span>
+                                </div>
+                                <p className="mb-3 line-clamp-3 flex-1 text-xs text-(--secondary)">
+                                  {service.shortDescription ||
+                                    "Comprehensive service for your business needs."}
+                                </p>
+                                <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px]">
+                                  <span className="rounded-full bg-(--primary)/10 px-2.5 py-1 font-medium text-(--primary)">
+                                    {service.category?.name || "Category"}
+                                  </span>
+                                </div>
+                                <Link
+                                  to={`/service/${service._id}`}
+                                  className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-3 py-2 text-xs font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
+                                >
+                                  View Details{" "}
+                                  <FaArrowRightLong className="h-3.5 w-3.5" />
+                                </Link>
+                              </div>
                             </div>
                           </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="relative flex min-h-[20rem] items-center justify-center sm:min-h-[21rem] md:min-h-[22rem]">
+                      {relatedServices.map((service, index) => {
+                        let diff = index - relatedServicesIndex;
+                        if (diff > relatedServices.length / 2)
+                          diff -= relatedServices.length;
+                        if (diff < -relatedServices.length / 2)
+                          diff += relatedServices.length;
+                        if (Math.abs(diff) > 2) return null;
 
-                  {relatedServices.length > 1 && (
-                    <div className="mt-6 flex justify-center gap-2">
-                      {relatedServices.map((service, index) => (
-                        <button
-                          key={service._id}
-                          type="button"
-                          onClick={() => setRelatedServicesIndex(index)}
-                          className={`h-1.5 rounded-full transition-all ${relatedServicesIndex === index
-                              ? "w-8 bg-(--primary)"
-                              : "w-1.5 bg-slate-300 hover:bg-slate-400"
-                            }`}
-                          aria-label={`Go to related service ${index + 1}`}
-                        />
-                      ))}
+                        const isActive = diff === 0;
+                        const zIndex = 30 - Math.abs(diff);
+                        const scale = isActive ? 1 : 1 - Math.abs(diff) * 0.12;
+                        const translateX = diff * relatedOffset;
+                        const opacity =
+                          isActive ? 1 : Math.abs(diff) === 1 ? 0.85 : 0.6;
+                        const gradient =
+                          coverGradients[index % coverGradients.length];
+
+                        return (
+                          <motion.div
+                            key={service._id}
+                            initial={false}
+                            animate={{ x: translateX, scale, zIndex, opacity }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 260,
+                              damping: 26,
+                            }}
+                            className="absolute w-[15rem] cursor-pointer sm:w-[17rem] md:w-[19rem]"
+                            onClick={() => {
+                              if (!isActive) setRelatedServicesIndex(index);
+                            }}
+                          >
+                            <div
+                              className={`relative flex h-[19rem] flex-col overflow-hidden rounded-2xl bg-white transition-all duration-300 ${isActive
+                                  ? "shadow-2xl ring-1 ring-(--primary)/10"
+                                  : "shadow-md"
+                                }`}
+                            >
+                              <div
+                                className="h-1.5 w-full shrink-0"
+                                style={{
+                                  background: `linear-gradient(90deg, ${gradient.from}, ${gradient.to})`,
+                                }}
+                                aria-hidden
+                              />
+                              <div className="flex flex-1 flex-col p-5 sm:p-6">
+                                <div className="mb-3 flex items-start justify-between">
+                                  <h3 className="line-clamp-2 flex-1 text-lg font-bold text-(--brand-ink) sm:text-xl">
+                                    {service.serviceName}
+                                  </h3>
+                                  <span
+                                    className="ml-2 text-xl"
+                                    style={{ color: gradient.from }}
+                                  >
+                                    <IoMdStar />
+                                  </span>
+                                </div>
+                                <p className="mb-4 line-clamp-3 flex-1 text-sm text-(--secondary)">
+                                  {service.shortDescription ||
+                                    "Comprehensive service for your business needs."}
+                                </p>
+                                <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
+                                  <span className="rounded-full bg-(--primary)/10 px-3 py-1 font-medium text-(--primary)">
+                                    {service.category?.name || "Category"}
+                                  </span>
+                                </div>
+                                <Link
+                                  to={`/service/${service._id}`}
+                                  onClick={(e) => {
+                                    if (!isActive) e.preventDefault();
+                                  }}
+                                  className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-4 py-2 text-sm font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
+                                >
+                                  View Details{" "}
+                                  <FaArrowRightLong className="h-4 w-4" />
+                                </Link>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
                   )}
+
                 </div>
               )}
             </div>

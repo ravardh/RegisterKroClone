@@ -96,8 +96,8 @@ const Footer = () => {
 
       {/* Main content */}
       <div className="max-w-6xl mx-auto px-6 pt-10 sm:pt-8 lg:pt-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-7 lg:gap-10 items-start">
-          <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-10 items-start">
+          <div className="flex flex-col gap-3 lg:col-span-1">
             <Link to="/" className="inline-block leading-none">
               <div className="flex items-center gap-2">
                 <div className="w-24 h-10 sm:w-32 sm:h-12 flex items-center justify-center  p-1 rounded bg-(--surface)">
@@ -129,20 +129,22 @@ const Footer = () => {
           </div>
 
           {/* ── Right: Nav columns ── */}
-          {columns.map((col) => (
-            <div key={col.title} className="flex flex-col gap-2.5">
-              <h3 className="text-sm font-bold text-(--border) m-0 mb-1.5 tracking-normal">{col.title}</h3>
-              <ul className="list-none m-0 p-0 flex flex-col gap-1.5">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link to={link.to} className="text-sm text-(--surface) no-underline transition-colors duration-150 inline-block hover:underline hover:text-(--accent)">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-2 md:grid-cols-4 lg:col-span-4 lg:gap-7">
+            {columns.map((col) => (
+              <div key={col.title} className="flex flex-col gap-2.5 min-w-0">
+                <h3 className="text-sm font-bold text-(--border) m-0 mb-1.5 tracking-normal">{col.title}</h3>
+                <ul className="list-none m-0 p-0 flex flex-col gap-1.5">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      <Link to={link.to} className="text-sm text-(--surface) no-underline transition-colors duration-150 inline-block hover:underline hover:text-(--accent)">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom bar */}

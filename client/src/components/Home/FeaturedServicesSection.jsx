@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoMdStar } from "react-icons/io";
@@ -21,6 +21,8 @@ const FeaturedServicesSection = () => {
   const [featuredPaused, setFeaturedPaused] = useState(false);
   const [featuredOffset, setFeaturedOffset] = useState(220);
   const [isMobile, setIsMobile] = useState(false);
+  const mobileTrackRef = useRef(null);
+  const mobileCardRefs = useRef([]);
 
   const { featuredServices: featuredData, featuredLoaded } = useAppData();
 
@@ -56,6 +58,28 @@ const FeaturedServicesSection = () => {
     }, 3000);
     return () => clearTimeout(timer);
   }, [featuredIndex, featuredPaused, featuredServices.length]);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const card = mobileCardRefs.current[featuredIndex];
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    }
+  }, [featuredIndex, isMobile]);
+
+  const handleMobileTrackScroll = () => {
+    if (!isMobile || !mobileTrackRef.current || featuredServices.length <= 1) return;
+    const container = mobileTrackRef.current;
+    const firstCard = mobileCardRefs.current[0];
+    if (!firstCard) return;
+    const cardWidth = firstCard.offsetWidth;
+    const gap = 12;
+    const nextIndex = Math.round(container.scrollLeft / (cardWidth + gap));
+    const boundedIndex = Math.max(0, Math.min(nextIndex, featuredServices.length - 1));
+    if (boundedIndex !== featuredIndex) {
+      setFeaturedIndex(boundedIndex);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden bg-(--background) py-12 md:py-16">
@@ -111,12 +135,65 @@ const FeaturedServicesSection = () => {
               </>
             )}
 
+            {isMobile ? (
+              <div
+                ref={mobileTrackRef}
+                className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 no-scrollbar"
+                onScroll={handleMobileTrackScroll}
+                onTouchStart={() => setFeaturedPaused(true)}
+                onTouchEnd={() => setFeaturedPaused(false)}
+              >
+                {featuredServices.map((service, index) => {
+                  const gradient = coverGradients[index % coverGradients.length];
+                  return (
+                    <div
+                      key={service._id}
+                      ref={(el) => {
+                        mobileCardRefs.current[index] = el;
+                      }}
+                      className="min-w-[48%] snap-start"
+                    >
+                      <div className="relative flex h-72 flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-(--primary)/10">
+                        <div
+                          className="h-1.5 w-full shrink-0"
+                          style={{ background: `linear-gradient(90deg, ${gradient.from}, ${gradient.to})` }}
+                          aria-hidden
+                        />
+                        <div className="flex flex-1 flex-col p-4">
+                          <div className="mb-2 flex items-start justify-between">
+                            <h3 className="line-clamp-2 flex-1 text-base font-bold text-(--brand-ink)">
+                              {service.serviceName}
+                            </h3>
+                            <span className="ml-2 text-lg" style={{ color: gradient.from }}>
+                              <IoMdStar />
+                            </span>
+                          </div>
+                          <p className="mb-3 line-clamp-3 flex-1 text-xs text-(--secondary)">
+                            {service.shortDescription || "Comprehensive service for your business needs."}
+                          </p>
+                          <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px]">
+                            <span className="rounded-full bg-(--primary)/10 px-2.5 py-1 font-medium text-(--primary)">
+                              {service.category?.name || "Category"}
+                            </span>
+                          </div>
+                          <Link
+                            to={`/service/${service._id}`}
+                            className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-3 py-2 text-xs font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
+                          >
+                            View Details <FaArrowRightLong className="h-3.5 w-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
             <div className="relative flex min-h-80 items-center justify-center overflow-hidden px-10 sm:min-h-84 sm:px-0 md:min-h-88">
               {featuredServices.map((service, index) => {
                 let diff = index - featuredIndex;
                 if (diff > featuredServices.length / 2) diff -= featuredServices.length;
                 if (diff < -featuredServices.length / 2) diff += featuredServices.length;
-                if (isMobile && ![0].includes(diff)) return null;
                 if (!isMobile && Math.abs(diff) > 2) return null;
 
                 const isActive = diff === 0;
@@ -179,24 +256,8 @@ const FeaturedServicesSection = () => {
                 );
               })}
             </div>
-
-            {featuredServices.length > 1 && (
-              <div className="mt-6 flex justify-center gap-2">
-                {featuredServices.map((service, index) => (
-                  <button
-                    key={service._id}
-                    type="button"
-                    onClick={() => setFeaturedIndex(index)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      featuredIndex === index
-                        ? "w-8 bg-(--primary)"
-                        : "w-1.5 bg-slate-300 hover:bg-slate-400"
-                    }`}
-                    aria-label={`Go to featured service ${index + 1}`}
-                  />
-                ))}
-              </div>
             )}
+
           </div>
         )}
       </div>

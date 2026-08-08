@@ -176,7 +176,7 @@ const OurProcessSection = () => {
         {/* Mobile vertical timeline */}
         <div ref={mobileRef} className="relative mx-auto max-w-md lg:hidden">
           <motion.div
-            className="absolute bottom-4 left-[27px] top-4 w-0.5 origin-top bg-gradient-to-b from-(--primary) to-(--primary-hover)"
+            className="absolute left-[27px] top-4 bottom-16 w-0.5 origin-top bg-gradient-to-b from-(--primary) to-(--primary-hover)"
             aria-hidden
             initial={false}
             animate={{ scaleY: mobileInView ? 1 : 0 }}

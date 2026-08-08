@@ -239,7 +239,7 @@ const Sitemap = () => {
           <div className="text-center mt-8">
             <Link
               to="/"
-              className="inline-block bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              className="inline-block bg-(--secondary) text-white px-6 py-3 rounded-lg hover:opacity-90 transition-colors"
             >
               Back to Home
             </Link>
