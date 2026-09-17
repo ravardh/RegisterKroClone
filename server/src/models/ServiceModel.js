@@ -157,20 +157,14 @@ const serviceSchema = new mongoose.Schema(
   },
 );
 
-serviceSchema.pre("save", async function (next) {
-  try {
-    if (this.serviceName && (this.isNew || this.isModified("serviceName") || !this.slug)) {
-      this.slug = await createUniqueSlug({
-        model: this.constructor,
-        source: this.serviceName,
-        excludeId: this._id,
-        fallback: "service",
-      });
-    }
-
-    next();
-  } catch (error) {
-    next(error);
+serviceSchema.pre("save", async function () {
+  if (this.serviceName && (this.isNew || this.isModified("serviceName") || !this.slug)) {
+    this.slug = await createUniqueSlug({
+      model: this.constructor,
+      source: this.serviceName,
+      excludeId: this._id,
+      fallback: "service",
+    });
   }
 });
 
