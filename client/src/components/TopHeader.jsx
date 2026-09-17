@@ -150,7 +150,7 @@ const TopHeader = () => {
                       <button
                         key={service._id}
                         onClick={() => {
-                          navigate(`/service/${service._id}`);
+                          navigate(`/service/${service.slug || service._id}`);
                           setSearchQuery("");
                           setIsSearchDropdownOpen(false);
                         }}

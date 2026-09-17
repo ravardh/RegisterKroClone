@@ -221,7 +221,7 @@ const Services = () => {
                     <ServiceCard
                       key={service._id}
                       service={service}
-                      onClick={() => navigate(`/service/${service._id}`)}
+                      onClick={() => navigate(`/service/${service.slug || service._id}`)}
                       gradient={gradientFor(0)}
                     />
                   ))
@@ -360,7 +360,7 @@ const Services = () => {
                           <ServiceCard
                             key={service._id}
                             service={service}
-                            onClick={() => navigate(`/service/${service._id}`)}
+                            onClick={() => navigate(`/service/${service.slug || service._id}`)}
                             gradient={gradientFor(
                               categories.findIndex(
                                 (c) => c._id === activeCategory?._id

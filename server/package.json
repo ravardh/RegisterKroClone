@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "seed:admin": "node ./src/seeders/seedAdmin.js"
+    "seed:admin": "node ./src/seeders/seedAdmin.js",
+    "seed:service-slugs": "node ./src/seeders/seedServiceSlugs.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

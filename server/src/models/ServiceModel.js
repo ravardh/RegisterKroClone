@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
+import { createUniqueSlug } from "../utils/slug.js";
 
 const whyChooseUsCardSchema = new mongoose.Schema(
   {
     title: { type: String, default: "" },
     description: { type: String, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
-const serviceSchema = mongoose.Schema(  {
+const serviceSchema = new mongoose.Schema(
+  {
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -23,6 +25,14 @@ const serviceSchema = mongoose.Schema(  {
       type: String,
       required: true,
       unique: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+      index: true,
     },
     OneLinner: {
       type: String,
@@ -146,5 +156,23 @@ const serviceSchema = mongoose.Schema(  {
     timestamps: true,
   },
 );
+
+serviceSchema.pre("save", async function (next) {
+  try {
+    if (this.serviceName && (this.isNew || this.isModified("serviceName") || !this.slug)) {
+      this.slug = await createUniqueSlug({
+        model: this.constructor,
+        source: this.serviceName,
+        excludeId: this._id,
+        fallback: "service",
+      });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Service = mongoose.model("Service", serviceSchema);
 export default Service;

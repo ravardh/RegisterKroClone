@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Contact from "../models/contactModel.js";
 import Category from "../models/categoryModel.js";
 import SubCategory from "../models/subCategoryModel.js";
@@ -306,7 +307,7 @@ export const getPublicServices = async (req, res, next) => {
     const services = await Service.find({ isActive: true, isVisible: true })
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName category subCategory sequence")
+      .select("serviceName slug category subCategory sequence")
       .sort({ serviceName: 1 });
     
     res.status(200).json({
@@ -357,7 +358,7 @@ export const getPublicServicesBySubCategory = async (req, res, next) => {
       isActive: true,
       isVisible: true,
     })
-      .select("serviceName shortDescription")
+      .select("serviceName slug shortDescription")
       .sort({ serviceName: 1 });
     
     res.status(200).json({
@@ -371,21 +372,26 @@ export const getPublicServicesBySubCategory = async (req, res, next) => {
 
 export const getServiceById = async (req, res, next) => {
   try {
-    const { serviceId } = req.params;
-    
-    if (!serviceId) {
-      const error = new Error("Service ID is required");
+    const { slug } = req.params;
+    const serviceIdentifier = slug || req.params.serviceId;
+
+    if (!serviceIdentifier) {
+      const error = new Error("Service slug is required");
       error.statusCode = 400;
       return next(error);
     }
 
-    const service = await Service.findById(serviceId)
+    const serviceQuery = mongoose.isValidObjectId(serviceIdentifier)
+      ? { $or: [{ slug: serviceIdentifier }, { _id: serviceIdentifier }] }
+      : { slug: serviceIdentifier };
+
+    const service = await Service.findOne(serviceQuery)
       .populate("category", "name")
       .populate("subCategory", "name")
       .populate("relatedServices.category", "name")
       .populate("relatedServices.subCategory", "name")
       .populate("relatedServices.service", "serviceName")
-      .select("serviceName OneLinner priceTag shortDescription topPointers description faqs isActive isVisible Featured packages offer documents category subCategory relatedServices whyChooseus createdAt updatedAt");
+      .select("serviceName slug OneLinner priceTag shortDescription topPointers description faqs isActive isVisible Featured packages offer documents category subCategory relatedServices whyChooseus createdAt updatedAt");
     
     if (!service) {
       const error = new Error("Service not found");
@@ -410,18 +416,23 @@ export const getServiceById = async (req, res, next) => {
 
 export const getRelatedServices = async (req, res, next) => {
   try {
-    const { serviceId } = req.params;
-    
-    if (!serviceId) {
-      const error = new Error("Service ID is required");
+    const { slug } = req.params;
+    const serviceIdentifier = slug || req.params.serviceId;
+
+    if (!serviceIdentifier) {
+      const error = new Error("Service slug is required");
       error.statusCode = 400;
       return next(error);
     }
 
-    const currentService = await Service.findById(serviceId).populate({
+    const serviceQuery = mongoose.isValidObjectId(serviceIdentifier)
+      ? { $or: [{ slug: serviceIdentifier }, { _id: serviceIdentifier }] }
+      : { slug: serviceIdentifier };
+
+    const currentService = await Service.findOne(serviceQuery).populate({
       path: "relatedServices",
       match: { isActive: true, isVisible: true },
-      select: "_id serviceName shortDescription offer priceTag category",
+      select: "_id serviceName slug shortDescription offer priceTag category",
       populate: {
         path: "category",
         select: "name"
@@ -448,7 +459,7 @@ export const getFeaturedServices = async (req, res, next) => {
     const services = await Service.find({ isActive: true, isVisible: true, "Featured.isFeatured": true })
       .populate("category", "name")
       .populate("subCategory", "name")
-      .select("serviceName shortDescription category subCategory Featured offer")
+      .select("serviceName slug shortDescription category subCategory Featured offer")
       .sort({ "Featured.featureOrder": 1, serviceName: 1 });
     
     res.status(200).json({
@@ -494,7 +505,7 @@ export const getAllServicesGrouped = async (req, res, next) => {
     // Fetch all active services with subcategory info
     const services = await Service.find({ isActive: true, isVisible: true })
       .populate("subCategory", "_id")
-      .select("_id serviceName shortDescription subCategory sequence")
+      .select("_id serviceName slug shortDescription subCategory sequence")
       .sort({ serviceName: 1 });
     
     // Group by subcategory ID

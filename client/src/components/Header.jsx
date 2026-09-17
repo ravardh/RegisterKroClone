@@ -146,8 +146,8 @@ const Header = () => {
     setSubCategoryServices(sortedServices);
   };
 
-  const handleServiceClick = (serviceId) => {
-    navigate(`/service/${serviceId}`);
+  const handleServiceClick = (serviceSlug) => {
+    navigate(`/service/${serviceSlug}`);
     setIsSubMenuOpen(false);
     setSelectedSubcategory(null);
     setActiveTab(null);
@@ -208,8 +208,8 @@ const Header = () => {
     setMobileServices(sortedMobileServices);
   };
 
-  const handleMobileServiceClick = (serviceId) => {
-    navigate(`/service/${serviceId}`);
+  const handleMobileServiceClick = (serviceSlug) => {
+    navigate(`/service/${serviceSlug}`);
     setIsMenuOpen(false);
     setMobileExpandedTab(null);
     setMobileExpandedSubcategory(null);
@@ -351,7 +351,7 @@ const Header = () => {
                                                 key={service._id}
                                                 onClick={() =>
                                                   handleServiceClick(
-                                                    service._id,
+                                                    service.slug || service._id,
                                                   )
                                                 }
                                                 className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-(--text) hover:text-(--primary) hover:bg-blue-50 transition-all duration-200 cursor-pointer"
@@ -497,7 +497,7 @@ const Header = () => {
                                       <button
                                         key={service._id}
                                         onClick={() =>
-                                          handleMobileServiceClick(service._id)
+                                          handleMobileServiceClick(service.slug || service._id)
                                         }
                                         className="text-gray-600 hover:text-(--primary) font-medium px-3 py-2 rounded-md text-sm text-left"
                                       >

@@ -54,8 +54,8 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
     setServices(servicesData[subCategory._id] || []);
   };
 
-  const handleServiceClick = (serviceId) => {
-    navigate(`/service/${serviceId}`);
+  const handleServiceClick = (serviceSlug) => {
+    navigate(`/service/${serviceSlug}`);
     onClose();
   };
 
@@ -152,7 +152,7 @@ const ServiceModal = ({ isOpen, onClose, categoryName }) => {
                   {services.map((service) => (
                     <div
                       key={service._id}
-                      onClick={() => handleServiceClick(service._id)}
+                          onClick={() => handleServiceClick(service.slug || service._id)}
                       className="bg-white p-2 sm:p-3 md:p-4 hover:underline hover:underline-offset-2 text-(--text) hover:text-(--primary) transition-all duration-200 cursor-pointer"
                     >
                       <p className="hover:text-(--primary) font-medium text-sm sm:text-base">

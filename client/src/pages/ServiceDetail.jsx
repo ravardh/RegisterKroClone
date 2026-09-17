@@ -105,7 +105,7 @@ const coverGradients = [
 ];
 
 const ServiceDetail = () => {
-  const { serviceId } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -223,7 +223,7 @@ const ServiceDetail = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get(
-          `/public/service/${serviceId}`,
+          `/public/service/${slug}`,
         );
         setServiceData(response.data.data);
 
@@ -247,10 +247,10 @@ const ServiceDetail = () => {
       }
     };
 
-    if (serviceId) {
+    if (slug) {
       fetchServiceDetails();
     }
-  }, [serviceId]);
+  }, [slug]);
 
   // Filter reviews for this service from DataContext
   useEffect(() => {
@@ -272,13 +272,13 @@ const ServiceDetail = () => {
 
   // Fetch related services
   useEffect(() => {
-    if (!serviceId) return;
+    if (!slug) return;
 
     const fetchRelatedServices = async () => {
       try {
         setIsLoadingRelated(true);
         const response = await axiosInstance.get(
-          `/public/service/${serviceId}/related`,
+          `/public/service/${slug}/related`,
         );
         setRelatedServices(response.data.data || []);
       } catch (error) {
@@ -290,7 +290,7 @@ const ServiceDetail = () => {
     };
 
     fetchRelatedServices();
-  }, [serviceId]);
+  }, [slug]);
 
   useEffect(() => {
     const onResize = () => {
@@ -446,7 +446,13 @@ const ServiceDetail = () => {
   useEffect(() => {
     setRelatedServicesIndex(0);
     setIsOfferOpen(false);
-  }, [serviceId]);
+  }, [slug]);
+
+  useEffect(() => {
+    if (serviceData?.slug && slug && serviceData.slug !== slug) {
+      navigate(`/service/${serviceData.slug}`, { replace: true });
+    }
+  }, [serviceData?.slug, slug, navigate]);
 
   // Auto-slide for Related Services
   useEffect(() => {
@@ -694,7 +700,7 @@ const ServiceDetail = () => {
             ? `${serviceData.serviceName}, business services, professional help`
             : "business services"
         }
-        canonicalUrl={`https://taxprosolution.co.in/services/${serviceId}`}
+        canonicalUrl={`https://taxprosolution.co.in/service/${serviceData?.slug || slug}`}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "Service",
@@ -1595,7 +1601,7 @@ const ServiceDetail = () => {
                                   </span>
                                 </div>
                                 <Link
-                                  to={`/service/${service._id}`}
+                                  to={`/service/${service.slug || service._id}`}
                                   className="mt-auto flex items-center justify-center gap-2 rounded-lg border-2 border-(--primary) px-3 py-2 text-xs font-semibold text-(--primary) transition hover:bg-(--primary) hover:text-white"
                                 >
                                   View Details{" "}
@@ -1678,7 +1684,7 @@ const ServiceDetail = () => {
                                   </span>
                                 </div>
                                 <Link
-                                  to={`/service/${service._id}`}
+                                  to={`/service/${service.slug || service._id}`}
                                   onClick={(e) => {
                                     if (!isActive && relatedServices.length > 3) {
                                       e.preventDefault();
